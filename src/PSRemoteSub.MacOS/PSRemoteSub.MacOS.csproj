@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <SwiftPackageDir>$(MSBuildThisFileDirectory)../../native/macos</SwiftPackageDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="PSRemoteSub.MacOS.Tests" />
+    <ProjectReference Include="..\PSRemoteSub.Core\PSRemoteSub.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <SwiftSource Include="$(SwiftPackageDir)/Package.swift;$(SwiftPackageDir)/Sources/**/*.swift" />
+  </ItemGroup>
+
+  <!-- Builds libPSRemoteSubMac.dylib (incremental on the Swift sources) and ships it next to the managed output.
+       Skipped off macOS so the project still compiles. The bin path is asked of SwiftPM because it differs per build system. -->
+  <Target Name="BuildSwift" BeforeTargets="BeforeBuild;AssignTargetPaths" Condition="$([MSBuild]::IsOSPlatform('OSX'))"
+          Inputs="@(SwiftSource)" Outputs="$(SwiftPackageDir)/.build/swift.stamp">
+    <Exec Command="swift build -c release --arch arm64 --package-path &quot;$(SwiftPackageDir)&quot;" IgnoreStandardErrorWarningFormat="true" />
+    <Touch Files="$(SwiftPackageDir)/.build/swift.stamp" AlwaysCreate="true" />
+  </Target>
+  <Target Name="IncludeSwiftDylib" BeforeTargets="BeforeBuild;AssignTargetPaths" DependsOnTargets="BuildSwift"
+          Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <Exec Command="swift build -c release --arch arm64 --package-path &quot;$(SwiftPackageDir)&quot; --show-bin-path"
+          ConsoleToMSBuild="true" StandardOutputImportance="low" IgnoreStandardErrorWarningFormat="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="SwiftBinPath" />
+    </Exec>
+    <ItemGroup>
+      <None Include="$(SwiftBinPath.Trim())/libPSRemoteSubMac.dylib" Link="libPSRemoteSubMac.dylib"
+            CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
+</Project>

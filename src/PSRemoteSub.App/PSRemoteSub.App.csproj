@@ -1,0 +1,69 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-windows10.0.19041.0;net10.0</TargetFrameworks>
+    <RootNamespace>PSRemoteSub.App</RootNamespace>
+    <NeutralLanguage>th</NeutralLanguage>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <IsPackable>false</IsPackable>
+    <!-- GitHub repository URL for the update check, e.g. https://github.com/OWNER/PSRemoteSub.
+         Leave empty until the repository exists: UpdateChecker does nothing while it is empty. -->
+    <RepositoryUrl></RepositoryUrl>
+  </PropertyGroup>
+  <!-- Windows build: WinExe, x64, manifest and icon. The plain net10.0 build is the macOS one. -->
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net10.0'">
+    <OutputType>WinExe</OutputType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <OutputType>Exe</OutputType>
+    <DefineConstants>$(DefineConstants);MACOS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="RepositoryUrl" Value="$(RepositoryUrl)" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- app.ico is loaded on both OSes (tray, window icons). app.icns is only read from the source tree by
+         tools/mac/make-app.sh and vpk, so the Windows build does not embed it. -->
+    <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Remove="Assets\app.icns" Condition="'$(TargetFramework)' != 'net10.0'" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Ship the licence texts next to the exe (kept out of the single-file bundle so users can read them). -->
+    <None Include="..\..\LICENSE;..\..\THIRD-PARTY-NOTICES.md" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    <!-- Verbatim upstream license texts referenced by THIRD-PARTY-NOTICES.md. Each build ships only its own adb's NOTICE. -->
+    <None Include="..\..\licenses\**" Exclude="..\..\licenses\android-platform-tools-*NOTICE.txt" Link="licenses\%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    <!-- Translation libraries shipped next to the exe (the baseline; newer ones are downloaded to %AppData%). -->
+    <None Include="..\..\library\**" Link="library\%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    <!-- The signed TV app, installed to the TV by the PC app (see tools/UpdateTvApk.ps1). -->
+    <None Include="..\..\tv\*.apk;..\..\tv\apk-version.txt" Link="tv\%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net10.0'">
+    <!-- adb for Windows (adb.exe and its two DLLs). -->
+    <None Include="..\..\tv\adb\win\**" Link="tv\adb\win\%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    <None Include="..\..\licenses\android-platform-tools-NOTICE.txt" Link="licenses\android-platform-tools-NOTICE.txt" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <!-- adb for macOS. -->
+    <None Include="..\..\tv\adb\mac\**" Link="tv\adb\mac\%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    <None Include="..\..\licenses\android-platform-tools-darwin-NOTICE.txt" Link="licenses\android-platform-tools-darwin-NOTICE.txt" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="QRCoder" />
+    <PackageReference Include="Velopack" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PSRemoteSub.Core\PSRemoteSub.Core.csproj" />
+    <ProjectReference Include="..\PSRemoteSub.Web\PSRemoteSub.Web.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net10.0'">
+    <ProjectReference Include="..\PSRemoteSub.Windows\PSRemoteSub.Windows.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <ProjectReference Include="..\PSRemoteSub.MacOS\PSRemoteSub.MacOS.csproj" />
+  </ItemGroup>
+</Project>

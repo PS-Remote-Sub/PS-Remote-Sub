@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key><string>com.psremotesub.app</string>
+  <key>CFBundleName</key><string>PS Remote Sub</string>
+  <key>CFBundleDisplayName</key><string>PS Remote Sub</string>
+  <key>CFBundleExecutable</key><string>PSRemoteSub.App</string>
+  <key>CFBundleIconFile</key><string>app</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleVersion</key><string>__VERSION__</string>
+  <key>CFBundleShortVersionString</key><string>__VERSION__</string>
+  <key>LSMinimumSystemVersion</key><string>13.0</string>
+  <key>LSUIElement</key><true/>
+  <key>NSHighResolutionCapable</key><true/>
+  <key>NSCameraUsageDescription</key><string>ใช้แสดงภาพจาก capture card</string>
+  <key>NSMicrophoneUsageDescription</key><string>ใช้เล่นเสียงจาก capture card</string>
+  <key>NSLocalNetworkUsageDescription</key><string>ใช้ส่งซับไปแอปบนทีวีและหาทีวีในวง LAN</string>
+</dict>
+</plist>

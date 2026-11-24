@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="PSRemoteSub.App.Views.ToastWindow"
+        Title="PS Remote Sub"
+        WindowDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        CanResize="False">
+  <Border x:Name="Card"
+          Background="#F01E1E1E"
+          BorderBrush="#40FFFFFF"
+          BorderThickness="1"
+          CornerRadius="8"
+          Padding="14,10">
+    <StackPanel Spacing="4">
+      <TextBlock Text="PS Remote Sub" FontSize="12" Foreground="#B0FFFFFF" />
+      <TextBlock x:Name="Message"
+                 FontFamily="Leelawadee UI"
+                 FontSize="14"
+                 Foreground="White"
+                 TextWrapping="Wrap" />
+    </StackPanel>
+  </Border>
+</Window>

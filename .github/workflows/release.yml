@@ -1,0 +1,115 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      # Same steps as ci.yml: build once, then one test project at a time.
+      - name: Build
+        run: dotnet build PSRemoteSub.sln -c Release
+      # Timing tests (Category=Perf, only in Core.Tests) stay out of releases: a slow runner must not block one.
+      - name: Test Core
+        run: dotnet test tests/PSRemoteSub.Core.Tests -c Release --no-build --filter "Category!=Perf"
+      # Web and Windows have no Perf tests, so they run exactly as in ci.yml, with no --filter.
+      - name: Test Web
+        run: dotnet test tests/PSRemoteSub.Web.Tests -c Release --no-build
+      # OCR tests skip themselves when the en-US OCR language pack is missing (see OcrFactAttribute).
+      - name: Test Windows
+        run: dotnet test tests/PSRemoteSub.Windows.Tests -c Release --no-build
+      # RepositoryUrl is injected here so release builds can check for updates; the csproj default stays empty
+      # so local builds never contact GitHub. Version makes the app and the installer agree with the tag.
+      - name: Publish
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          dotnet publish src/PSRemoteSub.App -c Release -f net10.0-windows10.0.19041.0 -r win-x64 --self-contained -p:PublishSingleFile=true -p:RepositoryUrl="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" -p:Version="${TAG#v}" -o publish
+      # Keep the vpk version equal to the Velopack package version in Directory.Packages.props.
+      - name: Install vpk
+        shell: bash
+        run: dotnet tool install -g vpk --version 1.2.161
+      - name: Pack installer
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          vpk pack -u PSRemoteSub -v "${TAG#v}" -p publish -e PSRemoteSub.App.exe
+      - name: Zip portable build
+        shell: pwsh
+        run: Compress-Archive -Path publish\* -DestinationPath "PSRemoteSub-$env:GITHUB_REF_NAME-portable-win-x64.zip"
+      - name: Upload to GitHub release
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          vpk upload github --repoUrl "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" --publish --releaseName "$TAG" --tag "$TAG" --token "$GH_TOKEN"
+          gh release upload "$TAG" "PSRemoteSub-$TAG-portable-win-x64.zip" --clobber
+
+  # macOS (Apple Silicon) build. Runs after the Windows job so the GitHub release already exists
+  # and vpk can merge the osx assets into it. Ad-hoc signed only: no Developer ID, no notarization.
+  release-mac:
+    needs: release
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      # Mirrors the `mac` job in ci.yml: PSRemoteSub.Windows.Tests is in the solution but its test host
+      # cannot run on macOS, so build everything and test the cross-platform projects one by one.
+      - name: Build
+        run: dotnet build PSRemoteSub.sln -c Release
+      - name: Test Core
+        run: dotnet test tests/PSRemoteSub.Core.Tests -c Release --no-build --filter "Category!=Perf"
+      - name: Test Web
+        run: dotnet test tests/PSRemoteSub.Web.Tests -c Release --no-build --filter "Category!=Perf"
+      - name: Test macOS
+        run: dotnet test tests/PSRemoteSub.MacOS.Tests -c Release --no-build --filter "Category!=Perf"
+      - name: Publish
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          dotnet publish src/PSRemoteSub.App -c Release -f net10.0 -r osx-arm64 --self-contained -p:RepositoryUrl="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" -p:Version="${TAG#v}" -o publish-mac
+      - name: Build .app bundle
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          bash tools/mac/make-app.sh publish-mac out "${TAG#v}"
+      # Keep the vpk version equal to the Velopack package version in Directory.Packages.props.
+      - name: Install vpk
+        run: dotnet tool install -g vpk --version 1.2.161
+      # vpk adds UpdateMac/Velopack.dll/sq.version and drops *.pdb/createdump after make-app.sh signed the
+      # bundle, which breaks that seal. --signAppIdentity "-" makes vpk re-sign (ad-hoc, --deep, hardened
+      # runtime) after its changes; the entitlements add camera/audio-input, which the hardened runtime needs.
+      - name: Pack installer
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          vpk pack -u PSRemoteSub -v "${TAG#v}" -p "out/PS Remote Sub.app" -e PSRemoteSub.App --packTitle "PS Remote Sub" -i src/PSRemoteSub.App/Assets/app.icns --signAppIdentity "-" --signEntitlements tools/mac/PSRemoteSub.entitlements
+      - name: Verify signatures
+        run: |
+          set -euo pipefail
+          check=$(mktemp -d)
+          ditto -x -k Releases/PSRemoteSub-osx-Portable.zip "$check/zip"
+          codesign --verify --deep --strict -v "$check/zip/PS Remote Sub.app"
+          pkgutil --expand-full Releases/PSRemoteSub-osx-Setup.pkg "$check/pkg"
+          codesign --verify --deep --strict -v "$(find "$check/pkg" -maxdepth 4 -name '*.app' -print -quit)"
+          codesign --verify --deep --strict -v "out/PS Remote Sub.app"
+      - name: Zip portable build
+        run: ditto -c -k --keepParent "out/PS Remote Sub.app" "PSRemoteSub-${GITHUB_REF_NAME}-portable-osx-arm64.zip"
+      - name: Upload to GitHub release
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          vpk upload github --repoUrl "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" --merge --releaseName "$TAG" --tag "$TAG" --token "$GH_TOKEN"
+          gh release upload "$TAG" "PSRemoteSub-$TAG-portable-osx-arm64.zip" --clobber

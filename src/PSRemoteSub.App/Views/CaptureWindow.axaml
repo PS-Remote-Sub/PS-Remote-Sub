@@ -1,0 +1,42 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="using:PSRemoteSub.App"
+        x:Class="PSRemoteSub.App.Views.CaptureWindow"
+        x:ClassModifier="internal"
+        Title="{app:Tr CaptureWindowTitle}"
+        Icon="/Assets/app.ico"
+        MinWidth="320" MinHeight="200"
+        Background="Black"
+        FontFamily="Leelawadee UI, Segoe UI"
+        FontSize="14">
+  <Grid RowDefinitions="*,Auto">
+    <!-- The video (a VideoHost, added first by the code-behind), or (when there is none) the state message in its place:
+         nothing can be drawn over the native surface. -->
+    <Panel Grid.Row="0" x:Name="VideoArea" Background="Black">
+      <TextBlock x:Name="Message"
+                 IsVisible="False"
+                 Foreground="White"
+                 FontSize="18"
+                 TextWrapping="Wrap"
+                 TextAlignment="Center"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 MaxWidth="720"
+                 Margin="24" />
+    </Panel>
+
+    <Border Grid.Row="1" x:Name="Toolbar" Background="#FF1E1E1E" Padding="10,6">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <Slider x:Name="VolumeSlider" Minimum="0" Maximum="100" Width="140" VerticalAlignment="Center" />
+        <ToggleButton x:Name="MuteButton" Content="{app:Tr CaptureMute}" VerticalAlignment="Center" />
+        <ComboBox x:Name="ModeBox" MinWidth="170" VerticalAlignment="Center" />
+        <Button x:Name="FullScreenButton" Content="{app:Tr CaptureFullScreen}" VerticalAlignment="Center" />
+        <TextBlock x:Name="AudioMissing"
+                   IsVisible="False"
+                   Text="{app:Tr CaptureNoAudio}"
+                   Foreground="#FFB74D"
+                   VerticalAlignment="Center" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</Window>

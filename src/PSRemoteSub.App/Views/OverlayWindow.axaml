@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="PSRemoteSub.App.Views.OverlayWindow"
+        Title="PS Remote Sub overlay"
+        WindowDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        CanResize="False">
+  <!-- Transparent: each caption line is its own box (built in code), with a gap between them, like the game draws its
+       speakers' lines. -->
+  <Border x:Name="Panel" Background="Transparent">
+    <!-- Centred in the box, both ways (the user asked for it). -->
+    <StackPanel x:Name="Lines" VerticalAlignment="Center" HorizontalAlignment="Center" />
+  </Border>
+</Window>

@@ -1,0 +1,52 @@
+name: Library
+
+on:
+  push:
+    tags:
+      - "lib-*"
+
+jobs:
+  library:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      # Timing tests (Category=Perf) stay out of releases: a slow runner must not block one.
+      - name: Test
+        shell: bash
+        run: dotnet test PSRemoteSub.sln -c Release --filter "Category!=Perf"
+      # Prerelease so the app's library updater finds it but app update checks (Velopack) ignore it.
+      - name: Pack libraries
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          dotnet run --project tools/LibraryTool -c Release -- pack "${TAG#lib-}" dist
+      - name: Publish prerelease
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          gh release create "$TAG" dist/*.zip --prerelease --title "$TAG" --notes "Translation library $TAG"
+      # Velopack's GithubSource reads one page of releases and drops the prereleases from it, so a pile of lib-*
+      # prereleases could push the newest v* app release off that page. Keep the two newest lib-* releases (by
+      # version, not date); older ones lose their release but keep their git tag (no --cleanup-tag).
+      - name: Prune old library releases
+        shell: pwsh
+        run: |
+          $json = gh release list --limit 1000 --json tagName
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $libs = @((($json -join "`n") | ConvertFrom-Json) | ForEach-Object {
+              if ($_.tagName -match '^lib-(\d+)\.(\d+)$') {
+                [pscustomobject]@{ Tag = $_.tagName; Date = [long]$Matches[1]; N = [int]$Matches[2] }
+              }
+            } | Sort-Object -Property @{ Expression = 'Date'; Descending = $true }, @{ Expression = 'N'; Descending = $true })
+          foreach ($old in ($libs | Select-Object -Skip 2)) {
+            Write-Host "Deleting release $($old.Tag) (the tag stays)"
+            gh release delete $old.Tag --yes
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }

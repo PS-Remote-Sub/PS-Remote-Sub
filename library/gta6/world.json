@@ -1,0 +1,145 @@
+{
+  "title": "Grand Theft Auto VI",
+  "setting": "รัฐ Leonida (รัฐสมมติที่ล้อเลียนฟลอริดา) เมืองหลักคือ Vice City; เรื่องของคู่รักนักปล้น Jason กับ Lucia ในโลกอาชญากรรม โซเชียลมีเดีย และตำรวจ",
+  "characters": [
+    {
+      "en": "Jason",
+      "alsoCalled": ["Jay", "Duval", "Jason Duval"],
+      "gender": "male",
+      "speaksAs": "ผม/ฉัน กับคนทั่วไป; กู กับเพื่อนสนิทหรือตอนโมโห",
+      "role": "ตัวเอก",
+      "notes": "ตัวเอกชาย อดีตทหาร โตมากับพวกต้มตุ๋น ทำงานรับจ้างให้คนค้ายาแถว Keys; คู่ของ Lucia พูดสบาย ๆ กวน ๆ"
+    },
+    {
+      "en": "Lucia",
+      "alsoCalled": ["Caminos", "Lucia Caminos"],
+      "gender": "female",
+      "speaksAs": "ฉัน; กู เวลาโมโหหรือด่า",
+      "role": "ตัวเอก",
+      "notes": "ตัวเอกหญิง เชื้อสายละติน มาจาก Liberty City เคยติดคุกใน Leonida สายบู๊ ใจร้อน พูดตรง; คู่ของ Jason"
+    },
+    {
+      "en": "Cal",
+      "alsoCalled": ["Cal Hampton"],
+      "gender": "male",
+      "speaksAs": "กู/ผม",
+      "role": "เพื่อน Jason",
+      "notes": "เพื่อน Jason ชอบทฤษฎีสมคบคิด หวาดระแวงรัฐบาล ชอบดักฟังวิทยุ พูดยาวแบบคนคิดเยอะ"
+    },
+    {
+      "en": "Boobie",
+      "alsoCalled": ["Boobie Ike"],
+      "gender": "male",
+      "speaksAs": "กู/ผม",
+      "role": "เจ้าพ่อท้องถิ่น",
+      "notes": "คนดังของ Vice City มีธุรกิจหลายอย่าง ทั้งอสังหา คลับ และค่ายเพลง Only Raw Records"
+    },
+    {
+      "en": "Dre'Quan",
+      "alsoCalled": ["Dre", "Dre'Quan Priest"],
+      "gender": "male",
+      "speaksAs": "กู",
+      "role": "ค่ายเพลง",
+      "notes": "หุ้นส่วนค่ายเพลง Only Raw Records กับ Boobie ปั้นศิลปินแร็ป"
+    },
+    {
+      "en": "Real Dimez",
+      "alsoCalled": ["Dimez", "The Dimez"],
+      "role": "ศิลปิน",
+      "notes": "ดูโอแร็ปหญิง (Bae-Luxe กับ Roxy) ดังจากโซเชียล"
+    },
+    {
+      "en": "Bae-Luxe",
+      "alsoCalled": ["Luxe"],
+      "gender": "female",
+      "speaksAs": "กู/ฉัน",
+      "role": "ศิลปิน",
+      "notes": "สมาชิก Real Dimez"
+    },
+    {
+      "en": "Roxy",
+      "gender": "female",
+      "speaksAs": "กู/ฉัน",
+      "role": "ศิลปิน",
+      "notes": "สมาชิก Real Dimez"
+    },
+    {
+      "en": "Raul",
+      "alsoCalled": ["Raul Bautista"],
+      "gender": "male",
+      "speaksAs": "ผม/ฉัน (มั่นใจ ใจเย็น)",
+      "role": "นักปล้น",
+      "notes": "นักปล้นธนาคารมือเก๋า ชวนคนเข้าทีมงานใหญ่ พูดมั่นใจแบบมืออาชีพ"
+    },
+    {
+      "en": "Brian",
+      "alsoCalled": ["Brian Heder"],
+      "gender": "male",
+      "speaksAs": "กู/ผม (ลุงขี้เก๊ก)",
+      "role": "คนค้ายา",
+      "notes": "คนขนยารุ่นเก๋าแถว Keys ผู้จ้างงาน Jason"
+    },
+    {
+      "en": "Lori",
+      "gender": "female",
+      "speaksAs": "ฉัน",
+      "role": "คนรอบตัว Brian",
+      "notes": "ภรรยาของ Brian"
+    },
+    {
+      "en": "Karim",
+      "gender": "male",
+      "role": "ทีมปล้น",
+      "notes": "สมาชิกทีมปล้น คอยสั่งการทางหูฟัง"
+    },
+    {
+      "en": "Nicole",
+      "gender": "female",
+      "role": "ทีมปล้น",
+      "notes": "สมาชิกทีมปล้น"
+    },
+    {
+      "en": "Andrea",
+      "role": "ทีมปล้น",
+      "notes": "สมาชิกทีมปล้น"
+    },
+    {
+      "en": "Felipe",
+      "gender": "male",
+      "role": "ทีมปล้น",
+      "notes": "สมาชิกทีมปล้น"
+    },
+    {
+      "en": "Mattia",
+      "alsoCalled": ["Mattia Tauro"],
+      "gender": "male",
+      "notes": "ชาวอิตาลีที่อาศัยใน Leonida เคยทำงานให้ Giorgio Gallo"
+    },
+    {
+      "en": "Giorgio",
+      "alsoCalled": ["Giorgio Gallo"],
+      "gender": "male",
+      "notes": "นายจ้างของ Mattia Tauro"
+    },
+    {
+      "en": "Yasmani",
+      "gender": "male",
+      "notes": "คนติดต่อชาวคิวบา"
+    }
+  ],
+  "places": [
+    { "en": "Leonida", "notes": "รัฐที่เป็นฉากของเกม (ล้อฟลอริดา)" },
+    { "en": "Vice City", "notes": "เมืองใหญ่ริมทะเล (ล้อไมอามี)" },
+    { "en": "Ocean Beach", "notes": "ย่านชายหาดใน Vice City" },
+    { "en": "Leonida Keys", "notes": "หมู่เกาะทางใต้ เรียกสั้น ๆ ว่า the Keys" },
+    { "en": "the Keys", "notes": "Leonida Keys หมู่เกาะทางใต้" },
+    { "en": "Grassrivers", "notes": "พื้นที่ชุ่มน้ำและหนองบึง มีจระเข้" },
+    { "en": "Port Gellhorn", "notes": "เมืองท่าเก่า ๆ ที่ซบเซา" },
+    { "en": "Ambrosia", "notes": "เมืองอุตสาหกรรมในชนบทของ Leonida" },
+    { "en": "Hamlet", "notes": "เมืองเล็กในชนบทของ Leonida" },
+    { "en": "Mount Kalaga", "notes": "ภูเขาและป่าทางเหนือ เป็นอุทยานแห่งชาติ" },
+    { "en": "Capri", "notes": "ชื่อเมืองหรือย่านในเกม" },
+    { "en": "Liberty City", "notes": "เมืองใหญ่อีกรัฐ (ล้อนิวยอร์ก) บ้านเกิดของ Lucia" },
+    { "en": "Los Santos", "notes": "เมืองใหญ่อีกรัฐ (ล้อลอสแอนเจลิส)" }
+  ]
+}

@@ -1,0 +1,6 @@
+licenses/** -text
+library/** -text
+*.apk binary
+*.exe binary
+*.dll binary
+tv/adb/mac/adb binary

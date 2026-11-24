@@ -1,0 +1,37 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="using:PSRemoteSub.App"
+        xmlns:views="using:PSRemoteSub.App.Views"
+        x:Class="PSRemoteSub.App.Views.RegionPickerWindow"
+        Title="{app:Tr TraySelectRegion}"
+        WindowDecorations="None"
+        WindowStartupLocation="Manual"
+        Background="Black"
+        Topmost="True"
+        ShowInTaskbar="False"
+        CanResize="False"
+        Cursor="Cross">
+  <Grid>
+    <views:RegionSelectionCanvas x:Name="Surface" />
+    <StackPanel HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,12,0,0"
+                Spacing="8">
+      <!-- Zone chips: filled in code, one per zone. -->
+      <StackPanel x:Name="ZoneChips"
+                  HorizontalAlignment="Center"
+                  Orientation="Horizontal"
+                  Spacing="6" />
+      <Border HorizontalAlignment="Center"
+              Padding="14,6"
+              CornerRadius="6"
+              Background="#E0101114"
+              IsHitTestVisible="False">
+        <TextBlock Text="{app:Tr PickerHint}"
+                   FontFamily="Leelawadee UI"
+                   FontSize="15"
+                   Foreground="White" />
+      </Border>
+    </StackPanel>
+  </Grid>
+</Window>

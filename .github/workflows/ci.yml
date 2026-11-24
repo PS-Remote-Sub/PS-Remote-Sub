@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build
+        run: dotnet build PSRemoteSub.sln -c Release
+      # Timing tests (Category=Perf) stay out of CI, as in release.yml and the mac job: a slow shared runner
+      # must not fail the build. Run them locally.
+      - name: Test Core
+        run: dotnet test tests/PSRemoteSub.Core.Tests -c Release --no-build --filter "Category!=Perf"
+      - name: Test Web
+        run: dotnet test tests/PSRemoteSub.Web.Tests -c Release --no-build
+      # The OCR tests use [OcrFact], which skips itself at runtime when the Windows en-US OCR language pack is
+      # missing (not guaranteed on hosted runners), so no filter is needed: they run wherever the pack exists.
+      - name: Test Windows
+        run: dotnet test tests/PSRemoteSub.Windows.Tests -c Release --no-build
+      # [MacFact]s skip themselves off macOS; the [Fact]s run.
+      - name: Test macOS project (Mac facts skip)
+        run: dotnet test tests/PSRemoteSub.MacOS.Tests -c Release --no-build
+
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build
+        run: dotnet build PSRemoteSub.sln -c Release
+      - name: Test Core
+        run: dotnet test tests/PSRemoteSub.Core.Tests -c Release --no-build --filter "Category!=Perf"
+      - name: Test Web
+        run: dotnet test tests/PSRemoteSub.Web.Tests -c Release --no-build --filter "Category!=Perf"
+      - name: Test macOS
+        run: dotnet test tests/PSRemoteSub.MacOS.Tests -c Release --no-build --filter "Category!=Perf"

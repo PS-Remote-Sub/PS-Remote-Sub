@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:app="using:PSRemoteSub.App"
+             x:Class="PSRemoteSub.App.Views.PictureSourcePanel">
+  <StackPanel Spacing="12">
+    <StackPanel Spacing="6">
+      <RadioButton x:Name="RemotePlayChoice" GroupName="PictureSource" Content="{app:Tr SourceRemotePlay}" />
+      <RadioButton x:Name="CaptureCardChoice" GroupName="PictureSource" Content="{app:Tr SourceCaptureCard}" />
+      <TextBlock x:Name="UnavailableNote" Classes="error" IsVisible="False" Text="{app:Tr CaptureUnavailable}" />
+    </StackPanel>
+
+    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+      <TextBlock Grid.Row="0" Classes="label" Text="{app:Tr CaptureDevice}" />
+      <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="0,4">
+        <ComboBox x:Name="DeviceBox" MinWidth="280" PlaceholderText="—" />
+        <Button x:Name="RefreshButton" Content="{app:Tr CaptureRefresh}" />
+      </StackPanel>
+
+      <TextBlock Grid.Row="1" Classes="label" Text="{app:Tr CaptureModeLabel}" />
+      <ComboBox Grid.Row="1" Grid.Column="1" x:Name="ModeBox" MinWidth="220" Margin="0,4" />
+    </Grid>
+
+    <TextBlock Classes="hint" Text="{app:Tr CaptureNote}" />
+  </StackPanel>
+</UserControl>

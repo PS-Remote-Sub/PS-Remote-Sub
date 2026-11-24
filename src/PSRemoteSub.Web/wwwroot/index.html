@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>PS Remote Sub</title>
+<style>
+  :root { --bg:#101114; --fg:#f2f2f2; --muted:#8b8f98; --panel:#1b1d22; --warn:#5a3b00; --warn-fg:#ffd48a; --line:#2a2d34; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; background:var(--bg); color:var(--fg); overflow-x:hidden; }
+  body { font-family:"Leelawadee UI","Sarabun","Noto Sans Thai",sans-serif; padding:env(safe-area-inset-top) 12px 24px;
+         min-height:100vh; min-height:100dvh; display:flex; flex-direction:column; }
+  .bar { display:flex; gap:8px; flex-wrap:wrap; padding:10px 0; position:sticky; top:0; background:var(--bg); z-index:2; }
+  button { font:inherit; color:var(--fg); background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:8px 14px; min-height:40px; }
+  button:active { background:var(--line); }
+  #keepAwake { flex:1 1 100%; }
+  #banner { display:none; background:var(--warn); color:var(--warn-fg); border-radius:8px; padding:10px 12px; margin:4px 0 10px; line-height:1.4; }
+  /* A caption feed: the latest line bold at the bottom, the two lines before it above, smaller and dimmer.
+     The bottom of the stack stays put, so lines only move up. --size is the A−/A+ size. */
+  #current { --size:32px; flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center;
+             text-align:center; padding:14px 0 25vh; padding-bottom:25dvh; overflow-wrap:anywhere; }
+  .row.spacer { visibility:hidden; }
+  .row + .row { margin-top:0.4em; }
+  .row .text { line-height:1.35; white-space:pre-line; }
+  .row.latest .text { font-size:var(--size); font-weight:600; }
+  .row.old1 { font-size:calc(var(--size) * 0.75); opacity:0.6; font-weight:400; }
+  .row.old2 { font-size:calc(var(--size) * 0.6); opacity:0.35; font-weight:400; }
+  .row .zone { font-size:12px; color:var(--muted); margin-bottom:2px; }
+  .row .source { font-size:14px; color:var(--muted); margin-top:6px; white-space:pre-line; }
+  .tag { color:var(--muted); font-size:12px; font-weight:400; border:1px solid var(--line); border-radius:4px; padding:0 6px; margin-left:6px; }
+  body.nosource .row .source { display:none; }
+  /* Full screen: the subtitle only (the status banner still shows when something is wrong). Tap to leave. */
+  body.fs .bar { display:none; }
+  body.fs { cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <button id="keepAwake" type="button">แตะเพื่อเริ่ม (กันจอดับ)</button>
+  <button id="smaller" type="button" aria-label="Smaller">A−</button>
+  <button id="larger" type="button" aria-label="Larger">A+</button>
+  <button id="toggleSource" type="button">ต้นฉบับ</button>
+  <button id="fullscreen" type="button">เต็มจอ</button>
+</div>
+<div id="banner" role="status"></div>
+<div id="current"></div>
+
+<script src="/nosleep.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var COPY = {
+    NoRemotePlay: "ไม่พบ PS Remote Play",
+    FramesStalled: "PC หยุดจับภาพ — ตรวจหน้าต่าง Remote Play",
+    NoRegion: "ยังไม่ได้เลือกกรอบซับ — กดปุ่มลัดเลือกกรอบบนคอม",
+    Paused: "หยุดอ่านชั่วคราว",
+    Minimized: "หน้าต่าง Remote Play ถูกย่ออยู่ — กรุณาเปิดไว้ (บังได้แต่ห้ามย่อ)",
+    OcrUnavailable: "ยังไม่ได้ติดตั้งภาษา OCR นี้ — เปิด ตั้งค่า → ภาษา OCR",
+    Untranslated: "แปลไม่ได้"
+  };
+  // The error keys of the translator in use (AI or Google) that the app localizes, with the app's own Thai copy (Strings.resx). Any other key shows as AiDown.
+  var AI_COPY = {
+    AiDown: "AI แปลไม่ได้ชั่วคราว — ซับขึ้นเป็นต้นฉบับไปก่อน",
+    AiRateLimited: "AI ถูกจำกัดการใช้งาน — ซับขึ้นเป็นต้นฉบับไปก่อน",
+    AiAuth: "AI: API key ไม่ถูกต้อง — แก้ได้ใน ตั้งค่า → การแปล",
+    AiModelNotFound: "ไม่พบโมเดลนี้ — ตรวจชื่อโมเดลใน ตั้งค่า → การแปล",
+    AiBilling: "บัญชีผู้ให้บริการ AI ไม่มีเครดิตหรือเกินโควตา — ตรวจ billing ของบัญชี",
+    AiKeyNeeded: "ยังไม่ได้ใส่ API key — ใส่ได้ที่ ตั้งค่า → การแปล",
+    AiNoModel: "ยังไม่ได้เลือกโมเดล",
+    GoogleDown: "แปลไม่ได้ชั่วคราว — จะลองใหม่ใน 30 วินาที"
+  };
+  var MIN = 16, MAX = 64, DEFAULT_SIZE = 32, MAX_HISTORY = 100;
+  var $ = function (id) { return document.getElementById(id); };
+
+  function load(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+  function save(key, value) { try { localStorage.setItem(key, value); } catch (e) { /* private mode */ } }
+
+  var size = parseInt(load("fontSize"), 10);
+  if (!(size >= MIN && size <= MAX)) size = DEFAULT_SIZE;
+  var showSource = load("showSource") !== "0"; // on unless turned off: under the latest line only
+  var entries = []; // the history: kept so refines and replays find their line
+
+  function applyPrefs() {
+    $("current").style.setProperty("--size", size + "px");
+    document.body.classList.toggle("nosource", !showSource);
+  }
+  $("smaller").onclick = function () { size = Math.max(MIN, size - 2); save("fontSize", size); applyPrefs(); };
+  $("larger").onclick = function () { size = Math.min(MAX, size + 2); save("fontSize", size); applyPrefs(); };
+  $("toggleSource").onclick = function () { showSource = !showSource; save("showSource", showSource ? "1" : "0"); applyPrefs(); };
+
+  var keepAwake = $("keepAwake"), awake = false;
+  // Needs a user gesture: called from a tap.
+  function stayAwake() {
+    if (awake) return;
+    awake = true;
+    try {
+      var p = new NoSleep().enable();
+      if (p && p.catch) p.catch(function () {});
+    } catch (e) { /* unsupported browser */ }
+    keepAwake.style.display = "none";
+  }
+  keepAwake.onclick = stayAwake;
+
+  // Full screen (Android Chrome, iPad; not iPhone Safari, where the button stays hidden).
+  var root = document.documentElement, fsButton = $("fullscreen");
+  var requestFs = root.requestFullscreen || root.webkitRequestFullscreen;
+  var exitFs = document.exitFullscreen || document.webkitExitFullscreen;
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  if (!requestFs || !(document.fullscreenEnabled || document.webkitFullscreenEnabled)) fsButton.style.display = "none";
+  fsButton.onclick = function (ev) {
+    ev.stopPropagation(); // not the tap that leaves full screen
+    stayAwake();
+    try {
+      var p = requestFs.call(root, { navigationUI: "hide" });
+      if (p && p.catch) p.catch(function () {});
+    } catch (e) { /* refused */ }
+  };
+  function onFsChange() { document.body.classList.toggle("fs", !!fsElement()); }
+  document.addEventListener("fullscreenchange", onFsChange);
+  document.addEventListener("webkitfullscreenchange", onFsChange);
+  document.addEventListener("click", function () {
+    if (!fsElement()) return;
+    try {
+      var p = exitFs.call(document);
+      if (p && p.catch) p.catch(function () {});
+    } catch (e) { /* already left */ }
+  });
+
+  // With speaker names, translated (or dialogue) holds the lines without them; speakers[i] names line i.
+  function text(entry) {
+    if (entry.translated != null) return entry.translated;
+    return entry.dialogue != null ? entry.dialogue : entry.source;
+  }
+  var COLOR = /^#[0-9A-Fa-f]{6}$/;
+  function fillLines(el, str, speakers) {
+    if (!speakers) { el.appendChild(document.createTextNode(str)); return; }
+    var lines = str.split("\n");
+    for (var i = 0; i < lines.length; i++) {
+      if (i > 0) el.appendChild(document.createElement("br"));
+      var sp = speakers[i];
+      if (sp) {
+        var name = document.createElement("span");
+        name.textContent = sp.name + ": ";
+        if (sp.color && COLOR.test(sp.color)) name.style.color = sp.color;
+        el.appendChild(name);
+      }
+      el.appendChild(document.createTextNode(lines[i]));
+    }
+  }
+  // Published before the AI answered. Not shown as the current line until it has text.
+  function isPending(entry) { return entry.awaitingAi === true && entry.translated == null; }
+
+  var lastStatus = null, statusTimer = null;
+
+  function renderStatus(s) {
+    lastStatus = s;
+    if (statusTimer) { clearTimeout(statusTimer); statusTimer = null; }
+    var lines = [];
+    if (s) {
+      if (!s.remotePlayFound) lines.push(COPY.NoRemotePlay);
+      if (s.minimized) lines.push(COPY.Minimized);
+      if (s.framesStalled) lines.push(COPY.FramesStalled);
+      if (s.noRegion) lines.push(COPY.NoRegion);
+      if (s.ocrUnavailable) lines.push(COPY.OcrUnavailable);
+      if (s.paused) lines.push(COPY.Paused);
+      if (s.aiError && !s.paused) {
+        // Like the tray: the AI error stops counting once its backoff ends; look again then.
+        var retryAt = s.aiRetryAt ? Date.parse(s.aiRetryAt) : NaN;
+        var left = retryAt - Date.now();
+        if (isNaN(retryAt) || left > 0) {
+          lines.push(Object.prototype.hasOwnProperty.call(AI_COPY, s.aiError) ? AI_COPY[s.aiError] : AI_COPY.AiDown);
+          if (left > 0) statusTimer = setTimeout(function () { renderStatus(lastStatus); }, left + 100);
+        }
+      }
+    }
+    var b = $("banner");
+    b.textContent = lines.join("  •  ");
+    b.style.display = lines.length ? "block" : "none";
+  }
+
+  function addTag(el) {
+    var tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = COPY.Untranslated;
+    el.appendChild(tag);
+  }
+
+  var currentId = null; // id on screen; null after a clear, so a late refine cannot bring a cleared line back
+  var pendingId = null; // newest line still waiting for its AI text; null after a clear
+  var clearedId = 0; // lines up to this id were on screen before the game cleared its subtitle
+  var clearedByZone = {}; // the same per zone, for a clear that named one zone
+
+  var STACK_MAX = 3; // the latest line and the two before it
+  var stack = []; // entries that reached the screen, oldest first
+  var bottomEmpty = false; // after a clear: every line on the stack is drawn as an old line
+
+  function drawStack() {
+    var root = $("current");
+    root.textContent = "";
+    var latest = bottomEmpty ? null : stack[stack.length - 1] || null;
+    var olds = stack.slice(0, latest ? stack.length - 1 : stack.length).slice(-2);
+    for (var i = 0; i < olds.length; i++) root.appendChild(row(olds[i], olds.length - i === 1 ? "old1" : "old2"));
+    if (latest) root.appendChild(row(latest, "latest"));
+    else if (stack.length) { // after a clear: keep the bottom spot's height, so the old lines do not jump down
+      var spacer = row(stack[stack.length - 1], "latest spacer");
+      spacer.setAttribute("aria-hidden", "true");
+      root.appendChild(spacer);
+    }
+  }
+
+  // The page cannot see the profile: zone names show once the lines it holds come from more than one zone.
+  function manyZones() {
+    for (var i = 1; i < entries.length; i++) if (entries[i].zoneId !== entries[0].zoneId) return true;
+    return false;
+  }
+
+  function row(entry, kind) {
+    var r = document.createElement("div"), t = document.createElement("div");
+    r.className = "row " + kind;
+    t.className = "text";
+    if (entry.zoneName && manyZones()) {
+      var z = document.createElement("div");
+      z.className = "zone";
+      z.textContent = entry.zoneName;
+      r.appendChild(z);
+    }
+    fillLines(t, text(entry), entry.speakers || null);
+    if (entry.translated == null) addTag(t);
+    r.appendChild(t);
+    if (kind === "latest") {
+      t.style.opacity = entry.awaitingAi === true ? "0.7" : "1";
+      if (entry.translated != null) {
+        var s = document.createElement("div");
+        s.className = "source";
+        s.textContent = entry.source;
+        r.appendChild(s);
+      }
+    }
+    return r;
+  }
+
+  // A line takes the bottom spot; the same id again replaces it instead of adding a row.
+  function showLine(entry) {
+    if (stack.length && stack[stack.length - 1].id === entry.id) stack[stack.length - 1] = entry;
+    else {
+      stack.push(entry);
+      if (stack.length > STACK_MAX) stack.shift();
+    }
+    bottomEmpty = false;
+    currentId = entry.id;
+    drawStack();
+  }
+
+  // New text for a line already on the stack, wherever it is. It keeps its place and its style.
+  function refreshLine(entry) {
+    for (var i = stack.length - 1; i >= 0; i--) {
+      if (stack[i].id !== entry.id) continue;
+      stack[i] = entry;
+      drawStack();
+      return;
+    }
+  }
+
+  // The game cleared its subtitle: the latest line steps up into the old lines, the bottom spot stays empty.
+  function clearBottom() {
+    if (stack.length) bottomEmpty = true;
+    currentId = null;
+    drawStack();
+  }
+
+  function onStack(id) {
+    for (var i = 0; i < stack.length; i++) if (stack[i].id === id) return true;
+    return false;
+  }
+
+  var es = null, retryTimer = null, retryDelay = 1000;
+  var syncing = false, pending = [];
+
+  function entryById(id) {
+    for (var i = entries.length - 1; i >= 0; i--) if (entries[i].id === id) return entries[i];
+    return null;
+  }
+
+  function lastId() { return entries.length ? entries[entries.length - 1].id : 0; }
+
+  // Apply one SSE event to the live view.
+  function apply(type, data) {
+    if (type === "subtitle") {
+      if (data.id <= lastId()) { // already in the snapshot (replayed after it)
+        if (data.id === lastId()) {
+          if (!isPending(data)) showLine(data); // back at the bottom, if a replayed clear took it off
+          else if (currentId !== data.id) pendingId = data.id; // still waiting for its AI text: not shown yet
+        }
+        return;
+      }
+      entries.push(data);
+      if (entries.length > MAX_HISTORY) entries.shift();
+      if (isPending(data)) pendingId = data.id; // keep the current line until the AI answers
+      else showLine(data);
+    } else if (type === "refined") {
+      // Replace in place; an id we do not hold (trimmed, or never seen) is dropped.
+      for (var i = entries.length - 1; i >= 0; i--) {
+        if (entries[i].id !== data.id) continue;
+        entries[i] = data;
+        if (currentId === data.id) refreshLine(data);
+        else if (pendingId === data.id && !isPending(data)) { pendingId = null; showLine(data); }
+        // A line queued for the AI before the newest one: show its text in order while the newest still waits
+        // (never one older than the line on screen, never a cleared one, never a dropped one without text).
+        else if (pendingId !== null && data.id < pendingId && data.id > clearedId && data.id > (clearedByZone[data.zoneId] || 0) && data.translated != null
+                 && !isPending(data) && (currentId === null || data.id > currentId)) showLine(data);
+        else if (onStack(data.id)) refreshLine(data); // an old line gets its late text in place
+        return;
+      }
+    } else if (type === "clear") {
+      var zone = data.zoneId;
+      var cur = currentId !== null ? entryById(currentId) : null;
+      var pend = pendingId !== null ? entryById(pendingId) : null;
+      var hitCur = zone == null || (cur !== null && cur.zoneId === zone);
+      var hitPend = zone == null || (pend !== null && pend.zoneId === zone);
+      // A clear for one zone leaves the lines of other zones (and of no zone) alone.
+      if (hitCur) clearBottom();
+      if (hitPend) pendingId = null; // a line the game already cleared does not come back when its AI answer arrives
+      if (zone == null) clearedId = lastId();
+      else if (hitCur || hitPend) clearedByZone[zone] = lastId(); // only that zone's lines count as cleared
+    } else {
+      renderStatus(data);
+    }
+  }
+
+  // Events that arrive while the history snapshot is in flight are buffered, then replayed on top of it:
+  // subtitles only if newer than the snapshot, clear/status in order so the newest state wins.
+  function endSync(snapshot) {
+    var buffered = pending;
+    syncing = false; pending = [];
+    if (snapshot) {
+      entries = snapshot.entries || [];
+      renderStatus(snapshot.status);
+      // The newest line with text is current; a newer pending one takes over when its AI text arrives.
+      var shown = null, at = -1;
+      pendingId = null;
+      for (var j = entries.length - 1; j >= 0; j--) {
+        if (!isPending(entries[j])) { shown = entries[j]; at = j; break; }
+        if (pendingId === null) pendingId = entries[j].id;
+      }
+      // Rebuild the stack: the two lines with text before the newest one, then the newest one at the bottom.
+      stack = []; bottomEmpty = false; currentId = null;
+      for (var k = at - 1; k >= 0 && stack.length < STACK_MAX - 1; k--) if (!isPending(entries[k])) stack.unshift(entries[k]);
+      if (shown) showLine(shown); else drawStack();
+    }
+    for (var i = 0; i < buffered.length; i++) apply(buffered[i].type, buffered[i].data);
+  }
+
+  function refresh() {
+    syncing = true; pending = [];
+    fetch("/api/history", { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(endSync, function () { endSync(null); });
+  }
+
+  function on(src, type) {
+    src.addEventListener(type, function (ev) {
+      if (src !== es) return;
+      var data = JSON.parse(ev.data);
+      if (syncing) pending.push({ type: type, data: data }); else apply(type, data);
+    });
+  }
+
+  function connect() {
+    if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
+    if (es) es.close();
+    var src = es = new EventSource("/events");
+    src.addEventListener("open", function () {
+      if (src !== es) return;
+      retryDelay = 1000;
+      refresh(); // first connect and every reconnect
+    });
+    src.addEventListener("error", function () {
+      if (src !== es || src.readyState !== EventSource.CLOSED) return; // CONNECTING = browser retries by itself
+      src.close();
+      retryTimer = setTimeout(connect, retryDelay);
+      retryDelay = Math.min(retryDelay * 2, 15000);
+    });
+    on(src, "subtitle"); on(src, "refined"); on(src, "clear"); on(src, "status");
+  }
+
+  // Mobile Safari can leave the stream dead after the device sleeps: reconnect as soon as the page is visible.
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && (!es || es.readyState !== EventSource.OPEN)) connect();
+  });
+
+  applyPrefs();
+  connect();
+})();
+</script>
+</body>
+</html>
