@@ -70,6 +70,8 @@
 
 เล่น PS5 บนทีวีโดยตรง แล้วให้ซับไทยขึ้นทับภาพเกมบนทีวี
 
+📄 **[คู่มือการใช้งานโหมดทีวี (PDF)](docs/tv-mode-manual.pdf)** — คู่มือฉบับเต็มสำหรับผู้ใช้ ตั้งแต่ต่อสายจนถึงแก้ปัญหา
+
 ```
 PS5 ──HDMI──► ทีวี (เล่นเกมบนจอทีวี)
  └─ Remote Play ─► PC: PS Remote Sub (OCR + แปล) ──LAN──► แอปบนทีวี วาดกล่องซับไทยทับเกม
@@ -351,6 +353,8 @@ If it still fails, open **Advanced settings** → **Inbound Rules** and disable 
 ## Subtitles on the TV (Android TV)
 
 Play the PS5 on the TV directly and get the Thai subtitles drawn over the game picture on the TV.
+
+📄 **[TV mode user manual (PDF, Thai)](docs/tv-mode-manual.pdf)** — the full step-by-step guide, from cabling to troubleshooting (Thai only).
 
 ```
 PS5 ──HDMI──► TV (you play on the TV screen)
