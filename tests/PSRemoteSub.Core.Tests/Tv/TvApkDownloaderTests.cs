@@ -8,7 +8,7 @@ namespace PSRemoteSub.Core.Tests.Tv;
 
 public sealed class TvApkDownloaderTests : IDisposable
 {
-    private const string Repo = "https://github.com/o/psrs-tv-overlay";
+    private const string Repo = "https://github.com/o/PS-Remote-Sub-TV";
     private static readonly byte[] Apk5 = Encoding.ASCII.GetBytes("apk version five");
 
     private readonly string _dir = Directory.CreateTempSubdirectory("tvapk").FullName;
@@ -35,9 +35,9 @@ public sealed class TvApkDownloaderTests : IDisposable
     private string Cached(int version) => Path.Combine(_dir, $"psrs-tv-overlay-{version}.apk");
 
     [Theory]
-    [InlineData("https://github.com/PS-Remote-Sub/PS-Remote-Sub", "https://github.com/PS-Remote-Sub/psrs-tv-overlay")]
-    [InlineData("https://github.com/owner/app.git", "https://github.com/owner/psrs-tv-overlay")]
-    [InlineData("https://github.com/owner/app/", "https://github.com/owner/psrs-tv-overlay")]
+    [InlineData("https://github.com/PS-Remote-Sub/PS-Remote-Sub", "https://github.com/PS-Remote-Sub/PS-Remote-Sub-TV")]
+    [InlineData("https://github.com/owner/app.git", "https://github.com/owner/PS-Remote-Sub-TV")]
+    [InlineData("https://github.com/owner/app/", "https://github.com/owner/PS-Remote-Sub-TV")]
     public void RepositoryFor_SameOwner(string app, string expected) => Assert.Equal(expected, TvApkDownloader.RepositoryFor(app));
 
     [Theory]
@@ -58,7 +58,7 @@ public sealed class TvApkDownloaderTests : IDisposable
         Assert.Equal(5, apk.Version);
         Assert.Equal(Cached(5), apk.Path);
         Assert.Equal(Apk5, File.ReadAllBytes(apk.Path));
-        Assert.Equal("https://api.github.com/repos/o/psrs-tv-overlay/releases/latest", h.Requests[0].ToString());
+        Assert.Equal("https://api.github.com/repos/o/PS-Remote-Sub-TV/releases/latest", h.Requests[0].ToString());
         Assert.Empty(Directory.GetFiles(_dir, "*.tmp"));
     }
 

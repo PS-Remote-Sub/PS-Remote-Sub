@@ -123,19 +123,19 @@ PS5 ──HDMI──► ทีวี (เล่นเกมบนจอทีว
 
 ### สำหรับผู้พัฒนา: แอปทีวีมาจากไหน
 
-ตอนกด **ติดตั้งบนทีวี** และตอนเปิดโปรแกรม (อัปเดตอัตโนมัติ) โปรแกรมจะดู GitHub release ล่าสุดของ repo `psrs-tv-overlay` (owner เดียวกับ `RepositoryUrl` ของโปรแกรม) ถ้ามีไฟล์ `psrs-tv-overlay-<versionCode>.apk` ที่ versionCode ใหม่กว่าตัวที่แถมมา จะดาวน์โหลดมาไว้ที่ `tv/` ในโฟลเดอร์ข้อมูล (`%AppData%\PSRemoteSub\tv\` หรือ `~/Library/Application Support/PSRemoteSub/tv/`) โดยตรวจขนาดกับ SHA-256 ให้ตรงกับที่ GitHub บอก แล้วใช้ไฟล์นั้น ถ้าโหลดไม่ได้ (ไม่มีเน็ต, repo ยังเป็น private, GitHub ล่ม) จะใช้ไฟล์ที่เคยโหลดไว้ หรือถ้าไม่มีก็ใช้ตัวที่แถมในโฟลเดอร์ `tv/` ข้างโปรแกรม build ที่ไม่มี `RepositoryUrl` (build เองในเครื่อง) จะไม่ติดต่อ GitHub เลย ส่วนการออก release ของแอปทีวี ดูหัวข้อ **Release** ใน README ของ `psrs-tv-overlay`
+ตอนกด **ติดตั้งบนทีวี** และตอนเปิดโปรแกรม (อัปเดตอัตโนมัติ) โปรแกรมจะดู GitHub release ล่าสุดของ repo `PS-Remote-Sub-TV` (owner เดียวกับ `RepositoryUrl` ของโปรแกรม) ถ้ามีไฟล์ `psrs-tv-overlay-<versionCode>.apk` ที่ versionCode ใหม่กว่าตัวที่แถมมา จะดาวน์โหลดมาไว้ที่ `tv/` ในโฟลเดอร์ข้อมูล (`%AppData%\PSRemoteSub\tv\` หรือ `~/Library/Application Support/PSRemoteSub/tv/`) โดยตรวจขนาดกับ SHA-256 ให้ตรงกับที่ GitHub บอก แล้วใช้ไฟล์นั้น ถ้าโหลดไม่ได้ (ไม่มีเน็ต, repo ยังเป็น private, GitHub ล่ม) จะใช้ไฟล์ที่เคยโหลดไว้ หรือถ้าไม่มีก็ใช้ตัวที่แถมในโฟลเดอร์ `tv/` ข้างโปรแกรม build ที่ไม่มี `RepositoryUrl` (build เองในเครื่อง) จะไม่ติดต่อ GitHub เลย ส่วนการออก release ของแอปทีวี ดูหัวข้อ **Release** ใน README ของ `psrs-tv-overlay`
 
 ไฟล์ที่แถมมากับโปรแกรม: โฟลเดอร์ `tv/` เก็บของที่ใช้ติดตั้งแอปบนทีวี: `adb.exe` พร้อม DLL (Android SDK Platform-Tools 37.0.3), `psrs-tv-overlay.apk` (เซ็นด้วยกุญแจ release) และ `apk-version.txt` (versionCode ของ APK ที่แถม ใช้เทียบเพื่ออัปเดตอัตโนมัติ) โฟลเดอร์นี้ถูกคัดลอกไปอยู่ข้างโปรแกรมตอน build/publish adb ที่แถมใช้ server ของตัวเองที่พอร์ต 5038 (ไม่ใช่ 5037 ของ adb ตัวอื่นในเครื่อง) และปิด server นั้นทุกครั้งหลังติดตั้งหรืออัปเดตเสร็จ
 
-อัปเดต APK ที่แถม (build แอปทีวีจาก repo `psrs-tv-overlay` ด้วยกุญแจ release ตรวจว่าลายเซ็นตรงกับกุญแจที่กำหนด แล้วเขียนทับ `tv/psrs-tv-overlay.apk` กับ `tv/apk-version.txt`):
+อัปเดต APK ที่แถม (build แอปทีวีจาก repo `PS-Remote-Sub-TV` ด้วยกุญแจ release ตรวจว่าลายเซ็นตรงกับกุญแจที่กำหนด แล้วเขียนทับ `tv/psrs-tv-overlay.apk` กับ `tv/apk-version.txt`):
 
 ```
-powershell -ExecutionPolicy Bypass -File tools/UpdateTvApk.ps1 -TvRepo <path ของ psrs-tv-overlay>
+powershell -ExecutionPolicy Bypass -File tools/UpdateTvApk.ps1 -TvRepo <path ของ PS-Remote-Sub-TV>
 ```
 
 ปกติไม่ต้องทำ: ผู้ใช้ได้แอปทีวีใหม่จาก GitHub release อยู่แล้ว อัปเดตตัวที่แถมก็ต่อเมื่ออยากให้ตัวสำรองใหม่ด้วย หลังรันให้ commit `tv/` ที่เปลี่ยน แล้วออกโปรแกรมรุ่นใหม่ ต้องเพิ่ม `versionCode` ในแอปทีวีก่อน build ไม่งั้นจะไม่ถูกมองว่าใหม่กว่า
 
-**กุญแจ release:** อยู่ที่ `%USERPROFILE%\.psrs\psrs-tv-release.jks` (alias `psrs-tv`) รหัสผ่านอยู่ใน `keystore.properties` ที่รากของ repo `psrs-tv-overlay` (ไม่ถูก commit) **สำรองทั้งสองอย่างไว้นอกเครื่อง ถ้ากุญแจหาย จะอัปเดตแอปทับตัวที่ติดตั้งในทีวีไม่ได้** ผู้ใช้ต้องถอนแอปแล้วติดตั้งใหม่ และเปิดบริการการเข้าถึงใหม่
+**กุญแจ release:** อยู่ที่ `%USERPROFILE%\.psrs\psrs-tv-release.jks` (alias `psrs-tv`) รหัสผ่านอยู่ใน `keystore.properties` ที่รากของ repo `PS-Remote-Sub-TV` (ไม่ถูก commit) **สำรองทั้งสองอย่างไว้นอกเครื่อง ถ้ากุญแจหาย จะอัปเดตแอปทับตัวที่ติดตั้งในทีวีไม่ได้** ผู้ใช้ต้องถอนแอปแล้วติดตั้งใหม่ และเปิดบริการการเข้าถึงใหม่
 
 ## ใช้ Capture card แทน Remote Play
 
@@ -407,19 +407,19 @@ The TV connects to the PC's web port (default 5000), so set it up as **Phone mod
 
 ### For developers: where the TV app comes from
 
-On **ติดตั้งบนทีวี** and at startup (the auto-update), the app checks the latest GitHub release of the `psrs-tv-overlay` repo (same owner as the app's `RepositoryUrl`). When it has a `psrs-tv-overlay-<versionCode>.apk` newer than the bundled one, the app downloads it into `tv/` in the data folder (`%AppData%\PSRemoteSub\tv\` or `~/Library/Application Support/PSRemoteSub/tv/`), checks its size and SHA-256 against what GitHub reports, and uses it. When the download fails (offline, repo still private, GitHub down) it uses a previously downloaded file, else the one bundled in `tv/` next to the app. Builds without a `RepositoryUrl` (local builds) never contact GitHub. To release the TV app, see **Release** in the `psrs-tv-overlay` README.
+On **ติดตั้งบนทีวี** and at startup (the auto-update), the app checks the latest GitHub release of the `PS-Remote-Sub-TV` repo (same owner as the app's `RepositoryUrl`). When it has a `psrs-tv-overlay-<versionCode>.apk` newer than the bundled one, the app downloads it into `tv/` in the data folder (`%AppData%\PSRemoteSub\tv\` or `~/Library/Application Support/PSRemoteSub/tv/`), checks its size and SHA-256 against what GitHub reports, and uses it. When the download fails (offline, repo still private, GitHub down) it uses a previously downloaded file, else the one bundled in `tv/` next to the app. Builds without a `RepositoryUrl` (local builds) never contact GitHub. To release the TV app, see **Release** in the `psrs-tv-overlay` README.
 
 Bundled with the app: The `tv/` folder holds what installs the TV app: `adb.exe` with its DLLs (Android SDK Platform-Tools 37.0.3), `psrs-tv-overlay.apk` (signed with the release key) and `apk-version.txt` (the bundled APK's versionCode, compared for the auto-update). It is copied next to the app on build/publish. The bundled adb runs its own server on port 5038 (not the 5037 one other adb copies use) and stops it after every install or update.
 
-To refresh the bundled APK (builds the TV app from the `psrs-tv-overlay` repo with the release key, checks that the signature matches the expected key, and overwrites `tv/psrs-tv-overlay.apk` and `tv/apk-version.txt`):
+To refresh the bundled APK (builds the TV app from the `PS-Remote-Sub-TV` repo with the release key, checks that the signature matches the expected key, and overwrites `tv/psrs-tv-overlay.apk` and `tv/apk-version.txt`):
 
 ```
-powershell -ExecutionPolicy Bypass -File tools/UpdateTvApk.ps1 -TvRepo <path to psrs-tv-overlay>
+powershell -ExecutionPolicy Bypass -File tools/UpdateTvApk.ps1 -TvRepo <path to PS-Remote-Sub-TV>
 ```
 
 Usually not needed: users get new TV app versions from the GitHub release. Refresh the bundled copy only to update the fallback; then commit the changed `tv/` and ship a new app release. Raise `versionCode` in the TV app before building, or it will not count as newer.
 
-**Release key:** `%USERPROFILE%\.psrs\psrs-tv-release.jks` (alias `psrs-tv`); the passwords are in `keystore.properties` at the root of the `psrs-tv-overlay` repo (not committed). **Back both up off this PC. If the key is lost, installed TV apps can no longer be updated in place:** users must uninstall the app and install it again, then re-enable the Accessibility service.
+**Release key:** `%USERPROFILE%\.psrs\psrs-tv-release.jks` (alias `psrs-tv`); the passwords are in `keystore.properties` at the root of the `PS-Remote-Sub-TV` repo (not committed). **Back both up off this PC. If the key is lost, installed TV apps can no longer be updated in place:** users must uninstall the app and install it again, then re-enable the Accessibility service.
 
 ## Using a capture card instead of Remote Play
 

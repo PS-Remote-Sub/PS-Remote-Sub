@@ -502,7 +502,7 @@ public sealed class AppHost : IAsyncDisposable
         TvFeed.SetConfig(Settings.Tv.ToConfig(Environment.MachineName, _tvCalibrating));
 
     /// <summary>
-    /// Thread pool. The installer for the bundled adb and the newest TV app: the latest <c>psrs-tv-overlay</c> GitHub
+    /// Thread pool. The installer for the bundled adb and the newest TV app: the latest <c>PS-Remote-Sub-TV</c> GitHub
     /// release when it is newer than the APK bundled in the <c>tv</c> folder (downloaded once into
     /// <see cref="AppPaths.TvApkDir"/>), else the bundled one. Builds without a repository URL (local builds) never
     /// contact GitHub. Null when adb is missing or no APK is available. <paramref name="downloading"/> runs before the

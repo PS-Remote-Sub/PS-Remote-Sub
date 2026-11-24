@@ -10,7 +10,7 @@ namespace PSRemoteSub.Core.Tv;
 public sealed record TvApk(string Path, int Version);
 
 /// <summary>
-/// Gets the TV app from the latest GitHub release of the <c>psrs-tv-overlay</c> repository: the release asset
+/// Gets the TV app from the latest GitHub release of the <c>PS-Remote-Sub-TV</c> repository: the release asset
 /// <c>psrs-tv-overlay-&lt;versionCode&gt;.apk</c>, downloaded once into <paramref name="cacheDir"/> and checked against
 /// the asset's size and SHA-256 digest. Signature trust stays with Android: <c>adb install -r</c> refuses an update
 /// signed with another key.
@@ -18,7 +18,7 @@ public sealed record TvApk(string Path, int Version);
 public sealed partial class TvApkDownloader(HttpClient http, string repositoryUrl, string cacheDir)
 {
     /// <summary>Name of the TV app repository; it lives under the same owner as the PC app's repository.</summary>
-    public const string RepositoryName = "psrs-tv-overlay";
+    public const string RepositoryName = "PS-Remote-Sub-TV";
 
     private const string FilePrefix = "psrs-tv-overlay-";
     private const long MaxApkBytes = 200L * 1024 * 1024;

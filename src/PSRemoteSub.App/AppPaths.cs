@@ -12,7 +12,7 @@ internal static class AppPaths
     /// <summary>Downloaded translation libraries, one folder per game.</summary>
     public static string LibraryDir { get; private set; } = "";
 
-    /// <summary>The TV app APK downloaded from the <c>psrs-tv-overlay</c> GitHub release.</summary>
+    /// <summary>The TV app APK downloaded from the <c>PS-Remote-Sub-TV</c> GitHub release.</summary>
     public static string TvApkDir { get; private set; } = "";
 
     /// <summary>The translation libraries shipped next to the exe (read-only baseline).</summary>

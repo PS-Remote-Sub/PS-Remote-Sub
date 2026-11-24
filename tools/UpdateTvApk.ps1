@@ -2,18 +2,18 @@
 .SYNOPSIS
   Builds the signed release APK of the TV app and bundles it into tv/ (tv/psrs-tv-overlay.apk + tv/apk-version.txt).
 .PARAMETER TvRepo
-  Path of the psrs-tv-overlay checkout (must hold keystore.properties for a signed release build).
+  Path of the PS-Remote-Sub-TV checkout (must hold keystore.properties for a signed release build).
 .PARAMETER ExpectedCertSha256
   SHA-256 digest of the release signing certificate (public); a differently signed APK (e.g. debug) is rejected.
 #>
 param(
-    [string]$TvRepo = (Join-Path $PSScriptRoot '..\..\psrs-tv-overlay'),
+    [string]$TvRepo = (Join-Path $PSScriptRoot '..\..\PS-Remote-Sub-TV'),
     [string]$ExpectedCertSha256 = 'b55d9e19f96224c27337f7c47175da466b3a865e727125200a33a54357090204'
 )
 $ErrorActionPreference = 'Stop'
 
 if (-not (Test-Path (Join-Path $TvRepo 'gradlew.bat'))) {
-    throw "TV repo not found at '$TvRepo'. Pass -TvRepo <path to psrs-tv-overlay>."
+    throw "TV repo not found at '$TvRepo'. Pass -TvRepo <path to PS-Remote-Sub-TV>."
 }
 $TvRepo = (Resolve-Path $TvRepo).Path
 $buildTools = Get-ChildItem (Join-Path $env:LOCALAPPDATA 'Android\Sdk\build-tools') -Directory |
