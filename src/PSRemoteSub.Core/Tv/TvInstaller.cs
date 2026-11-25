@@ -15,6 +15,8 @@ public sealed record TvInstallResult(bool Ok, string? Endpoint, string? ErrorKey
 public sealed class TvInstaller(AdbClient adb, string apkPath, int apkVersion, Func<TimeSpan, CancellationToken, Task>? delay = null)
 {
     private const string AccessibilityKey = "enabled_accessibility_services";
+    private const string MasterKey = "accessibility_enabled";
+    private const string RestrictedSettingsOp = "ACCESS_RESTRICTED_SETTINGS";
     private static readonly TimeSpan ApprovalTimeout = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan EnableSettle = TimeSpan.FromSeconds(3);
 
@@ -140,11 +142,24 @@ public sealed class TvInstaller(AdbClient adb, string apkPath, int apkVersion, F
     }
 
     /// <summary>
-    /// Adds our service to the enabled list (keeping others), waits, and reads back; the system sometimes drops the
-    /// entry right after an install, so it retries once from the list it read back. An unreadable list (failed read) is never
-    /// written over: that would drop other apps' services, so it fails instead. Does not touch accessibility_enabled.
+    /// Lifts "restricted settings" for the app, adds our service to the enabled list (keeping others), waits, and reads
+    /// back; the system sometimes drops the entry right after an install, so it retries once from the list it read back.
+    /// An unreadable list (failed read) is never written over: that would drop other apps' services, so it fails
+    /// instead. Last, turns accessibility_enabled on when it is not already.
     /// </summary>
     private async Task<bool> EnableAsync(string serial, CancellationToken ct)
+    {
+        // Android 13+ puts an app installed outside a store under "restricted settings"; Google TV (TCL, Sony) then
+        // switches its accessibility service straight back off. Older Android has no such op, so a failure is ignored.
+        await adb.AllowAppOpAsync(serial, RestrictedSettingsOp, ct).ConfigureAwait(false);
+        if (!await AddServiceAsync(serial, ct).ConfigureAwait(false))
+            return false;
+        if (await adb.GetSecureAsync(serial, MasterKey, ct).ConfigureAwait(false) == "1")
+            return true;
+        return await adb.PutSecureAsync(serial, MasterKey, "1", ct).ConfigureAwait(false);
+    }
+
+    private async Task<bool> AddServiceAsync(string serial, CancellationToken ct)
     {
         var current = await adb.GetSecureAsync(serial, AccessibilityKey, ct).ConfigureAwait(false);
         for (var attempt = 0; attempt < 2; attempt++)

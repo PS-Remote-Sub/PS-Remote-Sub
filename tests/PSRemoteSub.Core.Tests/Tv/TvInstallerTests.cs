@@ -37,10 +37,14 @@ public sealed class TvInstallerTests
         public void Report(TvInstallStep value) => Seen.Add(value);
     }
 
-    /// <summary>Authorized device whose enabled_accessibility_services values come from <paramref name="secure"/> in order (last repeats).</summary>
-    private static Func<string[], ProcessResult> HappyDevice(Queue<string> secure, int? installedVersion = null) => a =>
+    /// <summary>
+    /// Authorized device whose enabled_accessibility_services values come from <paramref name="secure"/> in order (last repeats)
+    /// and whose accessibility_enabled is <paramref name="master"/>.
+    /// </summary>
+    private static Func<string[], ProcessResult> HappyDevice(Queue<string> secure, int? installedVersion = null, string master = "1") => a =>
     {
         if (a[0] == "connect") return Ok($"connected to {Endpoint}\r\n");
+        if (a.Contains("accessibility_enabled")) return Ok(a.Contains("get") ? master + "\r\n" : "");
         if (a.Contains("get-state")) return Ok("device\r\n");
         if (a.Contains("install")) return Ok("Performing Streamed Install\r\nSuccess\r\n");
         if (a.Contains("dumpsys"))
@@ -63,6 +67,87 @@ public sealed class TvInstallerTests
         var put = Assert.Single(runner.Calls, c => c.Contains("put"));
         Assert.Equal(["-s", Endpoint, "shell", "settings", "put", "secure", "enabled_accessibility_services", AccessibilityList.Ours], put);
         Assert.Equal([TimeSpan.FromSeconds(3)], delays);
+    }
+
+    private static readonly string[] AllowRestricted =
+        ["-s", Endpoint, "shell", "appops", "set", "th.psrs.tvoverlay", "ACCESS_RESTRICTED_SETTINGS", "allow"];
+
+    private static int IndexOf(FakeAdbRunner runner, Func<string[], bool> match) => runner.Calls.FindIndex(c => match(c));
+
+    [Fact]
+    public async Task Install_AllowsRestrictedSettingsBeforeEnabling()
+    {
+        // Google TV (TCL, Sony) turns the service straight back off for an app under "restricted settings".
+        var (installer, runner, _) = Create();
+        runner.Handler = HappyDevice(new Queue<string>(["null", AccessibilityList.Ours]));
+
+        var result = await installer.InstallAsync(Endpoint, new Steps(), CancellationToken.None);
+
+        Assert.True(result.Ok);
+        var appops = IndexOf(runner, c => c.SequenceEqual(AllowRestricted));
+        var put = IndexOf(runner, c => c.Contains("put") && c.Contains("enabled_accessibility_services"));
+        Assert.True(appops >= 0, "appops ACCESS_RESTRICTED_SETTINGS allow was not run");
+        Assert.True(appops < put, "appops must run before the service is enabled");
+    }
+
+    [Fact]
+    public async Task Install_AppOpsUnsupported_StillEnables()
+    {
+        // Android TV 12 and older has no ACCESS_RESTRICTED_SETTINGS op: appops fails, enabling goes on.
+        var (installer, runner, _) = Create();
+        var inner = HappyDevice(new Queue<string>(["null", AccessibilityList.Ours]));
+        runner.Handler = a => a.Contains("appops") ? new ProcessResult(255, "", "Error: Unknown operation string: ACCESS_RESTRICTED_SETTINGS") : inner(a);
+
+        var result = await installer.InstallAsync(Endpoint, new Steps(), CancellationToken.None);
+
+        Assert.Equal(new TvInstallResult(true, Endpoint, null), result);
+    }
+
+    [Fact]
+    public async Task Install_TurnsAccessibilityOnWhenOff()
+    {
+        var (installer, runner, _) = Create();
+        runner.Handler = HappyDevice(new Queue<string>(["null", AccessibilityList.Ours]), master: "0");
+
+        var result = await installer.InstallAsync(Endpoint, new Steps(), CancellationToken.None);
+
+        Assert.True(result.Ok);
+        Assert.Contains(runner.Calls, c => c.SequenceEqual(["-s", Endpoint, "shell", "settings", "put", "secure", "accessibility_enabled", "1"]));
+    }
+
+    [Fact]
+    public async Task Install_AccessibilityAlreadyOn_NotWritten()
+    {
+        var (installer, runner, _) = Create();
+        runner.Handler = HappyDevice(new Queue<string>(["null", AccessibilityList.Ours]), master: "1");
+
+        await installer.InstallAsync(Endpoint, new Steps(), CancellationToken.None);
+
+        Assert.DoesNotContain(runner.Calls, c => c.Contains("put") && c.Contains("accessibility_enabled"));
+    }
+
+    [Fact]
+    public async Task Install_AccessibilityOnFails_EnableFailed()
+    {
+        var (installer, runner, _) = Create();
+        var inner = HappyDevice(new Queue<string>(["null", AccessibilityList.Ours]), master: "0");
+        runner.Handler = a => a.Contains("put") && a.Contains("accessibility_enabled") ? new ProcessResult(1, "", "error: closed") : inner(a);
+
+        var result = await installer.InstallAsync(Endpoint, new Steps(), CancellationToken.None);
+
+        Assert.Equal(new TvInstallResult(false, Endpoint, "TvEnableFailed"), result);
+    }
+
+    [Fact]
+    public async Task Update_InstallsWhenOlder_AllowsRestrictedSettings()
+    {
+        var (installer, runner, _) = Create(bundled: 3);
+        runner.Handler = HappyDevice(new Queue<string>([AccessibilityList.Ours]), installedVersion: 2);
+
+        var result = await installer.UpdateIfOlderAsync(Endpoint, CancellationToken.None);
+
+        Assert.True(result.Ok);
+        Assert.Contains(runner.Calls, c => c.SequenceEqual(AllowRestricted));
     }
 
     [Fact]

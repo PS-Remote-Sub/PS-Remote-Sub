@@ -144,6 +144,18 @@ public sealed partial class AdbClient(string adbPath, IProcessRunner runner, Fun
         return r.ExitCode == 0;
     }
 
+    /// <summary>
+    /// <c>appops set</c> <see cref="TvPackage"/> <paramref name="op"/> <c>allow</c>. False on a non-zero exit, which is
+    /// what an older Android that does not know the op returns.
+    /// </summary>
+    public async Task<bool> AllowAppOpAsync(string serial, string op, CancellationToken ct = default)
+    {
+        if (!ShellSafe().IsMatch(op))
+            throw new ArgumentException("not a plain appops name", nameof(op));
+        var r = await RunAsync(["-s", serial, "shell", "appops", "set", TvPackage, op, "allow"], QuickTimeout, ct).ConfigureAwait(false);
+        return r.ExitCode == 0;
+    }
+
     /// <summary><c>adb shell getprop</c>: every system property. Null on a non-zero exit. The caller keeps only what it may share.</summary>
     public Task<string?> GetPropsAsync(string serial, CancellationToken ct = default) =>
         ShellTextAsync(serial, ["getprop"], QuickTimeout, ct);
