@@ -217,6 +217,46 @@ public sealed class TvDiagnosticsTests : IDisposable
     }
 
     [Fact]
+    public async Task FirstTvTimeout_skipsRemainingTvSections()
+    {
+        var (diag, runner, _) = Create(Device(over: a => a.Contains("getprop") ? throw new TimeoutException("silent TV") : null));
+
+        var result = await diag.CollectAsync(Endpoint, OutDir, new Steps(), CancellationToken.None);
+
+        Assert.True(result.Ok);
+        var zip = ReadZip(result.ZipPath!);
+        var errors = zip["errors.txt"].Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        Assert.Contains("device.txt: timed out", errors);
+        Assert.Contains("packages.txt: skipped after timeout", errors);
+        Assert.Contains("logcat.txt: skipped after timeout", errors);
+        Assert.Single(errors, e => e.StartsWith("accessibility.txt:", StringComparison.Ordinal));
+        Assert.False(runner.Called("logcat"));
+        Assert.False(runner.Called("package"));
+        Assert.False(runner.Called("content"));
+        Assert.False(runner.Called("pidof"));
+        Assert.Contains("summary.txt", zip.Keys);
+        Assert.Equal(1, runner.Count("kill-server"));
+    }
+
+    [Theory]
+    [InlineData("mdns")]
+    [InlineData("getprop")]
+    public async Task UnexpectedException_stillWritesZipAndNamesType(string failing)
+    {
+        var (diag, runner, _) = Create(Device(over: a => a.Contains(failing) ? throw new InvalidOperationException("boom 192.168.0.33") : null));
+
+        var result = await diag.CollectAsync(null, OutDir, new Steps(), CancellationToken.None);
+
+        Assert.True(result.Ok);
+        var zip = ReadZip(result.ZipPath!);
+        Assert.Contains("tv: InvalidOperationException", zip["errors.txt"]);
+        Assert.DoesNotContain("boom", zip["errors.txt"]);
+        Assert.Contains("pc-info.txt", zip.Keys);
+        Assert.Contains("summary.txt", zip.Keys);
+        Assert.Equal(1, runner.Count("kill-server"));
+    }
+
+    [Fact]
     public async Task PcInfo_hasWebPortAndNewestApkLabel()
     {
         var (diag, _, _) = Create(Device(), webPort: 5123);

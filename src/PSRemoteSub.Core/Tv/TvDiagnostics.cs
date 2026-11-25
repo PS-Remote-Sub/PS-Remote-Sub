@@ -54,7 +54,14 @@ public sealed class TvDiagnostics(AdbClient adb, TvDiagPcInfo pc, TimeProvider? 
         {
             var now = _time.GetLocalNow();
             var data = new Collected();
-            await CollectTvAsync(endpoint, progress, data, ct).ConfigureAwait(false);
+            try
+            {
+                await CollectTvAsync(endpoint, progress, data, ct).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                data.Unexpected(ex.GetType().Name); // never all-or-nothing: the zip is still written, the message is not kept
+            }
 
             progress.Report(TvDiagStep.Writing);
             var summary = TvDiagText.Summary(data.ToFacts(now, pc));
@@ -246,15 +253,25 @@ public sealed class TvDiagnostics(AdbClient adb, TvDiagPcInfo pc, TimeProvider? 
         d.Entries.Add(("logcat.txt", TvDiagText.FilterLogcat(text, pids)));
     }
 
-    /// <summary>Runs one adb read; a timeout, missing adb or I/O failure is noted in <c>errors.txt</c> and gives <paramref name="fallback"/>.</summary>
+    /// <summary>
+    /// Runs one adb read; a timeout, missing adb or I/O failure is noted in <c>errors.txt</c> and gives <paramref name="fallback"/>.
+    /// After the first timeout the TV is taken as silent: every later read is skipped (noted once per file) so the whole
+    /// run stays within its time budget.
+    /// </summary>
     private static async Task<T> Section<T>(Collected d, string file, Func<Task<T>> read, T fallback)
     {
+        if (d.TimedOut)
+        {
+            d.FailedIfEmpty(file, "skipped after timeout");
+            return fallback;
+        }
         try
         {
             return await read().ConfigureAwait(false);
         }
         catch (Exception ex) when (IsProcessFailure(ex))
         {
+            d.TimedOut |= ex is TimeoutException;
             d.Fail(file, Reason(ex));
             return fallback;
         }
@@ -271,6 +288,8 @@ public sealed class TvDiagnostics(AdbClient adb, TvDiagPcInfo pc, TimeProvider? 
         public List<(string Name, string Text)> Entries { get; } = [];
         public List<string> Errors { get; } = [];
         public bool Reached { get; set; }
+        /// <summary>A TV read timed out: the remaining reads are skipped.</summary>
+        public bool TimedOut { get; set; }
         public string? AdbFailure { get; private set; }
         public string Channel { get; set; } = "none";
         public IReadOnlyDictionary<string, string>? Props { get; set; }
@@ -282,6 +301,14 @@ public sealed class TvDiagnostics(AdbClient adb, TvDiagPcInfo pc, TimeProvider? 
         public bool CrashRead { get; set; }
 
         public void Unreached(string reason) => AdbFailure = reason;
+        /// <summary>An exception nobody expected ended the TV collection; only its type is kept.</summary>
+        public void Unexpected(string type)
+        {
+            if (Reached)
+                Errors.Add($"tv: {type}");
+            else
+                Unreached(type);
+        }
         public void Fail(string file, string reason) => Errors.Add($"{file}: {reason}");
         /// <summary>Adds a line only when the section has not already reported its own exception.</summary>
         public void FailedIfEmpty(string file, string reason)
