@@ -15,8 +15,8 @@ public partial class SettingsWindow
 {
     private const string DefaultAdbPort = "5555";
 
-    // This window started the running install, so its own step texts are showing.
-    private bool _tvInstallRunHere;
+    // This window started the running ADB work (install or diagnostics), so its own step texts are showing.
+    private bool _tvAdbRunHere;
 
     private void WireTvEvents()
     {
@@ -111,13 +111,13 @@ public partial class SettingsWindow
         bool busy = Host.IsInstallingTvApp;
         TvInstall.IsEnabled = !busy;
         TvDiag.IsEnabled = !busy;
-        // ADB work this window did not start (the startup update, or an install from before it was reopened).
-        if (busy && !_tvInstallRunHere)
+        // ADB work this window did not start (the startup update, or an install or diagnostics run from before it was reopened).
+        if (busy && !_tvAdbRunHere)
         {
             TvInstallStepText.Text = Loc.Get("TvInstallBusy");
             TvInstallStepText.IsVisible = true;
         }
-        else if (!busy && !_tvInstallRunHere && TvInstallStepText.Text == Loc.Get("TvInstallBusy"))
+        else if (!busy && !_tvAdbRunHere && TvInstallStepText.Text == Loc.Get("TvInstallBusy"))
         {
             TvInstallStepText.IsVisible = false;
         }
@@ -270,14 +270,14 @@ public partial class SettingsWindow
                 TvInstallStepText.IsVisible = true;
             }));
             TvInstallResult result;
-            _tvInstallRunHere = true;
+            _tvAdbRunHere = true;
             try
             {
                 result = await Host.InstallTvAppAsync(endpoint, progress);
             }
             finally
             {
-                _tvInstallRunHere = false;
+                _tvAdbRunHere = false;
             }
             if (_closed)
                 return;
@@ -344,7 +344,16 @@ public partial class SettingsWindow
                 TvDiagStepText.Text = Loc.Get("TvDiagStep" + step);
                 TvDiagStepText.IsVisible = true;
             }));
-            var result = await Host.CollectTvDiagnosticsAsync(endpoint, progress);
+            TvDiagResult result;
+            _tvAdbRunHere = true;
+            try
+            {
+                result = await Host.CollectTvDiagnosticsAsync(endpoint, progress);
+            }
+            finally
+            {
+                _tvAdbRunHere = false;
+            }
             if (_closed)
                 return;
             if (result.Ok && result.ZipPath is { } zip)

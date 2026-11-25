@@ -682,7 +682,7 @@
     <value>อัปเดตแอปบนทีวีไม่ได้: แอปบนทีวีเซ็นด้วยกุญแจอื่น — ถอนแอป PSRS TV Overlay บนทีวีออก แล้วติดตั้งใหม่จากแท็บ "ทีวี" ของการตั้งค่า</value>
   </data>
   <data name="TvInstallBusy" xml:space="preserve">
-    <value>กำลังติดตั้ง…</value>
+    <value>กำลังทำงานกับทีวี…</value>
   </data>
   <data name="TvDiagButton" xml:space="preserve">
     <value>เก็บข้อมูลแก้ปัญหา</value>
