@@ -14,7 +14,11 @@ public sealed record TvA11yInfo(bool? Listed, bool? Bound, int OtherEnabledCount
 /// <summary>The TV app's <c>psrs-diag-state v1</c> block.</summary>
 public sealed record TvAppState(bool Running, IReadOnlyDictionary<string, string> Values, IReadOnlyList<string> Heard);
 
-/// <summary>Everything <see cref="TvDiagText.Summary"/> needs; gathered by the collector.</summary>
+/// <summary>
+/// Everything <see cref="TvDiagText.Summary"/> needs; gathered by the collector. <paramref name="LastCrashLine"/> is the
+/// <c>time=... thread=...</c> line of the crash record, <c>null</c> when there is none. <paramref name="CrashChannelRead"/>
+/// is <c>true</c> when the crash channel answered (so a <c>null</c> line then means "no crash"), <c>false</c> when it was unavailable.
+/// </summary>
 public sealed record TvDiagFacts(
     DateTimeOffset Time,
     string PcVersion,
@@ -28,7 +32,8 @@ public sealed record TvDiagFacts(
     TvAppState? State,
     string? PcIdHash,
     IReadOnlyList<string> TvClients,
-    string? LastCrashLine);
+    string? LastCrashLine,
+    bool CrashChannelRead = false);
 
 /// <summary>
 /// Pure text logic for the TV diagnostics dump: privacy filters, parsers for the TV's provider text and the
@@ -50,9 +55,14 @@ public static class TvDiagText
     private static readonly Regex PropLine = new(@"^\[(?<k>[^\]]+)\]:\s*\[(?<v>.*)\]\s*$", RegexOptions.Compiled);
     private static readonly Regex ThreadTime = new(
         @"^\d\d-\d\d\s+\d\d:\d\d:\d\d\.\d+\s+(?<pid>\d+)\s+\d+\s+[VDIWEFAS]\s+(?<tag>.*?)\s*:\s", RegexOptions.Compiled);
-    // Package-looking tokens (system internals excluded) that mark a line as being about some other app.
-    private static readonly Regex ForeignPackage = new(
-        @"\b(?!com\.android\.(?:internal|server|commands|shell)\b)(?:com|org|net|io|tv|jp|de|fr|uk|co)\.[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+", RegexOptions.Compiled);
+    // Package-looking dotted tokens; a mention-only logcat line is kept only if every one is ours or a framework name.
+    private static readonly Regex PackageToken = new(@"\b[a-z][a-z0-9_]*(?:\.[a-z0-9_]+){2,}\b", RegexOptions.Compiled);
+    private static readonly string[] FrameworkPrefixes = ["android.", "java.", "javax.", "kotlin.", "dalvik.", "libcore."];
+
+    /// <summary>True when <paramref name="line"/> has a package-like token that is neither ours nor a framework one.</summary>
+    private static bool NamesOtherPackage(string line) =>
+        PackageToken.Matches(line.Replace(Package, "", StringComparison.Ordinal))
+            .Any(m => !FrameworkPrefixes.Any(f => m.Value.StartsWith(f, StringComparison.Ordinal)));
 
     /// <summary>First 8 lowercase hex chars of SHA-256(UTF-8 pcId); same function as on the TV.</summary>
     public static string PcIdHash(string pcId)
@@ -98,8 +108,7 @@ public static class TvDiagText
             var ours = (pids is not null && pids.Contains(pid)) || m.Groups["tag"].Value == "PsrsTv";
             if (!ours && line.Contains(Package, StringComparison.Ordinal))
             {
-                var rest = line.Replace(Package, "", StringComparison.Ordinal);
-                ours = !rest.Contains("PackageSetting{", StringComparison.Ordinal) && !ForeignPackage.IsMatch(rest);
+                ours = !line.Contains("PackageSetting{", StringComparison.Ordinal) && !NamesOtherPackage(line);
             }
             previousKept = ours;
             if (ours)
@@ -347,10 +356,10 @@ public static class TvDiagText
         }
 
         // 7
-        if (!reached || state is null)
+        if (!string.IsNullOrWhiteSpace(facts.LastCrashLine))
+            Check(7, Bad, $"แอปบนทีวีเคยค้าง ล่าสุด {facts.LastCrashLine.Trim()}", $"TV app crashed recently, last: {facts.LastCrashLine.Trim()}");
+        else if (!reached || !facts.CrashChannelRead)
             Check(7, Unknown, "ไม่ทราบว่าแอปทีวีเคยค้างหรือไม่", "Unknown whether the TV app crashed");
-        else if (!string.IsNullOrWhiteSpace(facts.LastCrashLine))
-            Check(7, Bad, $"แอปบนทีวีเคยค้าง ล่าสุด {facts.LastCrashLine!.Trim()}", $"TV app crashed recently, last: {facts.LastCrashLine.Trim()}");
         else
             Check(7, Ok, "แอปบนทีวีไม่เคยค้าง", "TV app has not crashed");
 

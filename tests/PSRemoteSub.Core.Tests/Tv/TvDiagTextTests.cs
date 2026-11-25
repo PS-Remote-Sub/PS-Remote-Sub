@@ -80,6 +80,35 @@ public sealed class TvDiagTextTests
     }
 
     [Theory]
+    [InlineData("th.co.other.app")]
+    [InlineData("app.foo.bar")]
+    [InlineData("ru.yandex.x")]
+    public void FilterLogcat_mentionLineNamingOtherPackage_isDropped(string other)
+    {
+        var line = $"11-25 11:47:22.780   516   544 I ActivityManager: Start proc 1:th.psrs.tvoverlay/u0a1 after {other}";
+        Assert.Equal("", TvDiagText.FilterLogcat(line, []));
+    }
+
+    [Fact]
+    public void FilterLogcat_plainMentionLine_isKept()
+    {
+        var line = "11-25 11:47:22.780   516   544 I ActivityManager: Start proc 1234:th.psrs.tvoverlay/u0a1 for service {th.psrs.tvoverlay/th.psrs.tvoverlay.OverlayA11yService}";
+        Assert.Equal(line, TvDiagText.FilterLogcat(line, []));
+    }
+
+    [Fact]
+    public void FilterLogcat_realFixture_everyPackageTokenIsOursOrFramework()
+    {
+        var output = TvDiagText.FilterLogcat(Fx("emulator-api34", "logcat.txt"), [4188, 5215]);
+        var token = new System.Text.RegularExpressions.Regex(@"\b[a-z][a-z0-9_]*(?:\.[a-z0-9_]+){2,}\b");
+        var foreign = token.Matches(output.Replace("th.psrs.tvoverlay", ""))
+            .Select(m => m.Value)
+            .Where(v => !new[] { "android.", "java.", "javax.", "kotlin.", "dalvik.", "libcore." }.Any(v.StartsWith))
+            .ToList();
+        Assert.Empty(foreign);
+    }
+
+    [Theory]
     [InlineData(null)]
     [InlineData("")]
     [InlineData("garbage\n\n\u0000")]
@@ -205,7 +234,7 @@ public sealed class TvDiagTextTests
     private static TvDiagFacts Facts(
         bool authorized = true, string? failure = null, IReadOnlyDictionary<string, string>? props = null,
         TvPackageInfo? package = null, int? newest = 3, TvA11yInfo? a11y = null, TvAppState? state = null,
-        IReadOnlyList<string>? clients = null, string? crash = null) =>
+        IReadOnlyList<string>? clients = null, string? crash = null, bool crashRead = true) =>
         new(new DateTimeOffset(2026, 11, 25, 12, 0, 0, TimeSpan.FromHours(7)), "1.2.3", "Windows 11", authorized, failure,
             props ?? new Dictionary<string, string>
             {
@@ -214,7 +243,7 @@ public sealed class TvDiagTextTests
             },
             package ?? new TvPackageInfo(3, "1.1.0", null, null, true), newest,
             a11y ?? new TvA11yInfo(true, true, 0), state ?? TvDiagText.ParseState(Sample),
-            TvDiagText.PcIdHash("abc"), clients ?? [], crash);
+            TvDiagText.PcIdHash("abc"), clients ?? [], crash, crashRead);
 
     private static string Line(string summary, int n) =>
         summary.Split('\n').Single(l => l.StartsWith($"{n}. ", StringComparison.Ordinal)).TrimEnd('\r');
@@ -283,10 +312,18 @@ public sealed class TvDiagTextTests
     [Fact]
     public void Summary_noState_check5And7Unknown()
     {
-        var f = Facts() with { State = null };
-        var s = TvDiagText.Summary(f);
+        var s = TvDiagText.Summary(Facts() with { State = null, CrashChannelRead = false });
         AssertMark(s, 5, '?');
         AssertMark(s, 7, '?');
+    }
+
+    [Fact]
+    public void Summary_crashShownWithoutState()
+    {
+        var s = TvDiagText.Summary(Facts(crash: "time=2026-11-25T04:47:42.160Z thread=main") with { State = null });
+        AssertMark(s, 7, '✘');
+        Assert.Contains("2026-11-25T04:47:42.160Z", Line(s, 7));
+        AssertMark(TvDiagText.Summary(Facts() with { State = null }), 7, '✔'); // crash channel said "none"
     }
 
     [Fact]
