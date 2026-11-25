@@ -284,6 +284,10 @@ public sealed class TvDiagnosticsTests : IDisposable
     [Fact]
     public async Task Privacy_noForbiddenStrings()
     {
+        // AppHost is the hashing boundary: it hands TvDiagnostics only PcIdHash(PcId), never the raw id. Hash the raw id the
+        // same way here, then check the hash shows where expected and the raw id nowhere.
+        const string rawPcId = "pc-raw-id";
+        var hash = TvDiagText.PcIdHash(rawPcId);
         var getprop = Fx("emulator-api34", "getprop.txt") + "\n[ro.serialno]: [ABC123]\n[persist.sys.wifi.ssid]: [HomeWifi]\n";
         var logcat = Fx("emulator-api34", "logcat.txt") +
             "\n11-25 04:50:00.000  999  999 I NetflixTag: opened com.netflix.ninja now\n";
@@ -293,17 +297,19 @@ public sealed class TvDiagnosticsTests : IDisposable
             : a.Contains("logcat") ? Ok(logcat)
             : a.Contains("accessibility") && a.Contains("dumpsys") ? Ok(a11yDump)
             : a.Contains("settings") && !a.Contains("accessibility_enabled") ? Ok("com.secret/.Svc:th.psrs.tvoverlay/.OverlayA11yService\n")
-            : null), pcIdHash: TvDiagText.PcIdHash("pc-raw-id"));
+            : null), pcIdHash: hash);
 
         var result = await diag.CollectAsync(Endpoint, OutDir, new Steps(), CancellationToken.None);
 
         var zip = ReadZip(result.ZipPath!);
+        Assert.Contains($"PC id hash: {hash}", zip["pc-info.txt"]);
+        Assert.Contains($"PC id hash: {hash}", zip["summary.txt"]);
         foreach (var (name, text) in zip)
         {
             Assert.DoesNotContain("ABC123", text);
             Assert.DoesNotContain("netflix", text, StringComparison.OrdinalIgnoreCase);
             Assert.DoesNotContain("com.secret", text);
-            Assert.DoesNotContain("pc-raw-id", text);
+            Assert.DoesNotContain(rawPcId, text);
             Assert.DoesNotContain("HomeWifi", text);
         }
         Assert.Contains("OtherEnabledCount", zip["accessibility.txt"]);
