@@ -178,15 +178,30 @@ public sealed partial class TvApkDownloader(HttpClient http, string repositoryUr
 
     private string CachePath(int version) => Path.Combine(cacheDir, $"{FilePrefix}{version.ToString(CultureInfo.InvariantCulture)}.apk");
 
-    private IEnumerable<TvApk> Cached()
+    private IEnumerable<TvApk> Cached() => CachedIn(cacheDir);
+
+    private static IEnumerable<TvApk> CachedIn(string dir)
     {
-        if (!Directory.Exists(cacheDir))
+        if (!Directory.Exists(dir))
             yield break;
-        foreach (var f in Directory.EnumerateFiles(cacheDir, FilePrefix + "*.apk"))
+        foreach (var f in Directory.EnumerateFiles(dir, FilePrefix + "*.apk"))
         {
             var m = AssetRx().Match(Path.GetFileName(f));
             if (m.Success && int.TryParse(m.Groups[1].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var v))
                 yield return new TvApk(f, v);
+        }
+    }
+
+    /// <summary>The highest versionCode among the cached APKs in <paramref name="dir"/>; null when there is none or the folder is unreadable.</summary>
+    public static int? NewestCachedVersion(string dir)
+    {
+        try
+        {
+            return CachedIn(dir).Select(a => (int?)a.Version).Max();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return null;
         }
     }
 

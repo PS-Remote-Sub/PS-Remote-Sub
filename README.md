@@ -106,12 +106,13 @@ PS5 ──HDMI──► ทีวี (เล่นเกมบนจอทีว
 | **ความทึบของกล่อง** | ยิ่งทึบยิ่งบังซับอังกฤษมิด ยิ่งใสยิ่งเห็นภาพเกมทะลุ |
 | **ปรับตำแหน่งบนทีวี** | ใช้เมื่อทีวีขยายหรือตัดขอบภาพ (overscan) ทำให้กล่องไม่ตรง ทีวีจะขึ้นกรอบสีขาวกับกล่องตัวอย่าง ปรับ **ขนาด**, **เลื่อนซ้าย–ขวา**, **เลื่อนขึ้น–ลง** จนกรอบตรงขอบภาพเกม กด **คืนค่าเดิม** เพื่อเริ่มใหม่ (กรอบปิดเองเมื่อปิดหน้าต่างปรับ) ค่าเก็บต่อ PC สำหรับทีวีเครื่องเดียว |
 | **ติดตั้งบนทีวี** | ติดตั้งหรือติดตั้งซ้ำแอปบนทีวี ดูหัวข้อด้านบน |
+| **เก็บข้อมูลแก้ปัญหา** | เก็บข้อมูลจากทีวีและ PC เป็นไฟล์ zip (`psrs-tv-diagnostics-<วันที่-เวลา>.zip`) วางไว้ที่ Desktop (ถ้าไม่มีจะเป็น Downloads หรือโฟลเดอร์ผู้ใช้) แล้วเปิดโฟลเดอร์ให้ ใช้แนบตอนแจ้งปัญหาเรื่องทีวี ไม่มีข้อความซับ คำแปล ชื่อเครื่อง PC หมายเลขเครื่องทีวี หรือชื่อ Wi-Fi ในไฟล์ ถ้าทีวีติดต่อไม่ได้ก็ยังได้ไฟล์ที่มีข้อมูลฝั่ง PC |
 
 ปุ่มลัดหยุด/เริ่มอ่านชั่วคราว (`Ctrl+Alt+Shift+P`) มีผลกับทีวีด้วย ส่วนการเปิด/ปิด overlay บน PC ไม่มีผลกับทีวี
 
-### ซับหายเองเมื่อทีวีไม่ได้อยู่ที่ PS5
+### เมื่อไหร่ซับถึงขึ้นบนทีวี
 
-แอปบนทีวีวาดเฉพาะตอนที่ทีวีแสดงช่อง HDMI ของ PS5 ถ้าสลับไปหน้าหลัก YouTube ตั้งค่า หรืออินพุตอื่น กล่องซับจะหายทันที และกลับมาเมื่อสลับกลับ ใช้ได้กับทีวี **Sony BRAVIA / Google TV** เท่านั้น (อ่านจากแอปอินพุตของ Sony) ทีวียี่ห้ออื่นยังไม่รองรับ
+แอปบนทีวีวาดซับเฉพาะตอนที่เชื่อมกับ PC อยู่ และ PC สั่งให้แสดง: เปิด **ส่งซับไปทีวี** ไว้ และไม่ได้กดหยุดอ่านชั่วคราว (`Ctrl+Alt+Shift+P`) แอปไม่ตรวจว่าทีวีกำลังแสดงอินพุตไหนหรือแอปไหนอยู่หน้าจอ และทำงานเหมือนกันทุกยี่ห้อ จึงใช้ได้กับ Android TV ทุกยี่ห้อ ไม่เฉพาะ Sony ถ้าสลับไปดู YouTube หรืออินพุตอื่นแล้วไม่อยากให้กล่องซับค้าง ให้กด `Ctrl+Alt+Shift+P` เพื่อหยุดชั่วคราว แล้วกดอีกครั้งเมื่อกลับมาเล่นเกม
 
 ### อัปเดตแอปบนทีวีอัตโนมัติ
 
@@ -238,7 +239,7 @@ git push origin main lib-20261121.1
 - ในโหมด AI ผู้ให้บริการที่เลือกจะได้รับ: ข้อความซับ (รวมชื่อผู้พูดที่อ่านได้ เพื่อแปลชื่อ), ซับบรรทัดก่อนหน้าพร้อมคำแปล และชื่อเกม ไม่ส่งอย่างอื่น ผู้ให้บริการแบบ cloud คิดค่าใช้จ่ายตามการใช้งาน ส่วน Ollama บนเครื่องตัวเองข้อมูลไม่ออกจากเครื่อง (ถ้าชี้ไป Ollama บนเครื่องอื่นในวง LAN ข้อมูลจะถูกส่งไปเครื่องนั้น)
 - API key เก็บแบบเข้ารหัสด้วย Windows DPAPI และไม่ถูกบันทึกลง log
 - การตั้งค่าเก็บที่ `%AppData%\PSRemoteSub\settings.json`
-- บันทึกการทำงาน (log) อยู่ที่ `%AppData%\PSRemoteSub\log.txt` (ของเก่ากว่านั้นอยู่ใน `log.1.txt` ไฟล์ละไม่เกิน 1 MB) เก็บแค่เหตุการณ์และข้อผิดพลาด **ไม่มีข้อความซับหรือคำแปล** และไม่ถูกส่งไปไหน เวลาแจ้งปัญหาให้แนบไฟล์นี้มาด้วย
+- บันทึกการทำงาน (log) อยู่ที่ `%AppData%\PSRemoteSub\log.txt` (ของเก่ากว่านั้นอยู่ใน `log.1.txt` ไฟล์ละไม่เกิน 1 MB) เก็บแค่เหตุการณ์และข้อผิดพลาด **ไม่มีข้อความซับหรือคำแปล** และไม่ถูกส่งไปไหน เวลาแจ้งปัญหาให้แนบไฟล์นี้มาด้วย ถ้าปัญหาอยู่ที่ทีวี ให้กด **เก็บข้อมูลแก้ปัญหา** ในแท็บ **ทีวี** ของการตั้งค่า แล้วแนบไฟล์ zip ที่ได้มาด้วย
 
 ## Build จากซอร์ส
 
@@ -390,12 +391,13 @@ If a copy signed with another key is already on the TV, the app asks you to unin
 | **ความทึบของกล่อง** ("Box opacity") | The more opaque, the better it hides the English line; the lighter, the more of the game shows through. |
 | **ปรับตำแหน่งบนทีวี** ("Adjust position on TV") | For TVs that zoom or crop the picture (overscan) so the boxes do not line up. The TV shows a white frame and sample boxes; adjust **ขนาด** (size), **เลื่อนซ้าย–ขวา** (shift left/right) and **เลื่อนขึ้น–ลง** (shift up/down) until the frame matches the edges of the game picture. **คืนค่าเดิม** ("Reset") starts over. The frame closes when you close the window. Stored per PC, for one TV. |
 | **ติดตั้งบนทีวี** ("Install on TV") | Installs or reinstalls the TV app (see above). |
+| **เก็บข้อมูลแก้ปัญหา** ("Collect troubleshooting data") | Gathers information from the TV and the PC into a zip (`psrs-tv-diagnostics-<date-time>.zip`) on the Desktop (else Downloads, else your user folder) and opens the folder. Attach it when you report a TV problem. It holds no subtitle text, translations, PC machine name, TV serial number or Wi-Fi name. If the TV cannot be reached you still get a zip with the PC-side information. |
 
 The pause/resume hotkey (`Ctrl+Alt+Shift+P`) applies to the TV too; turning the PC overlay on or off does not.
 
-### Auto-hide when the TV is not on the PS5
+### When the subtitles show on the TV
 
-The TV app only draws while the TV shows the PS5's HDMI input. Switch to the home screen, YouTube, Settings or another input and the boxes disappear at once, then come back when you switch back. This works on **Sony BRAVIA / Google TV** only (it reads Sony's input app); other TV brands are not supported.
+The TV app draws only while it is connected to the PC and the PC tells it to show: **ส่งซับไปทีวี** ("Send subtitles to TV") is on and reading is not paused (`Ctrl+Alt+Shift+P`). It does not detect which input or app the TV is showing and behaves the same on every brand, so it works on any Android TV, not only Sony. If you switch to YouTube or another input and do not want the boxes to stay, press `Ctrl+Alt+Shift+P` to pause, and press it again when you go back to the game.
 
 ### TV app auto-update
 
@@ -522,7 +524,7 @@ Review or edit `pending.jsonl` before `append`, which adds the lines to `subtitl
 - In AI mode the chosen provider receives the subtitle text (including the speaker names read from it, to translate them), the previous lines with their translations, and the game title. Nothing else is sent. Cloud providers charge per use; Ollama on your own PC keeps the data on your machine (pointing at Ollama on another LAN PC sends it to that PC).
 - The API key is encrypted with Windows DPAPI and never logged.
 - Settings are stored in `%AppData%\PSRemoteSub\settings.json`.
-- A diagnostic log is kept in `%AppData%\PSRemoteSub\log.txt` (older entries in `log.1.txt`, at most 1 MB each). It holds only events and errors, **never subtitle text or translations**, and is never sent anywhere. Attach it when you report a bug.
+- A diagnostic log is kept in `%AppData%\PSRemoteSub\log.txt` (older entries in `log.1.txt`, at most 1 MB each). It holds only events and errors, **never subtitle text or translations**, and is never sent anywhere. Attach it when you report a bug. For a TV problem, also press **เก็บข้อมูลแก้ปัญหา** in the **ทีวี** tab of Settings and attach the zip it creates.
 
 ## Build from source
 

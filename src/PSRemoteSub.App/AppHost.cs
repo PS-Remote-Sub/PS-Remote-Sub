@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using Avalonia.Threading;
 using PSRemoteSub.App.Updates;
@@ -558,7 +559,7 @@ public sealed class AppHost : IAsyncDisposable
     }
 
     /// <summary>
-    /// UI thread. Whether ADB work on the TV is running: <see cref="InstallTvAppAsync"/> or the startup update. Changes
+    /// UI thread. Whether ADB work on the TV is running: <see cref="InstallTvAppAsync"/>, <see cref="CollectTvDiagnosticsAsync"/> or the startup update. Changes
     /// raise <see cref="StateChanged"/>.
     /// </summary>
     public bool IsInstallingTvApp { get; private set; }
@@ -567,7 +568,7 @@ public sealed class AppHost : IAsyncDisposable
     /// UI thread. Runs <paramref name="work"/> on the thread pool behind <see cref="_tvAdbGate"/>, with
     /// <see cref="IsInstallingTvApp"/> set (and <see cref="StateChanged"/> raised) for its whole length.
     /// </summary>
-    private async Task<TvInstallResult> RunTvAdbAsync(Func<CancellationToken, Task<TvInstallResult>> work)
+    private async Task<T> RunTvAdbAsync<T>(Func<CancellationToken, Task<T>> work)
     {
         IsInstallingTvApp = true;
         RaiseStateChanged();
@@ -635,6 +636,71 @@ public sealed class AppHost : IAsyncDisposable
             Log.Warn("TV app install failed", ex);
             return new TvInstallResult(false, endpoint, "TvInstallFailed");
         }
+    }
+
+    /// <summary>
+    /// UI thread. Collects the TV diagnostics zip (see <see cref="TvDiagnostics"/>) over ADB, finding the TV when
+    /// <paramref name="endpoint"/> is null, and writes it to the Desktop (else Downloads, else the user folder). Runs
+    /// behind the same gate as the install and the startup update, with <see cref="IsInstallingTvApp"/> set. Never
+    /// downloads an APK. Never throws: a failure is a result with a Tv* error key (<c>TvDiagBundleMissing</c> when adb
+    /// is missing). Logs the outcome and the zip's file name only.
+    /// </summary>
+    public async Task<TvDiagResult> CollectTvDiagnosticsAsync(string? endpoint, IProgress<TvDiagStep> progress)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        ArgumentNullException.ThrowIfNull(progress);
+        if (IsInstallingTvApp || _disposed)
+            return new TvDiagResult(false, null, "TvDiagWriteFailed");
+        var kind = _platform.Kind;
+        try
+        {
+            string baseDir = AppContext.BaseDirectory;
+            string adbPath = TvBundle.AdbPath(baseDir, kind);
+            if (!File.Exists(adbPath))
+            {
+                Log.Warn("TV diagnostics: adb is missing");
+                return new TvDiagResult(false, null, "TvDiagBundleMissing");
+            }
+            int? bundled = TvBundle.BundledVersion(baseDir);
+            int? cached = TvApkDownloader.NewestCachedVersion(AppPaths.TvApkDir);
+            int? newest = bundled is null ? cached : cached is null ? bundled : Math.Max(bundled.Value, cached.Value);
+            var tv = Settings.Tv;
+            var info = new TvDiagPcInfo(
+                Version,
+                RuntimeInformation.OSDescription,
+                newest,
+                $"Enabled={tv.Enabled}\nMode={tv.Mode}\nAdbAddress={tv.AdbAddress}\n",
+                TvDiagText.PcIdHash(tv.PcId),
+                TvFeed.Clients(),
+                [AppPaths.LogFile, Path.Combine(Path.GetDirectoryName(AppPaths.LogFile) ?? "", "log.1.txt")]);
+            string outDir = DiagnosticsOutputDir();
+            var diag = new TvDiagnostics(new AdbClient(adbPath, new ProcessRunner()), info);
+            var result = await RunTvAdbAsync(ct => diag.CollectAsync(endpoint, outDir, progress, ct));
+            Log.Info(result.Ok
+                ? $"TV diagnostics written: {Path.GetFileName(result.ZipPath)}"
+                : $"TV diagnostics failed: {result.ErrorKey}");
+            return result;
+        }
+        catch (OperationCanceledException) when (_cts.IsCancellationRequested)
+        {
+            return new TvDiagResult(false, null, "TvDiagWriteFailed"); // the app is closing: nothing to report
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("TV diagnostics failed", ex);
+            return new TvDiagResult(false, null, "TvDiagWriteFailed");
+        }
+    }
+
+    /// <summary>The Desktop, else Downloads, else the user folder: the first that exists (and is not empty).</summary>
+    private static string DiagnosticsOutputDir()
+    {
+        string profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        foreach (var dir in new[] { desktop, profile.Length > 0 ? Path.Combine(profile, "Downloads") : "" })
+            if (dir.Length > 0 && Directory.Exists(dir))
+                return dir;
+        return profile;
     }
 
     /// <summary>

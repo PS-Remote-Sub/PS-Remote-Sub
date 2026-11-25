@@ -34,6 +34,18 @@ public sealed class TvApkDownloaderTests : IDisposable
 
     private string Cached(int version) => Path.Combine(_dir, $"psrs-tv-overlay-{version}.apk");
 
+    [Fact]
+    public void NewestCachedVersion_picksHighest()
+    {
+        foreach (var n in new[] { "psrs-tv-overlay-2.apk", "psrs-tv-overlay-11.apk", "other.apk" })
+            File.WriteAllText(Path.Combine(_dir, n), "x");
+        Assert.Equal(11, TvApkDownloader.NewestCachedVersion(_dir));
+    }
+
+    [Fact]
+    public void NewestCachedVersion_missingDir_isNull() =>
+        Assert.Null(TvApkDownloader.NewestCachedVersion(Path.Combine(_dir, "nope")));
+
     [Theory]
     [InlineData("https://github.com/PS-Remote-Sub/PS-Remote-Sub", "https://github.com/PS-Remote-Sub/PS-Remote-Sub-TV")]
     [InlineData("https://github.com/owner/app.git", "https://github.com/owner/PS-Remote-Sub-TV")]
