@@ -94,6 +94,8 @@ PS5 ──HDMI──► ทีวี (เล่นเกมบนจอทีว
 
 โปรแกรมจะติดตั้งแอป **PSRS TV Overlay** แล้วเปิดบริการการเข้าถึง (Accessibility) ของแอปให้เอง โดยเพิ่มต่อท้ายรายการเดิม ไม่ทับบริการอื่นที่เปิดอยู่ ถ้าเปิดบริการให้ไม่ได้ ให้เปิดเองที่ ตั้งค่า → การเข้าถึง → PSRS TV Overlay
 
+บน Google TV บางรุ่น (เช่น TCL, Sony Bravia) ถ้าลงแอปเองด้วยไฟล์ APK แล้วไปเปิดสวิตช์ในหน้าการเข้าถึง สวิตช์จะเด้งกลับเป็นปิดทันที เพราะ Android 13 ขึ้นไปจำกัดสิทธิ์ (restricted settings) ของแอปที่ไม่ได้ลงจาก store ให้กด **ติดตั้งบนทีวี** จากแอปคอมแทน โปรแกรมจะปลดการจำกัดนี้ (`appops set th.psrs.tvoverlay ACCESS_RESTRICTED_SETTINGS allow`) เปิดบริการ และเปิด `accessibility_enabled` ให้เอง ไม่ต้องพิมพ์คำสั่งบนทีวี
+
 ถ้าบนทีวีมีแอปที่เซ็นด้วยกุญแจอื่นอยู่ โปรแกรมจะแจ้งให้ถอนแอป PSRS TV Overlay บนทีวีก่อน แล้วติดตั้งใหม่
 
 ### แท็บ ทีวี ในหน้าตั้งค่า
@@ -378,6 +380,8 @@ The same steps as the text on the app's **ทีวี** ("TV") tab:
 4. If the TV asks whether to allow debugging from this computer, tick **Always allow** and press OK (the app waits up to 2 minutes).
 
 The app installs **PSRS TV Overlay** and turns on its Accessibility service for you, by adding it to the existing list so other enabled services are not replaced. If it cannot enable it, turn it on yourself in Settings → Accessibility → PSRS TV Overlay.
+
+On some Google TVs (TCL, Sony Bravia), if the APK was sideloaded by hand, the Accessibility switch turns itself straight back off: Android 13+ puts apps installed outside a store under "restricted settings". Press **ติดตั้งบนทีวี** in the PC app instead. It lifts that restriction (`appops set th.psrs.tvoverlay ACCESS_RESTRICTED_SETTINGS allow`), enables the service and turns `accessibility_enabled` on, so nothing has to be typed on the TV.
 
 If a copy signed with another key is already on the TV, the app asks you to uninstall PSRS TV Overlay from the TV first, then install again.
 
