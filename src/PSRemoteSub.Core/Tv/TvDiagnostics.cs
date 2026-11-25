@@ -9,12 +9,15 @@ namespace PSRemoteSub.Core.Tv;
 public enum TvDiagStep { Finding, Connecting, WaitingForApproval, Collecting, Writing, Done }
 
 /// <summary>What the PC knows about itself. Every field is already privacy-safe (no PcId, no machine name).</summary>
+/// <param name="NewestApkVersion">Newest TV APK version on this PC (bundled or downloaded), <c>null</c> when there is none.</param>
+/// <param name="WebPort">Port of the running web server, <c>null</c> when it is not running.</param>
 /// <param name="SettingsText">TvSettings (Enabled, Mode, AdbAddress), rendered by the caller.</param>
-/// <param name="PcIdHash"><see cref="TvDiagText.PcIdHash"/> of this PC's id.</param>
+/// <param name="PcIdHash"><see cref="TvDiagText.PcIdHash"/> of this PC's id. The caller (<c>AppHost</c>) is the hashing
+/// boundary: the raw PcId never reaches this class.</param>
 /// <param name="TvClients">IPs of the TVs connected to <c>/tv/events</c> right now.</param>
 /// <param name="PcLogFiles">Log files to copy, newest first (<c>pc-log.txt</c>, <c>pc-log.1.txt</c>, ...); missing ones are skipped.</param>
 public sealed record TvDiagPcInfo(
-    string AppVersion, string Os, int? NewestApkVersion, string SettingsText, string PcIdHash,
+    string AppVersion, string Os, int? NewestApkVersion, int? WebPort, string SettingsText, string PcIdHash,
     IReadOnlyList<string> TvClients, IReadOnlyList<string> PcLogFiles);
 
 /// <summary><see cref="Ok"/> is true whenever a zip was written, even when the TV was unreachable.</summary>
@@ -374,7 +377,8 @@ public sealed class TvDiagnostics(AdbClient adb, TvDiagPcInfo pc, TimeProvider? 
         }
 
         private static string PcInfoText(TvDiagPcInfo pc) =>
-            $"PC app: {pc.AppVersion}\nPC OS: {pc.Os}\nBundled TV APK version: {pc.NewestApkVersion?.ToString(CultureInfo.InvariantCulture) ?? "?"}\n" +
+            $"PC app: {pc.AppVersion}\nPC OS: {pc.Os}\nNewest TV APK available on this PC: {pc.NewestApkVersion?.ToString(CultureInfo.InvariantCulture) ?? "?"}\n" +
+            $"Web server port: {pc.WebPort?.ToString(CultureInfo.InvariantCulture) ?? "not running"}\n" +
             $"PC id hash: {pc.PcIdHash}\nTV clients connected to /tv/events: {(pc.TvClients.Count == 0 ? "none" : string.Join(", ", pc.TvClients))}\n" +
             $"\nTvSettings:\n{pc.SettingsText}\n";
     }

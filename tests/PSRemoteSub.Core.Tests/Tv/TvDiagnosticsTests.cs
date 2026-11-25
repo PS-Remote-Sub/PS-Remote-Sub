@@ -60,7 +60,8 @@ public sealed class TvDiagnosticsTests : IDisposable
     };
 
     private (TvDiagnostics Diag, FakeAdbRunner Runner, string LogPath) Create(
-        Func<string[], ProcessResult> handler, string? logContent = "pc line\n", string pcIdHash = "ab12cd34", string[]? clients = null)
+        Func<string[], ProcessResult> handler, string? logContent = "pc line\n", string pcIdHash = "ab12cd34", string[]? clients = null,
+        int? webPort = 5000)
     {
         var runner = new FakeAdbRunner { Handler = handler };
         var clock = new FakeClock();
@@ -68,7 +69,7 @@ public sealed class TvDiagnosticsTests : IDisposable
         var adb = new AdbClient("adb.exe", runner, Delay, clock);
         var logPath = Path.Combine(_dir, "log.txt");
         if (logContent is not null) File.WriteAllText(logPath, logContent);
-        var pc = new TvDiagPcInfo("1.2.3", "Windows 11", 3, "Enabled=true\nMode=Auto\nAdbAddress=" + Endpoint, pcIdHash,
+        var pc = new TvDiagPcInfo("1.2.3", "Windows 11", 3, webPort, "Enabled=true\nMode=Auto\nAdbAddress=" + Endpoint, pcIdHash,
             clients ?? [], [logPath, Path.Combine(_dir, "log.1.txt")]);
         return (new TvDiagnostics(adb, pc, clock), runner, logPath);
     }
@@ -213,6 +214,29 @@ public sealed class TvDiagnosticsTests : IDisposable
         Assert.Contains("device.txt", zip.Keys);
         Assert.Contains("tv-app-state.txt", zip.Keys);
         Assert.Equal(1, runner.Count("kill-server"));
+    }
+
+    [Fact]
+    public async Task PcInfo_hasWebPortAndNewestApkLabel()
+    {
+        var (diag, _, _) = Create(Device(), webPort: 5123);
+
+        var result = await diag.CollectAsync(Endpoint, OutDir, new Steps(), CancellationToken.None);
+
+        var info = ReadZip(result.ZipPath!)["pc-info.txt"];
+        Assert.Contains("Web server port: 5123", info);
+        Assert.Contains("Newest TV APK available on this PC: 3", info);
+        Assert.DoesNotContain("Bundled", info);
+    }
+
+    [Fact]
+    public async Task PcInfo_webServerNotRunning()
+    {
+        var (diag, _, _) = Create(Device(), webPort: null);
+
+        var result = await diag.CollectAsync(Endpoint, OutDir, new Steps(), CancellationToken.None);
+
+        Assert.Contains("Web server port: not running", ReadZip(result.ZipPath!)["pc-info.txt"]);
     }
 
     [Fact]

@@ -669,8 +669,9 @@ public sealed class AppHost : IAsyncDisposable
                 Version,
                 RuntimeInformation.OSDescription,
                 newest,
+                _web?.Port,
                 $"Enabled={tv.Enabled}\nMode={tv.Mode}\nAdbAddress={tv.AdbAddress}\n",
-                TvDiagText.PcIdHash(tv.PcId),
+                TvDiagText.PcIdHash(tv.PcId), // hashing boundary: the raw PcId never leaves AppHost
                 TvFeed.Clients(),
                 [AppPaths.LogFile, Path.Combine(Path.GetDirectoryName(AppPaths.LogFile) ?? "", "log.1.txt")]);
             string outDir = DiagnosticsOutputDir();
