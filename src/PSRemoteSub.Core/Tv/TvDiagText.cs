@@ -55,14 +55,25 @@ public static class TvDiagText
     private static readonly Regex PropLine = new(@"^\[(?<k>[^\]]+)\]:\s*\[(?<v>.*)\]\s*$", RegexOptions.Compiled);
     private static readonly Regex ThreadTime = new(
         @"^\d\d-\d\d\s+\d\d:\d\d:\d\d\.\d+\s+(?<pid>\d+)\s+\d+\s+[VDIWEFAS]\s+(?<tag>.*?)\s*:\s", RegexOptions.Compiled);
-    // Package-looking dotted tokens; a mention-only logcat line is kept only if every one is ours or a framework name.
-    private static readonly Regex PackageToken = new(@"\b[a-z][a-z0-9_]*(?:\.[a-z0-9_]+){2,}\b", RegexOptions.Compiled);
+    // Any maximal dotted word run (any case, two or more segments) and any "<word>/" component prefix could name another
+    // app; a mention-only logcat line is kept only if every such token is ours, a framework name, a number or a source file.
+    private static readonly Regex DottedToken = new(@"(?<![A-Za-z0-9_.])[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+", RegexOptions.Compiled);
+    private static readonly Regex ComponentPrefix = new(@"(?<![A-Za-z0-9_./])[A-Za-z0-9_][A-Za-z0-9_.]*(?=/)", RegexOptions.Compiled);
+    private static readonly Regex HarmlessToken = new(@"^(?:[0-9]+(?:\.[0-9]+)*|[A-Za-z_][A-Za-z0-9_]*\.(?:kt|java))$", RegexOptions.Compiled);
+    private static readonly Regex OurClass = new(@"^th\.psrs\.tvoverlay\.[A-Z][A-Za-z0-9_]*$", RegexOptions.Compiled);
     private static readonly string[] FrameworkPrefixes = ["android.", "java.", "javax.", "kotlin.", "dalvik.", "libcore."];
+    private static readonly Regex StartProc = new(@"\bStart proc (?<pid>\d+):(?<proc>[^\s/]+)", RegexOptions.Compiled);
 
-    /// <summary>True when <paramref name="line"/> has a package-like token that is neither ours nor a framework one.</summary>
+    /// <summary>True when <paramref name="line"/> has a package-like token that is not ours, a framework name, a number or a source file.</summary>
     private static bool NamesOtherPackage(string line) =>
-        PackageToken.Matches(line.Replace(Package, "", StringComparison.Ordinal))
-            .Any(m => !FrameworkPrefixes.Any(f => m.Value.StartsWith(f, StringComparison.Ordinal)));
+        DottedToken.Matches(line).Concat(ComponentPrefix.Matches(line)).Any(m => !IsAllowedToken(m.Value));
+
+    private static bool IsAllowedToken(string token) =>
+        token is Package or Package + ".diag" || OurClass.IsMatch(token) || HarmlessToken.IsMatch(token)
+        || FrameworkPrefixes.Any(f => token.StartsWith(f, StringComparison.Ordinal));
+
+    private static bool IsOurProcess(string process) =>
+        process == Package || process.StartsWith(Package + ":", StringComparison.Ordinal);
 
     /// <summary>First 8 lowercase hex chars of SHA-256(UTF-8 pcId); same function as on the TV.</summary>
     public static string PcIdHash(string pcId)
@@ -85,16 +96,43 @@ public static class TvDiagText
     }
 
     /// <summary>
-    /// Keeps threadtime lines from one of <paramref name="pids"/>, with tag <c>PsrsTv</c>, or mentioning the TV package
-    /// (unless the line also names another app); continuation lines (stack traces) only right after a kept line.
+    /// Keeps threadtime lines from our process, with tag <c>PsrsTv</c>, or mentioning the TV package (unless the line also
+    /// names another app); continuation lines (stack traces) only right after a kept line. A pid is ours after an
+    /// ActivityManager <c>Start proc N:th.psrs.tvoverlay</c> marker until a <c>Start proc N:</c> for another process; lines
+    /// of a pid before its first marker in the buffer belong to an earlier process and are dropped. A pid with no marker in
+    /// the buffer is ours when it is in <paramref name="pids"/> (the current <c>pidof</c>).
     /// </summary>
     public static string FilterLogcat(string logcat, IReadOnlyCollection<int> pids)
     {
+        var lines = Lines(logcat).ToList();
+        var parsed = new (Match M, int Pid, int MarkerPid, bool MarkerOurs)[lines.Count];
+        var hasMarker = new HashSet<int>();
+        for (var i = 0; i < lines.Count; i++)
+        {
+            var m = ThreadTime.Match(lines[i]);
+            var pid = m.Success && int.TryParse(m.Groups["pid"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var p) ? p : -1;
+            var markerPid = -1;
+            var markerOurs = false;
+            if (m.Success && m.Groups["tag"].Value == "ActivityManager")
+            {
+                var sp = StartProc.Match(lines[i]);
+                if (sp.Success && int.TryParse(sp.Groups["pid"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var mp))
+                {
+                    markerPid = mp;
+                    markerOurs = IsOurProcess(sp.Groups["proc"].Value);
+                    hasMarker.Add(mp);
+                }
+            }
+            parsed[i] = (m, pid, markerPid, markerOurs);
+        }
+
+        var owner = new Dictionary<int, bool>();
         var kept = new List<string>();
         var previousKept = false;
-        foreach (var line in Lines(logcat))
+        for (var i = 0; i < lines.Count; i++)
         {
-            var m = ThreadTime.Match(line);
+            var line = lines[i];
+            var (m, pid, markerPid, markerOurs) = parsed[i];
             if (!m.Success)
             {
                 // "--------- beginning of main" and blanks are not continuations; indented/other text after a kept line is.
@@ -104,12 +142,18 @@ public static class TvDiagText
                     kept.Add(line);
                 continue;
             }
-            var pid = int.TryParse(m.Groups["pid"].Value, NumberStyles.None, CultureInfo.InvariantCulture, out var p) ? p : -1;
-            var ours = (pids is not null && pids.Contains(pid)) || m.Groups["tag"].Value == "PsrsTv";
+            bool ourPid;
+            if (owner.TryGetValue(pid, out var o))
+                ourPid = o;
+            else
+                ourPid = !hasMarker.Contains(pid) && pids is not null && pids.Contains(pid);
+            var ours = ourPid || m.Groups["tag"].Value == "PsrsTv";
             if (!ours && line.Contains(Package, StringComparison.Ordinal))
             {
                 ours = !line.Contains("PackageSetting{", StringComparison.Ordinal) && !NamesOtherPackage(line);
             }
+            if (markerPid >= 0)
+                owner[markerPid] = markerOurs; // takes effect from the next line on
             previousKept = ours;
             if (ours)
                 kept.Add(line);

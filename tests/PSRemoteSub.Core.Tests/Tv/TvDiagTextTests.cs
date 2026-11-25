@@ -96,6 +96,75 @@ public sealed class TvDiagTextTests
         Assert.Equal(line, TvDiagText.FilterLogcat(line, []));
     }
 
+    [Theory]
+    [InlineData("11-25 11:47:22.780   516   544 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:th.psrs.tvoverlay flg=0x4000010 } to com.whatsapp/.Receiver")]
+    [InlineData("11-25 11:47:22.780   516   544 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:th.psrs.tvoverlay flg=0x4000010 } to com.Vendor.TvApp/.R")]
+    [InlineData("11-25 11:47:22.780   516   544 I WindowManager: Changing focus from Window{a1b2 u0 tv.twitch/x} to Window{c3d4 u0 th.psrs.tvoverlay}")]
+    [InlineData("11-25 11:47:22.780   516   544 I WindowManager: focus Window{a1b2 u0 th.psrs.tvoverlay} after _com.other.app")]
+    [InlineData("11-25 11:47:22.780   516   544 I WindowManager: focus Window{a1b2 u0 th.psrs.tvoverlay} after th.psrs.tvoverlay2")]
+    [InlineData("11-25 11:47:22.780   516   544 I WindowManager: focus Window{a1b2 u0 th.psrs.tvoverlay} after Netflix/.Main")]
+    public void FilterLogcat_mentionLineWithForeignToken_isDropped(string line)
+    {
+        Assert.Equal("", TvDiagText.FilterLogcat(line, []));
+    }
+
+    [Fact]
+    public void FilterLogcat_mentionLineWithOnlyOursFrameworkAndNumbers_isKept()
+    {
+        var line = "11-25 11:47:22.780   516   544 I ActivityManager: Start proc 4188:th.psrs.tvoverlay/u0a192 for content provider " +
+                   "{th.psrs.tvoverlay/th.psrs.tvoverlay.DiagProvider} act=android.intent.action.MAIN flg=0x4000010 version 1.1.0 at 192.168.0.5 (DiagProvider.kt:12)";
+        Assert.Equal(line, TvDiagText.FilterLogcat(line, []));
+    }
+
+    [Fact]
+    public void FilterLogcat_realFixture_keepsStartProcLine()
+    {
+        var output = TvDiagText.FilterLogcat(Fx("emulator-api34", "logcat.txt"), [5215]);
+        Assert.Contains("ActivityManager: Start proc 4188:th.psrs.tvoverlay/u0a192", output);
+        Assert.Contains("CoreBackPreview: Window{eb8f76 u0 th.psrs.tvoverlay}", output);
+    }
+
+    [Fact]
+    public void FilterLogcat_pidReuse_otherAppLinesBeforeOurStartProcAreDropped()
+    {
+        var logcat = string.Join('\n',
+            "11-25 11:47:20.000  4188  4188 I Chatty: secret from the previous owner of 4188",
+            "11-25 11:47:22.780   516   544 I ActivityManager: Start proc 4188:th.psrs.tvoverlay/u0a192 for content provider",
+            "11-25 11:47:23.000  4188  4188 D Whatever: from our pid");
+        var output = TvDiagText.FilterLogcat(logcat, [4188]);
+        Assert.DoesNotContain("secret", output);
+        Assert.Contains("from our pid", output);
+    }
+
+    [Fact]
+    public void FilterLogcat_pidReuse_otherAppStartedAfterUsWithSamePid_isDropped()
+    {
+        var logcat = string.Join('\n',
+            "11-25 11:47:22.780   516   544 I ActivityManager: Start proc 4188:th.psrs.tvoverlay/u0a192 for content provider",
+            "11-25 11:47:23.000  4188  4188 D Whatever: from our pid",
+            "11-25 11:47:24.000   516   544 I ActivityManager: Start proc 4188:com.other.app/u0a200 for activity",
+            "11-25 11:47:25.000  4188  4188 D Chatty: secret of the new owner");
+        var output = TvDiagText.FilterLogcat(logcat, []);
+        Assert.Contains("from our pid", output);
+        Assert.DoesNotContain("secret", output);
+        Assert.DoesNotContain("com.other.app", output);
+    }
+
+    [Fact]
+    public void FilterLogcat_pidLearnedFromStartProc_keepsEarlierProcessCrash()
+    {
+        var logcat = string.Join('\n',
+            "11-25 11:47:22.780   516   544 I ActivityManager: Start proc 3000:th.psrs.tvoverlay/u0a192 for service",
+            "11-25 11:47:23.000  3000  3000 E AndroidRuntime: FATAL EXCEPTION: main",
+            "11-25 11:47:23.000  3000  3000 E AndroidRuntime: Process: th.psrs.tvoverlay, PID: 3000",
+            "11-25 11:47:30.000   516   544 I ActivityManager: Start proc 4188:th.psrs.tvoverlay/u0a192 for service",
+            "11-25 11:47:31.000  4188  4188 D Whatever: from the current process");
+        var output = TvDiagText.FilterLogcat(logcat, [4188]);
+        Assert.Contains("FATAL EXCEPTION", output);
+        Assert.Contains("PID: 3000", output);
+        Assert.Contains("from the current process", output);
+    }
+
     [Fact]
     public void FilterLogcat_realFixture_everyPackageTokenIsOursOrFramework()
     {
