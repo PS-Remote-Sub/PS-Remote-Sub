@@ -22,10 +22,17 @@ public sealed partial class AdbClient(string adbPath, IProcessRunner runner, Fun
     /// </summary>
     public const int ServerPort = 5038;
 
+    /// <summary>Authority of the TV app's diagnostics content provider.</summary>
+    public const string DiagAuthority = "th.psrs.tvoverlay.diag";
+
+    /// <summary>The TV app's accessibility service, as <c>dumpsys activity service</c> names it.</summary>
+    public const string TvServiceComponent = "th.psrs.tvoverlay/.OverlayA11yService";
+
     private static readonly string ServerPortArg = ServerPort.ToString(System.Globalization.CultureInfo.InvariantCulture);
     private static readonly TimeSpan KillTimeout = TimeSpan.FromSeconds(5);
 
     private static readonly TimeSpan QuickTimeout = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan LogcatTimeout = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan InstallTimeout = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(1);
 
@@ -137,6 +144,62 @@ public sealed partial class AdbClient(string adbPath, IProcessRunner runner, Fun
         return r.ExitCode == 0;
     }
 
+    /// <summary><c>adb shell getprop</c>: every system property. Null on a non-zero exit. The caller keeps only what it may share.</summary>
+    public Task<string?> GetPropsAsync(string serial, CancellationToken ct = default) =>
+        ShellTextAsync(serial, ["getprop"], QuickTimeout, ct);
+
+    /// <summary><c>adb shell dumpsys package</c> of <see cref="TvPackage"/>. Null on a non-zero exit.</summary>
+    public Task<string?> DumpsysPackageAsync(string serial, CancellationToken ct = default) =>
+        ShellTextAsync(serial, ["dumpsys", "package", TvPackage], QuickTimeout, ct);
+
+    /// <summary><c>adb shell dumpsys accessibility</c>. Null on a non-zero exit. The caller keeps only the lines about <see cref="TvPackage"/>.</summary>
+    public Task<string?> DumpsysAccessibilityAsync(string serial, CancellationToken ct = default) =>
+        ShellTextAsync(serial, ["dumpsys", "accessibility"], QuickTimeout, ct);
+
+    /// <summary>
+    /// <c>adb shell content read</c> of one channel of the TV app's diagnostics provider. The command exits 0 even when
+    /// the provider is missing (an old TV app prints "Error while accessing provider" to stdout), so any exit 0 returns
+    /// the text and the caller decides validity by its header line. Null on a non-zero exit.
+    /// </summary>
+    public Task<string?> ContentReadAsync(string serial, TvDiagChannel path, CancellationToken ct = default) =>
+        ShellTextAsync(serial, ["content", "read", "--uri", $"content://{DiagAuthority}/{path.ToString().ToLowerInvariant()}"], QuickTimeout, ct);
+
+    /// <summary>
+    /// <c>adb shell dumpsys activity service</c> of <see cref="TvServiceComponent"/>. Exits 0 with "No services match" when
+    /// the service is not running, so the caller decides validity by the header line. Null on a non-zero exit.
+    /// </summary>
+    public Task<string?> DumpsysServiceAsync(string serial, CancellationToken ct = default) =>
+        ShellTextAsync(serial, ["dumpsys", "activity", "service", TvServiceComponent], QuickTimeout, ct);
+
+    /// <summary>
+    /// <c>adb shell logcat -d</c> of the main, system and crash buffers. The whole device log can be large, so it gets a
+    /// 30 second timeout (a <see cref="TimeoutException"/> propagates). Null on a non-zero exit.
+    /// </summary>
+    public Task<string?> LogcatAsync(string serial, CancellationToken ct = default) =>
+        ShellTextAsync(serial, ["logcat", "-d", "-v", "threadtime", "-b", "main,system,crash"], LogcatTimeout, ct);
+
+    /// <summary>
+    /// <c>adb shell pidof</c> of <see cref="TvPackage"/>: the process ids, empty when the app is not running (pidof then
+    /// exits 1 with no output) or the output holds no integers. Anything unparsable is ignored.
+    /// </summary>
+    public async Task<IReadOnlyList<int>> PidsAsync(string serial, CancellationToken ct = default)
+    {
+        var text = await ShellTextAsync(serial, ["pidof", TvPackage], QuickTimeout, ct).ConfigureAwait(false);
+        if (text is null)
+            return [];
+        return text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)
+            .Select(t => int.TryParse(t, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var pid) ? pid : -1)
+            .Where(pid => pid >= 0)
+            .ToList();
+    }
+
+    /// <summary>Runs <c>adb -s serial shell ...</c>; the stdout on exit 0, null otherwise.</summary>
+    private async Task<string?> ShellTextAsync(string serial, IReadOnlyList<string> shellArgs, TimeSpan timeout, CancellationToken ct)
+    {
+        var r = await RunAsync(["-s", serial, "shell", .. shellArgs], timeout, ct).ConfigureAwait(false);
+        return r.ExitCode == 0 ? r.StdOut : null;
+    }
+
     /// <summary>
     /// <c>adb kill-server</c> for the private server, so no adb process (holding the TV connection and a lock on the
     /// bundled files) outlives the work. Best effort: waits at most a few seconds, ignores cancellation and only logs a
@@ -163,3 +226,14 @@ public sealed partial class AdbClient(string adbPath, IProcessRunner runner, Fun
 
 /// <summary>An adb command that ran but reported failure.</summary>
 public sealed class AdbException(string message) : IOException(message);
+
+/// <summary>A channel of the TV app's diagnostics provider; the lower-cased name is the URI path.</summary>
+public enum TvDiagChannel
+{
+    /// <summary>The persisted log (<c>diag.1.log</c>, <c>diag.log</c> and unflushed entries).</summary>
+    Log,
+    /// <summary>The live state snapshot.</summary>
+    State,
+    /// <summary>The last recorded crash.</summary>
+    Crash,
+}

@@ -7,28 +7,6 @@ public sealed class TvInstallerTests
     private const string Endpoint = "192.168.0.33:5555";
     private const string Apk = "tv.apk";
 
-    /// <summary>
-    /// Scripted runner. Every call must start with the private server port (<c>-P 5038</c>); <see cref="Calls"/> and
-    /// <see cref="Handler"/> get the adb arguments after it (without the exe).
-    /// </summary>
-    private sealed class FakeRunner : IProcessRunner
-    {
-        public List<string[]> Calls { get; } = [];
-        public Func<string[], ProcessResult> Handler { get; set; } = _ => new ProcessResult(0, "", "");
-
-        public Task<ProcessResult> RunAsync(string exe, IReadOnlyList<string> args, TimeSpan timeout, CancellationToken ct)
-        {
-            Assert.Equal("adb.exe", exe);
-            Assert.Equal(["-P", "5038"], args.Take(2));
-            var a = args.Skip(2).ToArray();
-            Calls.Add(a);
-            return Task.FromResult(Handler(a));
-        }
-
-        public bool Called(string verb) => Calls.Any(c => c.Contains(verb));
-        public int Count(string verb) => Calls.Count(c => c.Contains(verb));
-    }
-
     private static ProcessResult Ok(string stdout) => new(0, stdout, "");
 
     /// <summary>Manual clock: only moves when a fake delay (or a slow fake adb call) advances it.</summary>
@@ -40,12 +18,12 @@ public sealed class TvInstallerTests
         public void Advance(TimeSpan t) => _ticks += t.Ticks;
     }
 
-    private static (TvInstaller Installer, FakeRunner Runner, List<TimeSpan> Delays) Create(int bundled = 2) =>
+    private static (TvInstaller Installer, FakeAdbRunner Runner, List<TimeSpan> Delays) Create(int bundled = 2) =>
         CreateWithClock(bundled, out _);
 
-    private static (TvInstaller Installer, FakeRunner Runner, List<TimeSpan> Delays) CreateWithClock(int bundled, out FakeClock clock)
+    private static (TvInstaller Installer, FakeAdbRunner Runner, List<TimeSpan> Delays) CreateWithClock(int bundled, out FakeClock clock)
     {
-        var runner = new FakeRunner();
+        var runner = new FakeAdbRunner();
         var delays = new List<TimeSpan>();
         var fake = clock = new FakeClock();
         Task Delay(TimeSpan t, CancellationToken _) { delays.Add(t); fake.Advance(t); return Task.CompletedTask; }
@@ -356,7 +334,7 @@ public sealed class TvInstallerTests
     [InlineData("a:b/.C-d_1", "a:b/.C-d_1")]
     public async Task PutSecure_QuotesOnlyUnsafeValues(string value, string expectedArg)
     {
-        var runner = new FakeRunner();
+        var runner = new FakeAdbRunner();
         var adb = new AdbClient("adb.exe", runner);
 
         await adb.PutSecureAsync(Endpoint, "k", value);
