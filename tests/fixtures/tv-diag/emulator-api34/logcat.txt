@@ -1,0 +1,120 @@
+11-25 11:46:54.790   332   332 D AndroidRuntime: >>>>>> START com.android.internal.os.ZygoteInit uid 0 <<<<<<
+11-25 11:46:54.793   332   332 I AndroidRuntime: Using default boot image
+11-25 11:46:54.793   332   332 I AndroidRuntime: Leaving lock profiling enabled
+11-25 11:47:04.261   946   946 I AndroidRuntime: VM exiting with result code 0, cleanup skipped.
+11-25 11:47:21.971   516   567 V BackupManagerService: [UserID:0] restoreAtInstall pkg=th.psrs.tvoverlay token=1 restoreSet=0
+11-25 11:47:22.052  1031  1031 D CarrierSvcBindHelper: onPackageAdded: th.psrs.tvoverlay
+11-25 11:47:22.182   516   788 I SdkSandboxManager: No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10192, mPackageName='th.psrs.tvoverlay, mAppProcessToken='null'}
+11-25 11:47:22.293  1031  1260 D ImsResolver: maybeAddedImsService, packageName: th.psrs.tvoverlay
+11-25 11:47:22.298   820   820 I SafetyLabelChangedBroadcastReceiver: received broadcast packageName: th.psrs.tvoverlay, current user: UserHandle{0}, packageChangeEvent: NEW_INSTALL, intent user: UserHandle{0}
+11-25 11:47:22.305  4133  4133 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 11:47:22.324  4133  4133 I AndroidRuntime: Using default boot image
+11-25 11:47:22.325  4133  4133 I AndroidRuntime: Leaving lock profiling enabled
+11-25 11:47:22.522  1031  1031 D CarrierSvcBindHelper: onPackageModified: th.psrs.tvoverlay
+11-25 11:47:22.585  1031  1260 D ImsResolver: maybeAddedImsService, packageName: th.psrs.tvoverlay
+11-25 11:47:22.631  4133  4133 D AndroidRuntime: Calling main entry com.android.commands.content.Content
+11-25 11:47:22.780   516   544 I ActivityManager: Start proc 4188:th.psrs.tvoverlay/u0a192 for content provider {th.psrs.tvoverlay/th.psrs.tvoverlay.DiagProvider}
+11-25 11:47:23.141  4188  4188 W ziparchive: Unable to open '/data/app/~~TcXuhqHij9WSHe8LR5m_7A==/th.psrs.tvoverlay-IXUCtOmrhSSCRpb_px07ug==/base.dm': No such file or directory
+11-25 11:47:23.141  4188  4188 W ziparchive: Unable to open '/data/app/~~TcXuhqHij9WSHe8LR5m_7A==/th.psrs.tvoverlay-IXUCtOmrhSSCRpb_px07ug==/base.dm': No such file or directory
+11-25 11:47:23.226  4188  4188 D nativeloader: Configuring clns-6 for other apk /data/app/~~TcXuhqHij9WSHe8LR5m_7A==/th.psrs.tvoverlay-IXUCtOmrhSSCRpb_px07ug==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~TcXuhqHij9WSHe8LR5m_7A==/th.psrs.tvoverlay-IXUCtOmrhSSCRpb_px07ug==/lib/arm64, permitted_path=/data:/mnt/expand:/data/user/0/th.psrs.tvoverlay
+11-25 11:47:23.379  4188  4188 V GraphicsEnvironment: ANGLE GameManagerService for th.psrs.tvoverlay: false
+11-25 11:47:23.379  4188  4188 V GraphicsEnvironment: th.psrs.tvoverlay is not listed in per-application setting
+11-25 11:47:23.418  1442  2911 I BlockstoreStorage: Clearing Blockstore Data for package th.psrs.tvoverlay [CONTEXT service_id=258 ]
+11-25 11:47:23.431  1312  3301 I FontLog : Package th.psrs.tvoverlay has no metadata [CONTEXT service_id=132 ]
+11-25 11:47:23.528  4133  4133 D AndroidRuntime: Shutting down VM
+11-25 11:47:24.556  4333  4333 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 11:47:24.574  4333  4333 I AndroidRuntime: Using default boot image
+11-25 11:47:24.574  4333  4333 I AndroidRuntime: Leaving lock profiling enabled
+11-25 11:47:24.734  4333  4333 D AndroidRuntime: Calling main entry com.android.commands.content.Content
+11-25 11:47:24.800  4333  4333 D AndroidRuntime: Shutting down VM
+11-25 11:47:25.758  4188  4188 I PsrsTv  : service connected, app 1.1.0 (3)
+11-25 11:47:25.826  4188  4188 I PsrsTv  : overlay added
+11-25 11:47:25.878   516  2140 D CoreBackPreview: Window{eb8f76 u0 th.psrs.tvoverlay}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@9ae3332, mPriority=0, mIsAnimationCallback=false}
+11-25 11:47:26.348  1579  1579 I AiAiEcho: AppFetcherImplV2 updateApps package:[th.psrs.tvoverlay], userId:[0], reason:[package is added.].
+11-25 11:47:26.448  1579  1579 I AiAiEcho: AppFetcherImpl onPackageChanged th.psrs.tvoverlay.
+11-25 11:47:26.455  1579  2823 I AiAiEcho: AppIndexer Package:[th.psrs.tvoverlay] UserProfile:[0] Enabled:[true].
+11-25 11:47:26.455  1579  2823 I AiAiEcho: AppFetcherImplV2 updateApps package:[th.psrs.tvoverlay], userId:[0], reason:[package is updated.].
+11-25 11:47:28.726   516   567 I AppsFilter: interaction: PackageSetting{f941b70 th.psrs.tvoverlay/10192} -> PackageSetting{b0bfee9 com.google.android.youtube/10156} BLOCKED
+11-25 11:47:28.726   516   567 I AppsFilter: interaction: PackageSetting{f941b70 th.psrs.tvoverlay/10192} -> PackageSetting{cfcb76e com.google.android.apps.messaging/10129} BLOCKED
+11-25 11:47:28.727   516   567 I AppsFilter: interaction: PackageSetting{f941b70 th.psrs.tvoverlay/10192} -> PackageSetting{491ce0f com.google.android.gm/10145} BLOCKED
+11-25 11:47:28.727   516   567 I AppsFilter: interaction: PackageSetting{f941b70 th.psrs.tvoverlay/10192} -> PackageSetting{b5bcfa7 com.google.android.apps.maps/10143} BLOCKED
+11-25 11:47:28.727   516   567 I AppsFilter: interaction: PackageSetting{f941b70 th.psrs.tvoverlay/10192} -> PackageSetting{d777e9c com.google.android.rkpdapp/10190} BLOCKED
+11-25 11:47:28.727   516   567 I AppsFilter: interaction: PackageSetting{f941b70 th.psrs.tvoverlay/10192} -> PackageSetting{d1ca0a5 com.google.android.contacts/10154} BLOCKED
+11-25 11:47:28.727   516   567 I AppsFilter: interaction: PackageSetting{f941b70 th.psrs.tvoverlay/10192} -> PackageSetting{2c0dc7a com.google.android.settings.intelligence/10127} BLOCKED
+11-25 11:47:30.097  4546  4546 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 11:47:30.121  4546  4546 I AndroidRuntime: Using default boot image
+11-25 11:47:30.121  4546  4546 I AndroidRuntime: Leaving lock profiling enabled
+11-25 11:47:30.357  4546  4546 D AndroidRuntime: Calling main entry com.android.commands.content.Content
+11-25 11:47:30.384  4546  4546 D AndroidRuntime: Shutting down VM
+11-25 11:47:31.279  4571  4571 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 11:47:31.283  4571  4571 I AndroidRuntime: Using default boot image
+11-25 11:47:31.283  4571  4571 I AndroidRuntime: Leaving lock profiling enabled
+11-25 11:47:31.368  4571  4571 D AndroidRuntime: Calling main entry com.android.commands.content.Content
+11-25 11:47:31.373  4571  4571 D AndroidRuntime: Shutting down VM
+11-25 11:47:31.376  4571  4582 I AndroidRuntime: NOTE: attach of thread 'binder:4571_1' failed
+11-25 11:47:39.907  5102  5102 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 11:47:39.920  5102  5102 I AndroidRuntime: Using default boot image
+11-25 11:47:39.920  5102  5102 I AndroidRuntime: Leaving lock profiling enabled
+11-25 11:47:40.201  5102  5102 D AndroidRuntime: Calling main entry com.android.commands.content.Content
+11-25 11:47:40.220  5102  5102 D AndroidRuntime: Shutting down VM
+11-25 11:47:40.517   516   567 I AppsFilter: interaction: PackageSetting{f941b70 th.psrs.tvoverlay/10192} -> PackageSetting{77bbf5b com.google.android.apps.messaging/10129} BLOCKED
+11-25 11:47:59.230   818   818 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-25 11:47:59.231  1007  1007 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-25 11:47:59.231  1031  1031 D CarrierSvcBindHelper: onPackageModified: com.google.android.contacts
+11-25 11:47:59.232  1007  1007 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-25 11:47:59.238  1031  1031 D CarrierSvcBindHelper: No carrier app for: 0
+11-25 11:47:59.239   820   842 I PermissionControllerServiceImpl: Updating user sensitive for uid 10154
+11-25 11:47:59.251   516   612 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+11-25 11:47:59.260   818   901 D StylusManager: Stylus InputDevice changed: 12 virtio_input_multi_touch_10
+11-25 11:47:59.261   818   901 D StylusManager: Stylus InputDevice changed: 10 virtio_input_multi_touch_8
+11-25 11:47:59.262   818   901 D StylusManager: Stylus InputDevice changed: 9 virtio_input_multi_touch_7
+11-25 11:47:59.263   818   901 D StylusManager: Stylus InputDevice changed: 4 virtio_input_multi_touch_2
+11-25 11:47:59.264   818   901 D StylusManager: Stylus InputDevice changed: 6 virtio_input_multi_touch_4
+11-25 11:47:59.267  1031  1260 D ImsResolver: maybeAddedImsService, packageName: com.google.android.contacts
+11-25 11:47:59.268   818   901 D StylusManager: Stylus InputDevice changed: 11 virtio_input_multi_touch_9
+11-25 11:47:59.269   818   901 D StylusManager: Stylus InputDevice changed: 13 virtio_input_multi_touch_11
+11-25 11:47:59.269   818   901 D StylusManager: Stylus InputDevice changed: 7 virtio_input_multi_touch_5
+11-25 11:47:59.269   818   901 D StylusManager: Stylus InputDevice changed: 5 virtio_input_multi_touch_3
+11-25 11:47:59.270   818   901 D StylusManager: Stylus InputDevice changed: 3 virtio_input_multi_touch_1
+11-25 11:47:59.270   818   901 D StylusManager: Stylus InputDevice changed: 8 virtio_input_multi_touch_6
+11-25 11:47:59.328   516   542 E system_server: No package ID 7f found for resource ID 0x7f080107.
+11-25 11:47:59.328   516   542 E system_server: No package ID 7f found for resource ID 0x7f150560.
+11-25 11:47:59.336  1579  1579 I AiAiEcho: AppFetcherImpl onPackageChanged com.google.android.contacts.
+11-25 11:47:59.337  1579  3290 I AiAiEcho: AppIndexer Package:[com.google.android.contacts] UserProfile:[0] Enabled:[true].
+11-25 11:47:59.337  1579  3290 I AiAiEcho: AppFetcherImplV2 updateApps package:[com.google.android.contacts], userId:[0], reason:[package is updated.].
+11-25 11:47:59.419  1075  2008 D EGL_emulation: app_time_stats: avg=1178.44ms min=79.60ms max=2277.29ms count=2
+11-25 11:47:59.732  4051  4179 I Bugle   : BroadcastReceiverAsyncWorkTracker: Acknowledging broadcast of bdxy@48945f2
+11-25 11:47:59.744  4685  4911 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package: flg=0x45000010 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+11-25 11:47:59.753  4685  4895 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_CHANGED [CONTEXT service_id=17 ]
+11-25 11:47:59.754  4685  4719 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-25 11:47:59.755  4685  4719 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-25 11:47:59.762  4722  4841 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+11-25 11:47:59.765  4722  4841 I Icing   : Indexing done com.google.android.gms-apps
+11-25 11:47:59.765  4722  4841 I Icing   : Indexing com.google.android.gms-internal.3p:MobileApplication from com.google.android.gms
+11-25 11:47:59.766  4722  4841 I Icing   : Indexing done com.google.android.gms-internal.3p:MobileApplication
+11-25 11:47:59.979  5538  5538 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-25 11:47:59.982  5538  5538 I AndroidRuntime: Using default boot image
+11-25 11:47:59.982  5538  5538 I AndroidRuntime: Leaving lock profiling enabled
+11-25 11:47:59.984  5538  5538 I app_process: Core platform API reporting enabled, enforcing=false
+11-25 11:47:59.984  5538  5538 I app_process: Using CollectorTypeCC GC.
+11-25 11:48:00.010  1579  1922 I AiAiEcho: Predicting[0]: 
+11-25 11:48:00.010  1579  1922 I AiAiEcho: EchoTargets: 
+11-25 11:48:00.010  1579  1922 I AiAiEcho: Filtered by AiAi flag check: 
+11-25 11:48:00.010  1579  1922 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-25 11:48:00.011  1579  1922 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-25 11:48:00.016   818   818 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-25 11:48:00.040  5538  5538 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-25 11:48:00.045   818   902 D EGL_emulation: app_time_stats: avg=4127.05ms min=4127.05ms max=4127.05ms count=1
+11-25 11:48:00.052  5538  5538 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-25 11:48:00.053  5538  5538 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+11-25 11:48:00.079  5538  5538 W main    : type=1400 audit(0.0:71): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=77 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-25 11:48:00.082  5538  5538 W libc    : Access denied finding property "ro.product.name_for_attestation"
+11-25 11:48:00.079  5538  5538 W main    : type=1400 audit(0.0:72): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=77 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-25 11:48:00.083  5538  5538 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+11-25 11:48:00.079  5538  5538 W main    : type=1400 audit(0.0:73): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=77 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-25 11:48:00.083  5538  5538 W libc    : Access denied finding property "ro.product.model_for_attestation"
+11-25 11:48:00.084  5538  5538 D AndroidRuntime: Calling main entry com.android.commands.content.Content
+11-25 11:48:00.086  5538  5538 W System  : No Compatibility callbacks set! Querying change 263076149
+11-25 11:48:00.086  5538  5538 W System  : No Compatibility callbacks set! Querying change 263076149
+11-25 11:48:00.086  5538  5538 W System  : No Compatibility callbacks set! Querying change 263076149
+11-25 11:48:00.090  5538  5538 D AndroidRuntime: Shutting down VM

@@ -14,6 +14,7 @@
     <ProjectReference Include="..\..\src\PSRemoteSub.Core\PSRemoteSub.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\fixtures\tv-diag\**" LinkBase="fixtures/tv-diag" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\fixtures\google\**" LinkBase="fixtures/google" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

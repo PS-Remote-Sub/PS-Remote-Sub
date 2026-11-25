@@ -1,0 +1,128 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        9613d2b th.psrs.tvoverlay/.MainActivity filter 94c5588
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+          Category: "android.intent.category.LEANBACK_LAUNCHER"
+
+Service Resolver Table:
+  Non-Data Actions:
+      android.accessibilityservice.AccessibilityService:
+        6c00b21 th.psrs.tvoverlay/.OverlayA11yService filter faefb46 permission android.permission.BIND_ACCESSIBILITY_SERVICE
+          Action: "android.accessibilityservice.AccessibilityService"
+
+Registered ContentProviders:
+  th.psrs.tvoverlay/.DiagProvider:
+    Provider{ca19692 th.psrs.tvoverlay/.DiagProvider}
+
+ContentProvider Authorities:
+  [th.psrs.tvoverlay.diag]:
+    Provider{ca19692 th.psrs.tvoverlay/.DiagProvider}
+      applicationInfo=ApplicationInfo{399c863 th.psrs.tvoverlay}
+
+Key Set Manager:
+  [th.psrs.tvoverlay]
+      Signing KeySets: 35
+
+Packages:
+  Package [th.psrs.tvoverlay] (fbcff13):
+    userId=10166
+    pkg=Package{31aac60 th.psrs.tvoverlay}
+    codePath=/data/app/~~8f2q7m9wYxW11cHaiMcWYw==/th.psrs.tvoverlay-bTEc_zvXGeuITqvA_q3zvQ==
+    resourcePath=/data/app/~~8f2q7m9wYxW11cHaiMcWYw==/th.psrs.tvoverlay-bTEc_zvXGeuITqvA_q3zvQ==
+    legacyNativeLibraryDir=/data/app/~~8f2q7m9wYxW11cHaiMcWYw==/th.psrs.tvoverlay-bTEc_zvXGeuITqvA_q3zvQ==/lib
+    primaryCpuAbi=null
+    secondaryCpuAbi=null
+    versionCode=3 minSdk=26 targetSdk=36
+    versionName=1.1.0
+    splits=[base]
+    apkSigningVersion=2
+    applicationInfo=ApplicationInfo{31aac60 th.psrs.tvoverlay}
+    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    queriesPackages=[]
+    dataDir=/data/user/0/th.psrs.tvoverlay
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2026-11-25 11:49:01
+    firstInstallTime=2026-11-25 11:49:01
+    lastUpdateTime=2026-11-25 11:49:01
+    signatures=PackageSignatures{520d519 version:2, signatures:[fed32117], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    requested permissions:
+      android.permission.INTERNET
+      android.permission.ACCESS_WIFI_STATE
+      android.permission.CHANGE_WIFI_MULTICAST_STATE
+    install permissions:
+      android.permission.CHANGE_WIFI_MULTICAST_STATE: granted=true
+      android.permission.INTERNET: granted=true
+      android.permission.ACCESS_WIFI_STATE: granted=true
+    User 0: ceDataInode=131193 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false
+      gids=[3003]
+      runtime permissions:
+
+Queries:
+  system apps queryable: false
+  queries via package name:
+  queries via intent:
+  queryable via interaction:
+    User 0:
+      th.psrs.tvoverlay:
+        [com.android.dynsystem,com.android.emulator.multidisplay,com.android.localtransport,com.android.wallpaperbackup,com.android.providers.settings,com.android.settings,com.android.inputdevices,com.android.keychain,android,com.android.location.fused,com.android.server.telecom]
+        com.android.shell
+
+Package Changes:
+  Sequence number=350
+  User 0:
+    seq=0, package=com.google.android.permissioncontroller
+    seq=1, package=com.android.systemui
+    seq=6, package=com.google.android.inputmethod.latin
+    seq=7, package=com.google.android.sdksetup
+    seq=8, package=th.psrs.tvoverlay
+    seq=32, package=com.google.android.apps.youtube.music
+    seq=51, package=com.google.android.cellbroadcastreceiver
+    seq=246, package=com.google.android.partnersetup
+    seq=293, package=com.android.settings
+    seq=302, package=com.google.android.googlequicksearchbox
+    seq=303, package=com.google.android.gsf
+    seq=304, package=com.google.android.apps.messaging
+    seq=306, package=com.google.android.calendar
+    seq=308, package=com.google.android.apps.docs
+    seq=309, package=com.android.camera2
+    seq=310, package=com.android.nfc
+    seq=312, package=com.android.traceur
+    seq=313, package=com.android.stk
+    seq=316, package=com.google.android.apps.photos
+    seq=319, package=com.google.android.apps.wellbeing
+    seq=329, package=com.google.android.gm
+    seq=331, package=com.google.android.apps.maps
+    seq=332, package=com.android.vending
+    seq=333, package=com.google.android.youtube
+    seq=342, package=com.google.android.projection.gearhead
+    seq=343, package=com.google.android.setupwizard
+    seq=349, package=com.google.android.gms
+
+
+Dexopt state:
+  [th.psrs.tvoverlay]
+    path: /data/app/~~8f2q7m9wYxW11cHaiMcWYw==/th.psrs.tvoverlay-bTEc_zvXGeuITqvA_q3zvQ==/base.apk
+      arm64: [status=run-from-apk] [reason=unknown]
+
+
+Compiler stats:
+  [th.psrs.tvoverlay]
+    (No recorded stats)
+
+APEX session state:
+
+Active APEX packages:
+
+
+Inactive APEX packages:
+
+
+Factory APEX packages:
+
+
