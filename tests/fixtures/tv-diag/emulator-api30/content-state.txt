@@ -1,0 +1,15 @@
+psrs-diag-state v1
+service.running=true
+app.version=1.1.0 (3)
+service.connected=true
+overlay.attached=true
+overlay.error=
+drawing=no:not-connected
+pc.connected=none
+sse.state=idle
+sse.lastFailure=
+count.beacons=0
+count.events=0
+count.renders=1
+count.guardedFailures=0
+uptime.ms=14236

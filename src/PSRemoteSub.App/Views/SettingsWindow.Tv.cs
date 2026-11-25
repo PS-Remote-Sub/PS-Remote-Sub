@@ -15,8 +15,8 @@ public partial class SettingsWindow
 {
     private const string DefaultAdbPort = "5555";
 
-    // This window started the running install, so its own step texts are showing.
-    private bool _tvInstallRunHere;
+    // This window started the running ADB work (install or diagnostics), so its own step texts are showing.
+    private bool _tvAdbRunHere;
 
     private void WireTvEvents()
     {
@@ -60,6 +60,7 @@ public partial class SettingsWindow
         });
         TvCalibReset.Click += (_, _) => Safe(ResetTvCalibration);
         TvInstall.Click += (_, _) => _ = InstallTvAppAsync();
+        TvDiag.Click += (_, _) => _ = CollectTvDiagnosticsAsync();
         TvLocalNetworkSettings.Click += (_, _) =>
             Safe(() => Host.OpenPermissionSettings(PlatformPermission.LocalNetwork));
     }
@@ -109,13 +110,14 @@ public partial class SettingsWindow
         TvLocalNetworkHint.IsVisible = Host.TvLocalNetworkBlocked;
         bool busy = Host.IsInstallingTvApp;
         TvInstall.IsEnabled = !busy;
-        // ADB work this window did not start (the startup update, or an install from before it was reopened).
-        if (busy && !_tvInstallRunHere)
+        TvDiag.IsEnabled = !busy;
+        // ADB work this window did not start (the startup update, or an install or diagnostics run from before it was reopened).
+        if (busy && !_tvAdbRunHere)
         {
             TvInstallStepText.Text = Loc.Get("TvInstallBusy");
             TvInstallStepText.IsVisible = true;
         }
-        else if (!busy && !_tvInstallRunHere && TvInstallStepText.Text == Loc.Get("TvInstallBusy"))
+        else if (!busy && !_tvAdbRunHere && TvInstallStepText.Text == Loc.Get("TvInstallBusy"))
         {
             TvInstallStepText.IsVisible = false;
         }
@@ -268,14 +270,14 @@ public partial class SettingsWindow
                 TvInstallStepText.IsVisible = true;
             }));
             TvInstallResult result;
-            _tvInstallRunHere = true;
+            _tvAdbRunHere = true;
             try
             {
                 result = await Host.InstallTvAppAsync(endpoint, progress);
             }
             finally
             {
-                _tvInstallRunHere = false;
+                _tvAdbRunHere = false;
             }
             if (_closed)
                 return;
@@ -309,6 +311,79 @@ public partial class SettingsWindow
                 LoadTvState();
             }
         }
+    }
+
+    /// <summary>
+    /// Collects the TV diagnostics zip through <see cref="AppHost.CollectTvDiagnosticsAsync"/>, showing each step, then
+    /// the zip's file name (and revealing it) or the error. Both TV buttons stay disabled while it runs.
+    /// </summary>
+    private async Task CollectTvDiagnosticsAsync()
+    {
+        try
+        {
+            if (_closed || Host.IsInstallingTvApp)
+                return;
+            TvDiagError.IsVisible = false;
+            TvInstallError.IsVisible = false;
+            if (!TryParseTvAddress(TvAddress.Text, out var endpoint))
+            {
+                ShowTvDiagError("TvAddressInvalid");
+                return;
+            }
+            if (endpoint is not null)
+                TvAddress.Text = endpoint;
+
+            TvDiag.IsEnabled = false;
+            TvInstall.IsEnabled = false;
+            TvDiagStepText.IsVisible = false;
+            // Progress<T> posts to the UI thread (captured here).
+            var progress = new Progress<TvDiagStep>(step => Safe(() =>
+            {
+                if (_closed)
+                    return;
+                TvDiagStepText.Text = Loc.Get("TvDiagStep" + step);
+                TvDiagStepText.IsVisible = true;
+            }));
+            TvDiagResult result;
+            _tvAdbRunHere = true;
+            try
+            {
+                result = await Host.CollectTvDiagnosticsAsync(endpoint, progress);
+            }
+            finally
+            {
+                _tvAdbRunHere = false;
+            }
+            if (_closed)
+                return;
+            if (result.Ok && result.ZipPath is { } zip)
+            {
+                TvDiagStepText.Text = Loc.Format("TvDiagDone", Path.GetFileName(zip));
+                TvDiagStepText.IsVisible = true;
+                FileReveal.Reveal(zip);
+            }
+            else
+            {
+                TvDiagStepText.IsVisible = false;
+                ShowTvDiagError(result.ErrorKey ?? "TvDiagWriteFailed");
+            }
+            LoadTvState();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn($"Settings: TV diagnostics failed: {ex.GetType().Name}");
+            if (!_closed)
+            {
+                ShowTvDiagError("TvDiagWriteFailed");
+                LoadTvState();
+            }
+        }
+    }
+
+    private void ShowTvDiagError(string key)
+    {
+        TvDiagError.Text = Loc.Get(key);
+        TvDiagError.IsVisible = true;
     }
 
     private void ShowTvInstallError(string key)

@@ -682,7 +682,37 @@
     <value>อัปเดตแอปบนทีวีไม่ได้: แอปบนทีวีเซ็นด้วยกุญแจอื่น — ถอนแอป PSRS TV Overlay บนทีวีออก แล้วติดตั้งใหม่จากแท็บ "ทีวี" ของการตั้งค่า</value>
   </data>
   <data name="TvInstallBusy" xml:space="preserve">
-    <value>กำลังติดตั้ง…</value>
+    <value>กำลังทำงานกับทีวี…</value>
+  </data>
+  <data name="TvDiagButton" xml:space="preserve">
+    <value>เก็บข้อมูลแก้ปัญหา</value>
+  </data>
+  <data name="TvDiagStepFinding" xml:space="preserve">
+    <value>กำลังค้นหาทีวีในวง LAN…</value>
+  </data>
+  <data name="TvDiagStepConnecting" xml:space="preserve">
+    <value>กำลังเชื่อมต่อทีวี…</value>
+  </data>
+  <data name="TvDiagStepWaitingForApproval" xml:space="preserve">
+    <value>กด "อนุญาต" บนจอทีวี (ติ๊ก "อนุญาตเสมอ" ด้วย) — รอได้ 2 นาที</value>
+  </data>
+  <data name="TvDiagStepCollecting" xml:space="preserve">
+    <value>กำลังเก็บข้อมูลจากทีวี…</value>
+  </data>
+  <data name="TvDiagStepWriting" xml:space="preserve">
+    <value>กำลังสร้างไฟล์ zip…</value>
+  </data>
+  <data name="TvDiagStepDone" xml:space="preserve">
+    <value>เสร็จแล้ว</value>
+  </data>
+  <data name="TvDiagDone" xml:space="preserve">
+    <value>บันทึกไฟล์ไว้ที่ {0} — แนบไฟล์นี้ตอนแจ้งปัญหา</value>
+  </data>
+  <data name="TvDiagWriteFailed" xml:space="preserve">
+    <value>สร้างไฟล์ข้อมูลแก้ปัญหาไม่สำเร็จ — ดูรายละเอียดใน log</value>
+  </data>
+  <data name="TvDiagBundleMissing" xml:space="preserve">
+    <value>ไม่พบ adb ข้างโปรแกรม (โฟลเดอร์ tv) — ติดตั้งโปรแกรมใหม่แล้วลองอีกครั้ง</value>
   </data>
   <data name="PermScreenRecording" xml:space="preserve">
     <value>ต้องอนุญาต Screen Recording ให้ PS Remote Sub เพื่ออ่านซับจากหน้าต่าง Remote Play</value>

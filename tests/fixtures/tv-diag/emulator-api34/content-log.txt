@@ -1,0 +1,17 @@
+psrs-diag-log v1
+2026-11-25T04:47:25.746Z I service connected, app 1.1.0 (3)
+2026-11-25T04:47:25.825Z I overlay added
+2026-11-25T04:47:42.169Z E uncaught exception on main
+android.app.RemoteServiceException$CrashedByAdbException: shell-induced crash
+	at android.app.ActivityThread.throwRemoteServiceException(ActivityThread.java:2090)
+	at android.app.ActivityThread.-$$Nest$mthrowRemoteServiceException(Unknown Source:0)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2369)
+	at android.os.Handler.dispatchMessage(Handler.java:106)
+	at android.os.Looper.loopOnce(Looper.java:205)
+	at android.os.Looper.loop(Looper.java:294)
+	at android.app.ActivityThread.main(ActivityThread.java:8177)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+2026-11-25T04:47:43.330Z I service connected, app 1.1.0 (3)
+2026-11-25T04:47:43.363Z I overlay added

@@ -296,6 +296,9 @@
           <TextBlock Classes="hint" Text="{app:Tr TvAddressHint}" />
           <TextBlock x:Name="TvInstallStepText" TextWrapping="Wrap" IsVisible="False" />
           <TextBlock x:Name="TvInstallError" Classes="error" IsVisible="False" />
+          <Button x:Name="TvDiag" Content="{app:Tr TvDiagButton}" Focusable="False" HorizontalAlignment="Left" />
+          <TextBlock x:Name="TvDiagStepText" TextWrapping="Wrap" IsVisible="False" />
+          <TextBlock x:Name="TvDiagError" Classes="error" IsVisible="False" />
           <!-- macOS only: shown when LAN traffic to the TV is refused, which is what a denied Local Network permission looks like. -->
           <StackPanel x:Name="TvLocalNetworkHint" Orientation="Horizontal" Spacing="12" IsVisible="False">
             <TextBlock Text="{app:Tr PermLocalNetwork}" TextWrapping="Wrap" VerticalAlignment="Center" MaxWidth="420" />
