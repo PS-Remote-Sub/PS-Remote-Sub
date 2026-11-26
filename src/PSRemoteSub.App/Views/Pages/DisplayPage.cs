@@ -139,8 +139,6 @@ public sealed class DisplayPage : SettingsPage
         overlayRow.Children.Add(overlayRight);
 
         var body = PageBody(header, BuildPreview(), editorsCard, overlayRow);
-        body.MaxWidth = 860;
-        body.HorizontalAlignment = HorizontalAlignment.Left;
         SetBody(body);
         SizeChanged += (_, e) => Safe(() => ApplyLayout(e.NewSize.Width - 64 < NarrowWidth));
     }
@@ -252,11 +250,15 @@ public sealed class DisplayPage : SettingsPage
         var scene = new Grid { Height = H };
         scene.Children.Add(new Border { VerticalAlignment = VerticalAlignment.Top, Height = horizon, Background = new SolidColorBrush(Color.Parse("#22344a")) });
         scene.Children.Add(new Border { VerticalAlignment = VerticalAlignment.Bottom, Height = H - horizon, Background = new SolidColorBrush(Color.Parse("#23281f")) });
-        scene.Children.Add(Block(93, horizon - 58, 109, 58, "#1d2630"));
-        scene.Children.Add(Block(581, horizon - 76, 143, 76, "#18212a"));
-        scene.Children.Add(Block(236, horizon - 50, 76, 50, "#202c38"));
-        scene.Children.Add(Block(362, horizon - 38, 50, 49, "#0f141a", 25));
-        scene.Children.Add(Block(454, horizon - 30, 42, 42, "#141a20", 21));
+        // Sky and ground stretch with the page; the buildings and figures keep their drawn size and stay centred, so a
+        // wide window doesn't leave empty sky on the right. 817 = rightmost building edge (724) + the left margin (93).
+        var art = new Grid { Width = 817, HorizontalAlignment = HorizontalAlignment.Center };
+        art.Children.Add(Block(93, horizon - 58, 109, 58, "#1d2630"));
+        art.Children.Add(Block(581, horizon - 76, 143, 76, "#18212a"));
+        art.Children.Add(Block(236, horizon - 50, 76, 50, "#202c38"));
+        art.Children.Add(Block(362, horizon - 38, 50, 49, "#0f141a", 25));
+        art.Children.Add(Block(454, horizon - 30, 42, 42, "#141a20", 21));
+        scene.Children.Add(art);
         scene.Children.Add(new Border { Background = new SolidColorBrush(Colors.Black, 0.15) });
 
         _caption.Inlines ??= [];

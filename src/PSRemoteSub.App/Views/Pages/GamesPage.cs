@@ -286,8 +286,6 @@ public sealed class GamesPage : SettingsPage
         ApplyLayout(narrow: false);
 
         var body = PageBody(PageHeader(Loc.Get("NavGames"), Loc.Get("GamesSubtitle")), _layout);
-        body.MaxWidth = 860;
-        body.HorizontalAlignment = HorizontalAlignment.Left;
         SetBody(body);
         SizeChanged += (_, e) => Safe(() => ApplyLayout(e.NewSize.Width - 64 < NarrowWidth));
     }
