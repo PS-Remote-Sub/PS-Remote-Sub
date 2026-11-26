@@ -23,7 +23,7 @@ public sealed class SettingsStoreTests : IDisposable
     {
         var s = new SettingsStore(PathOf).Load();
         Assert.Single(s.Profiles);
-        Assert.Equal("ค่าเริ่มต้น", s.Profiles[0].Name);
+        Assert.Equal("Grand Theft Auto VI", s.Profiles[0].Name);
         Assert.Equal(5000, s.WebPort);
     }
 
@@ -201,10 +201,10 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
-    public void OldFile_NoMinDisplay_Gets3()
+    public void OldFile_NoMinDisplay_Gets0()
     {
         File.WriteAllText(PathOf, "{\"profiles\":[{\"name\":\"A\"}],\"activeProfile\":\"A\"}");
-        Assert.Equal(3, new SettingsStore(PathOf).Load().GetActive().MinDisplaySeconds);
+        Assert.Equal(0, new SettingsStore(PathOf).Load().GetActive().MinDisplaySeconds);
     }
 
     [Theory]
@@ -218,12 +218,12 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
-    public void MinDisplay_NaN_Gets3()
+    public void MinDisplay_NaN_Gets0()
     {
         var s = new AppSettings();
         s.Profiles[0].MinDisplaySeconds = double.NaN;
         s.Normalize();
-        Assert.Equal(3, s.GetActive().MinDisplaySeconds);
+        Assert.Equal(0, s.GetActive().MinDisplaySeconds);
     }
 
     [Fact]

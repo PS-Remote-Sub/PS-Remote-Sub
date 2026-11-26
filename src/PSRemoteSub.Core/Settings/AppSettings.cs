@@ -6,7 +6,7 @@ namespace PSRemoteSub.Core.Settings;
 
 public sealed class AppSettings
 {
-    public List<GameProfile> Profiles { get; set; } = [GameProfile.Create(GameProfile.DefaultName)];
+    public List<GameProfile> Profiles { get; set; } = [GameProfile.CreateDefault()];
     public string ActiveProfile { get; set; } = GameProfile.DefaultName;
     public string TargetLang { get; set; } = "th";
     public int WebPort { get; set; } = 5000;
@@ -66,7 +66,7 @@ public sealed class AppSettings
     internal void Normalize()
     {
         Profiles = Profiles is { Count: > 0 } ? [.. Profiles.Where(p => p is not null)] : [];
-        if (Profiles.Count == 0) Profiles.Add(GameProfile.Create(GameProfile.DefaultName));
+        if (Profiles.Count == 0) Profiles.Add(GameProfile.CreateDefault());
         Hotkeys ??= [];
         foreach (var (action, text) in DefaultHotkeys())
             if (!Hotkeys.TryGetValue(action, out var v) || string.IsNullOrWhiteSpace(v))
@@ -116,7 +116,7 @@ public sealed class AppSettings
         if (SettingsVersion < 3)
         {
             // Once only: a user who later picks "none" for the default profile keeps it.
-            var def = Profiles.FirstOrDefault(p => p.Name == GameProfile.DefaultName);
+            var def = Profiles.FirstOrDefault(p => GameProfile.IsDefaultName(p.Name));
             if (def is not null && string.IsNullOrWhiteSpace(def.LibraryGame))
                 def.LibraryGame = GameProfile.DefaultLibraryGame;
         }

@@ -1362,7 +1362,8 @@ public sealed class AppHost : IAsyncDisposable
         var gameTitle = string.IsNullOrWhiteSpace(title) ? null : title.Trim();
         return new PipelineConfig([.. profile.Zones.Select(ZoneConfig.From)], source, target, _paused, gameTitle,
             Math.Clamp(Settings.Translation.ContextLines, 0, 10), profile.Name,
-            AppSettings.MergeSpeakers(profile.Speakers)); // a copy; never throws on names that differ only in case
+            AppSettings.MergeSpeakers(profile.Speakers), // a copy; never throws on names that differ only in case
+            profile.SpeakerColors);
     }
 
     private string TargetCode() => string.IsNullOrWhiteSpace(Settings.TargetLang) ? "th" : Settings.TargetLang;

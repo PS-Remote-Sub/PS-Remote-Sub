@@ -9,6 +9,7 @@ namespace PSRemoteSub.Core.Pipeline;
 /// <param name="ContextLines">Previous subtitle pairs sent to the AI as context.</param>
 /// <param name="ProfileName">Active game profile; switching profiles resets the AI context.</param>
 /// <param name="Speakers">Speaker names the profile already knows (Thai spelling and colour), read when the profile changes.</param>
+/// <param name="SpeakerColors">False: speaker tags carry no colour (names are drawn in the default colour).</param>
 public sealed record PipelineConfig(
     IReadOnlyList<ZoneConfig> Zones,
     SourceLanguage Source,
@@ -17,4 +18,5 @@ public sealed record PipelineConfig(
     string? GameTitle = null,
     int ContextLines = 4,
     string? ProfileName = null,
-    IReadOnlyDictionary<string, SpeakerInfo>? Speakers = null);
+    IReadOnlyDictionary<string, SpeakerInfo>? Speakers = null,
+    bool SpeakerColors = true);

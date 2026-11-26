@@ -6,7 +6,13 @@ namespace PSRemoteSub.Core.Settings;
 
 public sealed class GameProfile
 {
-    public const string DefaultName = "ค่าเริ่มต้น";
+    public const string DefaultName = "Grand Theft Auto VI";
+
+    /// <summary>The default profile's name before the GTA VI default; existing profiles keep it.</summary>
+    public const string LegacyDefaultName = "ค่าเริ่มต้น";
+
+    /// <summary>True for the default profile's current or legacy name.</summary>
+    public static bool IsDefaultName(string? name) => name is DefaultName or LegacyDefaultName;
 
     /// <summary>The library folder the default profile starts with (see <see cref="AppSettings.CurrentSettingsVersion"/> 3).</summary>
     public const string DefaultLibraryGame = "gta6";
@@ -28,7 +34,7 @@ public sealed class GameProfile
     /// <summary>The translation library folder name (for example <c>gta6</c>) used for this game, or null for none.</summary>
     public string? LibraryGame { get; set; }
 
-    public const double DefaultMinDisplaySeconds = 3;
+    public const double DefaultMinDisplaySeconds = 0;
     public const double MinDisplayMax = 10;
 
     /// <summary>How long each overlay line stays at least, in seconds (0–<see cref="MinDisplayMax"/>); 0 = replaced at once.</summary>
@@ -36,6 +42,17 @@ public sealed class GameProfile
 
     /// <summary>Speaker names learned in this game: source name → Thai spelling and the game's colour for it.</summary>
     public Dictionary<string, SpeakerInfo> Speakers { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Whether the overlay, web page and TV draw speaker names in the game's colour; off = default colour.</summary>
+    public bool SpeakerColors { get; set; } = true;
+
+    public static GameProfile CreateDefault()
+    {
+        var p = Create(DefaultName);
+        p.GameTitle = DefaultName;
+        p.LibraryGame = DefaultLibraryGame;
+        return p;
+    }
 
     public static GameProfile Create(string name) => new() { Name = name, Zones = [OcrZone.Dialogue()] };
 

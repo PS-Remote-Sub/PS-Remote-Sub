@@ -777,6 +777,16 @@ public class SubtitlePipelineTests : IDisposable
     }
 
     [Fact]
+    public async Task Pipeline_SpeakerColorsOff_NamesKept_ColorNull()
+    {
+        using var rig = new Rig(Rig.Config() with { SpeakerColors = false });
+        await ReadLinesAsync(rig, L1);
+
+        var e = Assert.Single(rig.Hub.GetHistory());
+        Assert.Equal([new SpeakerTag("Lucia", null)], e.Speakers);
+    }
+
+    [Fact]
     public async Task Pipeline_TwoSpeakers_SecondSighting_NamesOnce_DialogueOnly()
     {
         using var rig = new Rig();
