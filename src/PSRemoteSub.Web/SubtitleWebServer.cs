@@ -67,6 +67,9 @@ public sealed class SubtitleWebServer : IAsyncDisposable
         {
             app.MapGet("/", (HttpContext ctx) => Embedded(ctx, "index.html", "text/html; charset=utf-8"));
             app.MapGet("/nosleep.min.js", (HttpContext ctx) => Embedded(ctx, "nosleep.min.js", "text/javascript; charset=utf-8"));
+            app.MapGet("/icon.svg", (HttpContext ctx) => Embedded(ctx, "icon.svg", "image/svg+xml"));
+            app.MapGet("/icon-192.png", (HttpContext ctx) => Embedded(ctx, "icon-192.png", "image/png"));
+            app.MapGet("/apple-touch-icon.png", (HttpContext ctx) => Embedded(ctx, "apple-touch-icon.png", "image/png"));
             app.MapGet("/api/history", (HttpContext ctx) =>
             {
                 ctx.Response.Headers.CacheControl = "no-store";

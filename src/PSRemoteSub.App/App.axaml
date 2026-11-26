@@ -3,7 +3,21 @@
              x:Class="PSRemoteSub.App.App"
              Name="PS Remote Sub"
              RequestedThemeVariant="Dark">
+  <!-- RequestedThemeVariant here is only the start-up value; App.StartAsync applies the saved theme. -->
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://PSRemoteSub.App/Themes/Tokens.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
   <Application.Styles>
-    <FluentTheme />
+    <FluentTheme>
+      <FluentTheme.Palettes>
+        <ColorPaletteResources x:Key="Dark" Accent="#5AA8FF" />
+        <ColorPaletteResources x:Key="Light" Accent="#2563EB" />
+      </FluentTheme.Palettes>
+    </FluentTheme>
+    <StyleInclude Source="avares://PSRemoteSub.App/Themes/Controls.axaml" />
   </Application.Styles>
 </Application>

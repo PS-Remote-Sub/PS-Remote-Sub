@@ -4,6 +4,8 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using PSRemoteSub.App.Updates;
 using PSRemoteSub.Core.Diagnostics;
+using PSRemoteSub.Core.Notices;
+using PSRemoteSub.Core.Hub;
 using PSRemoteSub.Core.Platform;
 using PSRemoteSub.Core.Settings;
 
@@ -14,6 +16,8 @@ public partial class App : Application
     private static readonly TimeSpan StartFailureNoticeTime = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan ExitWait = TimeSpan.FromSeconds(3);
     private static readonly TimeSpan UpdateCheckDelay = TimeSpan.FromSeconds(10);
+    /// <summary>How long after start the status is trusted (it starts as "nothing found").</summary>
+    private static readonly TimeSpan StartupSettle = TimeSpan.FromSeconds(5);
 
     private AppHost? _host;
     private TrayController? _tray;
@@ -38,6 +42,8 @@ public partial class App : Application
     {
         try
         {
+            // Decided before anything writes the file: the Mac migration below saves it on a first run too.
+            bool firstRun = !File.Exists(AppPaths.SettingsFile);
             var store = new SettingsStore(AppPaths.SettingsFile);
             AppSettings settings;
             var loaded = false;
@@ -45,6 +51,13 @@ public partial class App : Application
             {
                 settings = store.Load();
                 loaded = true;
+                // A missing file gives normalized defaults (SetupDone = true); a brand-new install runs the wizard first.
+                // Not for an unreadable file (the catch below): that is not a first run.
+                if (firstRun)
+                {
+                    settings.SetupDone = false;
+                    settings.TrayHintShown = false;
+                }
             }
             catch (Exception ex)
             {
@@ -66,6 +79,7 @@ public partial class App : Application
                 }
             }
 
+            ThemeApplier.Apply(this, settings.Theme);
             _host = new AppHost(settings, store, Program.Platform);
             if (!File.Exists(AppPaths.SettingsFile))
                 _host.SaveSettings();
@@ -89,8 +103,28 @@ public partial class App : Application
                 activatable.Activated += (_, _) => host.RefreshPermissions();
             }
             _tray = new TrayController(this, _host, () => ExitAsync(desktop));
-            // The settings window greets every launch (the user asked for it); closing it leaves the app in the tray.
-            _host.RequestSettings();
+            // Setup pending (first run, or the wizard was closed with X last time): the wizard; the main window opens when
+            // it is finished. Closed with X again: tray only. Otherwise later launches stay quiet in the tray and open Home
+            // only when something needs fixing in the app (checked once the status has settled; not finding Remote Play
+            // yet is not such a problem).
+            _windows.SetupFinished += OnSetupFinished;
+            if (!settings.SetupDone)
+            {
+                // Mac: the permissions window first (it can be left with "ทำทีหลัง" or X); the wizard follows when it closes.
+                if (Program.Platform.Kind == PlatformKind.MacOS)
+                {
+                    var windows = _windows;
+                    windows.ShowPermissions(() =>
+                    {
+                        if (!_exiting)
+                            windows.ShowSetup();
+                    });
+                }
+                else
+                    _windows.ShowSetup();
+            }
+            else
+                _ = OpenHomeIfNeededLaterAsync(_host);
             _ = CheckForUpdatesLaterAsync(_host, () => ExitAsync(desktop));
             Log.Info("Started");
         }
@@ -99,7 +133,7 @@ public partial class App : Application
             Log.Error("Start failed", ex);
             try
             {
-                _host?.Notify(Loc.Format("StartFailed", ex.Message));
+                _host?.Notify(Notice.Warn(Loc.Get("StartFailed"), ex.Message));
                 await Task.Delay(StartFailureNoticeTime);
             }
             finally
@@ -109,21 +143,65 @@ public partial class App : Application
         }
     }
 
+    /// <summary>The wizard ended (first launch or reopened from General): completed/skipped opens the main window on the page it names.</summary>
+    private void OnSetupFinished(object? sender, Views.Setup.SetupFinishedEventArgs e)
+    {
+        if (_exiting || !e.Completed)
+            return;
+        _windows?.ShowMain(e.NextPage);
+        ShowTrayHintOnce();
+    }
+
+    /// <summary>The one-time "the app lives in the tray" hint, after the wizard is completed or skipped. Never again once shown.</summary>
+    private void ShowTrayHintOnce()
+    {
+        try
+        {
+            var host = _host;
+            if (host is null || host.Settings.TrayHintShown)
+                return;
+            host.Settings.TrayHintShown = true;
+            host.SaveSettings();
+            var hint = new Views.TrayHintWindow(Program.Platform.Kind == PlatformKind.MacOS)
+            {
+                OverlayPlatform = Program.Platform.Overlay,
+            };
+            hint.OpenHomeClicked += (_, _) => host.RequestMainWindow(MainPage.Home);
+            hint.Show(); // ShowActivated is false: no focus change
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Showing the tray hint failed", ex); // a hint is never worth a crash
+        }
+    }
+
     /// <summary>
     /// Update check 10 s after startup, then the library update (both no-ops without a repository URL). Runs in the
     /// background on the UI thread's context; never throws.
     /// </summary>
-    private static async Task CheckForUpdatesLaterAsync(AppHost host, Func<Task> exitApp)
+    private async Task OpenHomeIfNeededLaterAsync(AppHost host)
     {
         try
         {
-            await Task.Delay(UpdateCheckDelay);
-            await new UpdateChecker(host.Notify, exitApp).CheckAsync();
+            await Task.Delay(StartupSettle); // continues on the UI thread (posted from it)
+            if (_exiting)
+                return;
+            var summary = HomeStatus.Summarize(host.Status, host.IsPaused, DateTimeOffset.Now);
+            if (HomeStatus.ShouldAutoOpen(summary))
+                host.RequestMainWindow(MainPage.Home);
         }
         catch (Exception ex)
         {
-            Log.Warn("Update check failed", ex); // never disturb the app
+            Log.Warn("Start: checking whether to open Home failed", ex); // the tray is still there
         }
+    }
+
+    private static async Task CheckForUpdatesLaterAsync(AppHost host, Func<Task> exitApp)
+    {
+        await Task.Delay(UpdateCheckDelay);
+        // Not awaited before the library update: the update question is a sticky notice the user may leave up all
+        // session, and the library must not wait for that answer.
+        var appUpdate = CheckForAppUpdateAsync(host, exitApp);
         try
         {
             // UI thread: AppHost members are UI-thread only. The download itself runs on the thread pool.
@@ -132,6 +210,19 @@ public partial class App : Application
         catch (Exception ex)
         {
             Log.Warn("Library update failed", ex); // never disturb the app
+        }
+        await appUpdate;
+    }
+
+    private static async Task CheckForAppUpdateAsync(AppHost host, Func<Task> exitApp)
+    {
+        try
+        {
+            await new UpdateChecker(host.Notify, host.AskUpdateAsync, exitApp).CheckAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Update check failed", ex); // never disturb the app
         }
     }
 

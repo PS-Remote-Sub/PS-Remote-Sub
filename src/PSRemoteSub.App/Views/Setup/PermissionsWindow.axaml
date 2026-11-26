@@ -1,0 +1,36 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="using:PSRemoteSub.App"
+        x:Class="PSRemoteSub.App.Views.Setup.PermissionsWindow"
+        Title="{app:Tr PermWindowTitle}"
+        Icon="/Assets/app.ico"
+        Width="860" Height="760"
+        MinWidth="720" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BgBrush}"
+        Foreground="{DynamicResource TextBrush}"
+        FontFamily="{DynamicResource AppFont}"
+        FontSize="15">
+  <!-- Mockup New-Mac-Permissions: title block, one card of permission rows, notes, footer. Rows are built in code. -->
+  <Grid RowDefinitions="*,Auto">
+    <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Margin="56,36,56,24" Spacing="20">
+        <StackPanel>
+          <TextBlock Classes="h1" Text="{app:Tr PermWindowTitle}" TextWrapping="Wrap" />
+          <TextBlock Classes="mut" Text="{app:Tr PermWindowIntro}" Margin="0,4,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+        <Border Classes="card" Padding="24,4">
+          <StackPanel x:Name="Rows" />
+        </Border>
+        <StackPanel x:Name="Notes" Spacing="16" />
+      </StackPanel>
+    </ScrollViewer>
+    <Border Grid.Row="1" Background="{DynamicResource SideBrush}" BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="0,1,0,0" Padding="56,16">
+      <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+        <Button x:Name="LaterButton" Classes="btn ghost" Content="{app:Tr PermLater}" VerticalAlignment="Center" />
+        <Button x:Name="DoneButton" Classes="btn primary lg" Content="{app:Tr PermDone}" VerticalAlignment="Center" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</Window>

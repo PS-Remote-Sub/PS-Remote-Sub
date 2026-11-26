@@ -1,37 +1,173 @@
+<!-- Box editor (New-RegionPicker): the frozen frame with the boxes, a toolbar on top (zones, add zone, which box is being
+     edited, cancel/save), a short hint row and a key legend. Always dark (it sits over the game), whatever the app theme.
+     Nothing here takes keyboard focus, so Enter, Esc, Tab and the digits always reach the window. -->
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:app="using:PSRemoteSub.App"
         xmlns:views="using:PSRemoteSub.App.Views"
+        xmlns:c="using:PSRemoteSub.App.Views.Controls"
         x:Class="PSRemoteSub.App.Views.RegionPickerWindow"
         Title="{app:Tr TraySelectRegion}"
         WindowDecorations="None"
         WindowStartupLocation="Manual"
         Background="Black"
+        RequestedThemeVariant="Dark"
         Topmost="True"
         ShowInTaskbar="False"
         CanResize="False"
+        FontFamily="{DynamicResource AppFont}"
+        FontSize="15"
+        Foreground="{DynamicResource TextBrush}"
         Cursor="Cross">
+  <Window.Styles>
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="#F014161B" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Border2Brush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="16" />
+      <Setter Property="Cursor" Value="Arrow" />
+    </Style>
+    <Style Selector="Border.vsep">
+      <Setter Property="Width" Value="1" />
+      <Setter Property="Height" Value="28" />
+      <Setter Property="Background" Value="{DynamicResource Border2Brush}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button, RadioButton">
+      <Setter Property="Focusable" Value="False" />
+      <Setter Property="IsTabStop" Value="False" />
+    </Style>
+    <!-- The key cap inside the primary button, per the mockup. -->
+    <Style Selector="Border.kbd.onAccent">
+      <Setter Property="Background" Value="#2608111F" />
+      <Setter Property="BorderBrush" Value="#4D08111F" />
+    </Style>
+    <Style Selector="Border.kbd.onAccent TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}" />
+    </Style>
+    <Style Selector="Button.close">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource Text3Brush}" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.close:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+    </Style>
+    <Style Selector="Button.close:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+  </Window.Styles>
   <Grid>
     <views:RegionSelectionCanvas x:Name="Surface" />
-    <StackPanel HorizontalAlignment="Center"
-                VerticalAlignment="Top"
-                Margin="0,12,0,0"
-                Spacing="8">
-      <!-- Zone chips: filled in code, one per zone. -->
-      <StackPanel x:Name="ZoneChips"
-                  HorizontalAlignment="Center"
-                  Orientation="Horizontal"
-                  Spacing="6" />
-      <Border HorizontalAlignment="Center"
-              Padding="14,6"
-              CornerRadius="6"
-              Background="#E0101114"
-              IsHitTestVisible="False">
-        <TextBlock Text="{app:Tr PickerHint}"
-                   FontFamily="Leelawadee UI"
-                   FontSize="15"
-                   Foreground="White" />
-      </Border>
-    </StackPanel>
+
+    <!-- Toolbar and hint row. Scaled down (never up) to fit a small client area. -->
+    <Viewbox Stretch="Uniform" StretchDirection="DownOnly"
+             HorizontalAlignment="Center" VerticalAlignment="Top" Margin="16,24,16,0">
+      <StackPanel Spacing="12">
+        <Border Classes="panel" HorizontalAlignment="Center" Padding="22,12,14,12" BoxShadow="0 16 40 0 #73000000">
+          <StackPanel Orientation="Horizontal" Spacing="18" TextElement.FontSize="16">
+            <TextBlock Classes="lbl" Text="{app:Tr PickerTitle}" VerticalAlignment="Center" />
+            <Border Classes="vsep" />
+            <TextBlock Classes="mut" Text="{app:Tr PickerZones}" VerticalAlignment="Center" />
+            <Border Classes="seg" VerticalAlignment="Center">
+              <!-- One RadioButton.seg per zone, filled in code. -->
+              <StackPanel x:Name="ZoneChips" Orientation="Horizontal" Spacing="4" />
+            </Border>
+            <Button x:Name="AddZoneButton" Classes="btn sm ghost" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <c:StrokeIcon Data="M12 5v14M5 12h14" Size="16" VerticalAlignment="Center" />
+                <TextBlock Text="{app:Tr GamesAddZone}" VerticalAlignment="Center" />
+              </StackPanel>
+            </Button>
+            <Border Classes="vsep" />
+            <!-- Which box of the selected zone is being edited (Tab switches). -->
+            <Border Classes="seg" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <RadioButton x:Name="OcrSwitch" Classes="seg">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Border Width="22" Height="14" CornerRadius="3" BorderThickness="3" BorderBrush="#5AA8FF"
+                            VerticalAlignment="Center" />
+                    <TextBlock Text="{app:Tr PickerBoxOcr}" VerticalAlignment="Center" />
+                  </StackPanel>
+                </RadioButton>
+                <RadioButton x:Name="CaptionSwitch" Classes="seg">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Rectangle Width="22" Height="14" RadiusX="3" RadiusY="3" StrokeThickness="3" Stroke="#FF9D4D"
+                               StrokeDashArray="1.5,1" VerticalAlignment="Center" />
+                    <TextBlock Text="{app:Tr PickerBoxCaption}" VerticalAlignment="Center" />
+                  </StackPanel>
+                </RadioButton>
+                <RadioButton x:Name="TriggerSwitch" Classes="seg">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Rectangle Width="22" Height="14" RadiusX="3" RadiusY="3" StrokeThickness="3" Stroke="#C58BFF"
+                               StrokeDashArray="0.6,0.8" VerticalAlignment="Center" />
+                    <TextBlock Text="{app:Tr BoxLabelTrigger}" VerticalAlignment="Center" />
+                  </StackPanel>
+                </RadioButton>
+              </StackPanel>
+            </Border>
+            <Border Classes="vsep" />
+            <Button x:Name="CancelButton" Classes="btn" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="{app:Tr PickerCancel}" VerticalAlignment="Center" />
+                <Border Classes="kbd" VerticalAlignment="Center"><TextBlock Text="Esc" /></Border>
+              </StackPanel>
+            </Button>
+            <Button x:Name="SaveButton" Classes="btn primary" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <c:StrokeIcon Data="M5 12.5l4.5 4.5L19 7.5" Size="18" StrokeThickness="2.4" VerticalAlignment="Center" />
+                <TextBlock Text="{app:Tr PickerSave}" VerticalAlignment="Center" />
+                <Border Classes="kbd onAccent" VerticalAlignment="Center"><TextBlock Text="Enter" /></Border>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+        </Border>
+        <Border HorizontalAlignment="Center" Padding="18,8" CornerRadius="999" Background="#F014161B"
+                IsHitTestVisible="False">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <c:StrokeIcon Data="M5 3l14 7-6 2-2 6z" Size="18" Foreground="{DynamicResource AccentBrush}"
+                          VerticalAlignment="Center" />
+            <!-- Bold verb + rest, filled in code. -->
+            <TextBlock x:Name="HintText" FontSize="16" Foreground="{DynamicResource Text2Brush}"
+                       VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </Viewbox>
+
+    <!-- Key legend, hideable for this session. -->
+    <Border x:Name="KeyLegend" Classes="panel" HorizontalAlignment="Right" VerticalAlignment="Top"
+            Margin="0,200,40,0" Width="300" Padding="20,18">
+      <StackPanel Spacing="12">
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Classes="lbl" Text="{app:Tr PickerKeysTitle}" VerticalAlignment="Center" />
+          <Button x:Name="HideKeysButton" Grid.Column="1" Classes="close" VerticalAlignment="Center"
+                  ToolTip.Tip="{app:Tr PickerKeysHide}">
+            <c:StrokeIcon Data="M6 6l12 12M18 6 6 18" Size="18" />
+          </Button>
+        </Grid>
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Classes="mut" Text="{app:Tr PickerKeyBox}" VerticalAlignment="Center" />
+          <Border Grid.Column="1" Classes="kbd"><TextBlock Text="Tab" /></Border>
+        </Grid>
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Classes="mut" Text="{app:Tr PickerKeyZone}" VerticalAlignment="Center" />
+          <Border Grid.Column="1" Classes="kbd"><TextBlock Text="1–9" /></Border>
+        </Grid>
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Classes="mut" Text="{app:Tr PickerKeySave}" VerticalAlignment="Center" />
+          <Border Grid.Column="1" Classes="kbd"><TextBlock Text="Enter" /></Border>
+        </Grid>
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Classes="mut" Text="{app:Tr PickerKeyCancel}" VerticalAlignment="Center" />
+          <Border Grid.Column="1" Classes="kbd"><TextBlock Text="Esc" /></Border>
+        </Grid>
+      </StackPanel>
+    </Border>
   </Grid>
 </Window>

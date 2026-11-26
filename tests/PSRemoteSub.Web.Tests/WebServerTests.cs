@@ -39,6 +39,26 @@ public sealed class WebServerTests : IAsyncLifetime
         Assert.Contains("NoSleep", await res.Content.ReadAsStringAsync());
     }
 
+    [Theory]
+    [InlineData("/icon.svg", "image/svg+xml")]
+    [InlineData("/apple-touch-icon.png", "image/png")]
+    [InlineData("/icon-192.png", "image/png")]
+    public async Task Icons_AreServed(string path, string type)
+    {
+        using var res = await _http.GetAsync(Url(path));
+        Assert.Equal(System.Net.HttpStatusCode.OK, res.StatusCode);
+        Assert.Equal(type, res.Content.Headers.ContentType?.MediaType);
+        Assert.True((await res.Content.ReadAsByteArrayAsync()).Length > 100);
+    }
+
+    [Fact]
+    public async Task Root_LinksTheIcons()
+    {
+        var html = await _http.GetStringAsync(Url("/"));
+        Assert.Contains("href=\"icon.svg\"", html);
+        Assert.Contains("href=\"apple-touch-icon.png\"", html);
+    }
+
     [Fact]
     public async Task History_ReturnsEntriesCamelCase()
     {

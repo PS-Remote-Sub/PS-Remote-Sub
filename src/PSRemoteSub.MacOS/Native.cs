@@ -47,6 +47,9 @@ internal static partial class Native
     internal static partial int psrs_overlay_configure(nint window);
 
     [LibraryImport(Lib)]
+    internal static partial int psrs_toast_configure(nint window);
+
+    [LibraryImport(Lib)]
     internal static partial int psrs_keepawake_set(int active);
 
     [LibraryImport(Lib)]

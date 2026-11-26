@@ -54,6 +54,8 @@ internal sealed partial class CaptureWindow : Window
                 ModeChosen?.Invoke(this, _modes[i]);
         };
         FullScreenButton.Click += (_, _) => ToggleFullScreen();
+        RetryButton.Click += (_, _) => RetryRequested?.Invoke(this, EventArgs.Empty);
+        PickDeviceButton.Click += (_, _) => PickDeviceRequested?.Invoke(this, EventArgs.Empty);
         VideoArea.DoubleTapped += (_, _) => ToggleFullScreen();
         // Tunnel, so a focused toolbar control cannot swallow F11 / Esc first.
         AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
@@ -78,6 +80,12 @@ internal sealed partial class CaptureWindow : Window
     /// <summary>A mode was picked from the list: null for "อัตโนมัติ".</summary>
     public event EventHandler<CaptureModeSetting?>? ModeChosen;
 
+    /// <summary>"ลองอีกครั้ง" was clicked in the no-picture panel.</summary>
+    public event EventHandler? RetryRequested;
+
+    /// <summary>"เลือกอุปกรณ์อื่น" was clicked in the no-picture panel.</summary>
+    public event EventHandler? PickDeviceRequested;
+
     /// <summary>Hosts the video surface.</summary>
     public VideoHost Host => _video;
 
@@ -91,8 +99,14 @@ internal sealed partial class CaptureWindow : Window
     public void ShowState(CaptureState state)
     {
         bool playing = state == CaptureState.Playing;
-        Message.Text = playing ? "" : Loc.Get(CaptureText.MessageKey(state));
-        Message.IsVisible = !playing;
+        bool opening = state == CaptureState.Opening;
+        string text = playing ? "" : Loc.Get(CaptureText.MessageKey(state));
+        Message.Text = text;
+        Message.IsVisible = opening;
+        // Anything else without a picture: the checklist, with the specific message under the heading.
+        StateLine.Text = text;
+        AutoRetry.IsVisible = CaptureWindowRules.ShouldLookForDevice(state); // the controller really is looking again
+        NoVideo.IsVisible = !playing && !opening;
         // Airspace: the message cannot be drawn over the surface, so the surface makes way.
         _video.IsVisible = playing;
     }

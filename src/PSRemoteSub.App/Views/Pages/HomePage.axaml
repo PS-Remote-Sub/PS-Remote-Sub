@@ -1,0 +1,9 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PSRemoteSub.App.Views.Pages.HomePage">
+  <!-- Content is built in code (HomePage.axaml.cs): it switches between the normal and the "needs fixing" layout
+       and lists a varying number of issues. Layout and copy follow New-Home-A / New-Home-Issues. -->
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <StackPanel x:Name="Root" Margin="32,4,32,28" Spacing="20" />
+  </ScrollViewer>
+</UserControl>

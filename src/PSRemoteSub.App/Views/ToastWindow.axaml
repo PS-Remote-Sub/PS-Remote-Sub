@@ -1,3 +1,5 @@
+<!-- One notice (New-Toast): icon tile per kind, title, body, buttons, close ×, and a countdown bar for Done. Always dark
+     (it sits over the game), whatever the app theme. The content is built by the code-behind from the Notice. -->
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="PSRemoteSub.App.Views.ToastWindow"
@@ -8,20 +10,52 @@
         Topmost="True"
         ShowInTaskbar="False"
         ShowActivated="False"
-        CanResize="False">
+        CanResize="False"
+        SizeToContent="Height"
+        Width="400"
+        RequestedThemeVariant="Dark"
+        FontFamily="{DynamicResource AppFont}"
+        FontSize="15">
+  <Window.Styles>
+    <Style Selector="Button.close">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="MinWidth" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource Text3Brush}" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.close:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+    </Style>
+    <Style Selector="Button.close:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+  </Window.Styles>
   <Border x:Name="Card"
-          Background="#F01E1E1E"
-          BorderBrush="#40FFFFFF"
+          Background="{DynamicResource CardBrush}"
+          BorderBrush="{DynamicResource Border2Brush}"
           BorderThickness="1"
-          CornerRadius="8"
-          Padding="14,10">
-    <StackPanel Spacing="4">
-      <TextBlock Text="PS Remote Sub" FontSize="12" Foreground="#B0FFFFFF" />
-      <TextBlock x:Name="Message"
-                 FontFamily="Leelawadee UI"
-                 FontSize="14"
-                 Foreground="White"
-                 TextWrapping="Wrap" />
-    </StackPanel>
+          CornerRadius="12"
+          ClipToBounds="True">
+    <Panel>
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="18,16">
+        <Border x:Name="IconTile" Grid.Column="0" Width="36" Height="36" CornerRadius="12" VerticalAlignment="Top"
+                Margin="0,0,14,0" />
+        <StackPanel Grid.Column="1">
+          <TextBlock x:Name="TitleText" Classes="lbl" TextWrapping="Wrap" Foreground="{DynamicResource TextBrush}" />
+          <TextBlock x:Name="BodyText" Classes="mut" FontSize="14" LineHeight="21" TextWrapping="Wrap" IsVisible="False" />
+          <StackPanel x:Name="Buttons" Orientation="Horizontal" Spacing="8" Margin="0,10,0,0" IsVisible="False" />
+        </StackPanel>
+        <Button x:Name="CloseButton" Grid.Column="2" Classes="close" Margin="14,0,0,0" />
+      </Grid>
+      <Border x:Name="CountdownTrack" Height="3" VerticalAlignment="Bottom" IsVisible="False"
+              Background="{DynamicResource BorderBrush}">
+        <Border x:Name="CountdownFill" HorizontalAlignment="Left" Background="{DynamicResource OkBrush}" />
+      </Border>
+    </Panel>
   </Border>
 </Window>

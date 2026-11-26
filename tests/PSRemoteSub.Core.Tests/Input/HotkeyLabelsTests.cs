@@ -33,4 +33,24 @@ public class HotkeyLabelsTests
     [Fact]
     public void DisplaySetting_Empty_Empty() =>
         Assert.Equal("", HotkeyLabels.DisplaySetting("", PlatformKind.Windows));
+
+    [Fact]
+    public void KeyCaps_Windows_OneCapPerKey() =>
+        Assert.Equal(["Ctrl", "Alt", "Shift", "P"], HotkeyLabels.KeyCaps("Ctrl+Alt+Shift+P", PlatformKind.Windows));
+
+    [Fact]
+    public void KeyCaps_Mac_Symbols() =>
+        Assert.Equal(["⌃", "⌥", "⇧", "P"], HotkeyLabels.KeyCaps("Ctrl+Alt+Shift+P", PlatformKind.MacOS));
+
+    [Fact]
+    public void KeyCaps_OnlySetModifiers() =>
+        Assert.Equal(["Alt", "1"], HotkeyLabels.KeyCaps("Alt+1", PlatformKind.Windows));
+
+    [Fact]
+    public void KeyCaps_Unparsable_OneCapWithTheText() =>
+        Assert.Equal(["Hyper+S"], HotkeyLabels.KeyCaps("Hyper+S", PlatformKind.Windows));
+
+    [Fact]
+    public void KeyCaps_Empty_None() =>
+        Assert.Empty(HotkeyLabels.KeyCaps("", PlatformKind.Windows));
 }

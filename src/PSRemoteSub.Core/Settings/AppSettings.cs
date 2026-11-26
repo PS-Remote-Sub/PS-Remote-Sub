@@ -6,7 +6,7 @@ namespace PSRemoteSub.Core.Settings;
 
 public sealed class AppSettings
 {
-    public List<GameProfile> Profiles { get; set; } = [GameProfile.Create(GameProfile.DefaultName)];
+    public List<GameProfile> Profiles { get; set; } = [GameProfile.CreateDefault()];
     public string ActiveProfile { get; set; } = GameProfile.DefaultName;
     public string TargetLang { get; set; } = "th";
     public int WebPort { get; set; } = 5000;
@@ -22,10 +22,24 @@ public sealed class AppSettings
 
     public CaptureSettings Capture { get; set; } = new();
 
+    /// <summary>The app window theme. On the property (not the enum): the store's enum converter would win over a type attribute.</summary>
+    [System.Text.Json.Serialization.JsonConverter(typeof(AppThemeJsonConverter))]
+    public AppTheme Theme { get; set; } = AppTheme.Dark;
+
     public TranslationSettings Translation { get; set; } = new();
 
     /// <summary>Subtitles on the Android TV.</summary>
     public TvSettings Tv { get; set; } = new();
+
+    /// <summary>False until the first-run setup is finished. True when absent, so existing users never see it.</summary>
+    public bool SetupDone { get; set; } = true;
+
+    /// <summary>Defaults for a brand-new install: same as <c>new AppSettings()</c> but the setup is still pending.</summary>
+    public static AppSettings CreateForFirstRun() => new() { SetupDone = false, TrayHintShown = false };
+
+    /// <summary>False until the "the app lives in the tray" hint was shown once (after the first-run wizard). True when absent, so existing users never see it.</summary>
+    public bool TrayHintShown { get; set; } = true;
+
     public Dictionary<HotkeyAction, string> Hotkeys { get; set; } = DefaultHotkeys();
 
     /// <summary>Settings file layout version; 0 when absent (a file from before versions). <see cref="Normalize"/> raises it to the current version, never lowers it.</summary>
@@ -62,7 +76,7 @@ public sealed class AppSettings
     internal void Normalize()
     {
         Profiles = Profiles is { Count: > 0 } ? [.. Profiles.Where(p => p is not null)] : [];
-        if (Profiles.Count == 0) Profiles.Add(GameProfile.Create(GameProfile.DefaultName));
+        if (Profiles.Count == 0) Profiles.Add(GameProfile.CreateDefault());
         Hotkeys ??= [];
         foreach (var (action, text) in DefaultHotkeys())
             if (!Hotkeys.TryGetValue(action, out var v) || string.IsNullOrWhiteSpace(v))
@@ -112,7 +126,7 @@ public sealed class AppSettings
         if (SettingsVersion < 3)
         {
             // Once only: a user who later picks "none" for the default profile keeps it.
-            var def = Profiles.FirstOrDefault(p => p.Name == GameProfile.DefaultName);
+            var def = Profiles.FirstOrDefault(p => GameProfile.IsDefaultName(p.Name));
             if (def is not null && string.IsNullOrWhiteSpace(def.LibraryGame))
                 def.LibraryGame = GameProfile.DefaultLibraryGame;
         }

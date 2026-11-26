@@ -383,7 +383,7 @@ public sealed class SubtitlePipeline : IDisposable
                 // The bounds and speakers of this read: the one that made the text stable, so they match it.
                 var line = new StableLine(stable.Text, config.Source, config.TargetLang, config.GameTitle,
                     config.ContextLines, ct, read.Bounds, read.RowBounds, reads, config.ProfileName, zone.Id, zone.Name,
-                    zone.SendToWeb, zone.LearnToLibrary);
+                    zone.SendToWeb, zone.LearnToLibrary, config.SpeakerColors);
                 // New speaker names (once per name). An AI call can take seconds: it runs alongside, and the lines
                 // that follow pick the names up.
                 if (line.HasNames)
@@ -881,7 +881,7 @@ public sealed class SubtitlePipeline : IDisposable
                 used[name] = color!;
             }
             var thai = characters?.Resolve(name)?.ThName;
-            tags.Add(new SpeakerTag(string.IsNullOrEmpty(thai) ? info?.Thai ?? name : thai, color));
+            tags.Add(new SpeakerTag(string.IsNullOrEmpty(thai) ? info?.Thai ?? name : thai, line.SpeakerColors ? color : null));
         }
         return tags;
     }
@@ -957,7 +957,7 @@ public sealed class SubtitlePipeline : IDisposable
     private sealed record StableLine(string Text, SourceLanguage Source, string TargetLang, string? GameTitle,
         int ContextLines, CancellationToken Ct, RegionFraction? Bounds, IReadOnlyList<RegionFraction>? RowBounds,
         IReadOnlyList<SpeakerRead> Reads,
-        string? ProfileName, string ZoneId, string ZoneName, bool SendToWeb, bool LearnToLibrary)
+        string? ProfileName, string ZoneId, string ZoneName, bool SendToWeb, bool LearnToLibrary, bool SpeakerColors = true)
     {
         /// <summary>At least one line has a speaker name: names and dialogue are handled apart.</summary>
         public bool HasNames => Reads.Any(r => r.Name is not null);

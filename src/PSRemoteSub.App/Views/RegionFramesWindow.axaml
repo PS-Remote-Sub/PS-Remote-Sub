@@ -10,5 +10,9 @@
         ShowInTaskbar="False"
         ShowActivated="False"
         CanResize="False">
-  <views:RegionFramesCanvas x:Name="Frames" />
+  <Grid>
+    <views:RegionFramesCanvas x:Name="Frames" />
+    <!-- The legend (built in code): what each frame colour means. Top left of the game area. -->
+    <Border x:Name="Legend" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24" IsHitTestVisible="False" />
+  </Grid>
 </Window>

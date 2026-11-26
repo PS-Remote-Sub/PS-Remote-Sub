@@ -1,0 +1,108 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="using:PSRemoteSub.App"
+        xmlns:c="using:PSRemoteSub.App.Views.Controls"
+        x:Class="PSRemoteSub.App.Views.MainWindow"
+        Title="PS Remote Sub"
+        Icon="/Assets/app.ico"
+        Width="1120" Height="760"
+        MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BgBrush}"
+        Foreground="{DynamicResource TextBrush}"
+        FontFamily="{DynamicResource AppFont}"
+        FontSize="15">
+  <Window.Styles>
+    <Style Selector="RadioButton.nav StackPanel">
+      <Setter Property="Orientation" Value="Horizontal" />
+      <Setter Property="Spacing" Value="12" />
+    </Style>
+    <Style Selector="RadioButton.nav TextBlock">
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="RadioButton.nav c|StrokeIcon">
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </Window.Styles>
+
+  <Grid ColumnDefinitions="248,*">
+    <!-- Sidebar -->
+    <Border Grid.Column="0" Background="{DynamicResource SideBrush}"
+            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+      <DockPanel Margin="12,16">
+        <StackPanel DockPanel.Dock="Top" Spacing="2">
+          <TextBlock Classes="sub" Margin="4,0,4,6" Text="{app:Tr CurrentGameLabel}" />
+          <ComboBox x:Name="GamePicker" HorizontalAlignment="Stretch" Height="46" Margin="0,0,0,14"
+                    Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                    FontWeight="SemiBold" />
+
+          <RadioButton x:Name="NavHome" Classes="nav" GroupName="nav" Tag="{x:Static app:MainPage.Home}" IsChecked="True">
+            <StackPanel><c:StrokeIcon Data="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /><TextBlock Text="{app:Tr NavHome}" /></StackPanel>
+          </RadioButton>
+
+          <TextBlock Classes="sub" FontWeight="SemiBold" Margin="12,14,12,4" Text="{app:Tr NavSettingsHeader}" />
+
+          <RadioButton Classes="nav" GroupName="nav" Tag="{x:Static app:MainPage.Games}">
+            <StackPanel><c:StrokeIcon Data="M6.5 7.5h11a4.5 4.5 0 0 1 4.5 4.5v.5a4 4 0 0 1-7.2 2.4L14 13.5h-4l-.8 1.4A4 4 0 0 1 2 12.5V12a4.5 4.5 0 0 1 4.5-4.5zM7.5 10.5v3M6 12h3M15.5 11h.01M17.5 13h.01" /><TextBlock Text="{app:Tr NavGames}" /></StackPanel>
+          </RadioButton>
+          <RadioButton Classes="nav" GroupName="nav" Tag="{x:Static app:MainPage.Display}">
+            <StackPanel><c:StrokeIcon Data="M3 18 7.5 6h1L13 18M4.6 14h6.8M15 11.5a3 3 0 0 1 6 0V18M15 15.5c0-1.4 1.3-2 3-2h3" /><TextBlock Text="{app:Tr NavDisplay}" /></StackPanel>
+          </RadioButton>
+          <RadioButton Classes="nav" GroupName="nav" Tag="{x:Static app:MainPage.Translation}">
+            <StackPanel><c:StrokeIcon Data="M4 5h8M8 3v2M10 5c-1 4-3.5 7-6 8.5M6 9c1.2 2 3 3.5 5 4.3M13 21l4-10 4 10M14.5 17.5h5" /><TextBlock Text="{app:Tr NavTranslation}" /></StackPanel>
+          </RadioButton>
+          <RadioButton Classes="nav" GroupName="nav" Tag="{x:Static app:MainPage.Source}">
+            <StackPanel><c:StrokeIcon Data="M3 5h18v12H3zM8 21h8M12 17v4" /><TextBlock Text="{app:Tr NavSource}" /></StackPanel>
+          </RadioButton>
+          <RadioButton Classes="nav" GroupName="nav" Tag="{x:Static app:MainPage.Phone}">
+            <StackPanel><c:StrokeIcon Data="M8 2h8a1.5 1.5 0 0 1 1.5 1.5v17A1.5 1.5 0 0 1 16 22H8a1.5 1.5 0 0 1-1.5-1.5v-17A1.5 1.5 0 0 1 8 2zM11 18.5h2" /><TextBlock Text="{app:Tr NavPhone}" /></StackPanel>
+          </RadioButton>
+          <RadioButton Classes="nav" GroupName="nav" Tag="{x:Static app:MainPage.Tv}">
+            <StackPanel><c:StrokeIcon Data="M3 7h18v11H3zM8 21h8M8.5 3 12 6.5 15.5 3" /><TextBlock Text="{app:Tr NavTv}" /></StackPanel>
+          </RadioButton>
+          <RadioButton Classes="nav" GroupName="nav" Tag="{x:Static app:MainPage.General}">
+            <StackPanel><c:StrokeIcon Data="M3 6h18v12H3zM7 10h.01M11 10h.01M15 10h.01M7 14h10" /><TextBlock Text="{app:Tr NavGeneral}" /></StackPanel>
+          </RadioButton>
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Bottom" Spacing="6">
+          <Border Classes="card" CornerRadius="12" Padding="14">
+            <StackPanel Spacing="10">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Ellipse x:Name="StateDot" Width="8" Height="8" VerticalAlignment="Center" Fill="{DynamicResource OkBrush}" />
+                <TextBlock x:Name="StateText" Classes="lbl" FontSize="14" />
+              </StackPanel>
+              <Button x:Name="PauseButton" Classes="btn sm" HorizontalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <c:StrokeIcon x:Name="PauseIcon" Size="16" VerticalAlignment="Center" />
+                  <TextBlock x:Name="PauseText" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Border>
+          <Button x:Name="HelpButton" Classes="btn ghost" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                  Foreground="{DynamicResource Text2Brush}">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <c:StrokeIcon Data="M12 21.5a9.5 9.5 0 1 0 0-19 9.5 9.5 0 0 0 0 19zM9.5 9.2a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.5v.5M12 17h.01" VerticalAlignment="Center" />
+              <TextBlock Text="{app:Tr Help}" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+        <Panel />
+      </DockPanel>
+    </Border>
+
+    <!-- Content -->
+    <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*">
+      <Button x:Name="ThemeButton" Grid.Row="0" Classes="btn ghost sm" HorizontalAlignment="Right" Margin="0,8,16,0"
+              Foreground="{DynamicResource Text2Brush}" ToolTip.Tip="{app:Tr ThemeToggleTip}">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <c:StrokeIcon x:Name="ThemeIcon" Size="16" VerticalAlignment="Center" />
+          <TextBlock x:Name="ThemeText" FontSize="13" VerticalAlignment="Center" />
+        </StackPanel>
+      </Button>
+      <StackPanel x:Name="PermBanner" Grid.Row="1" Spacing="6" Margin="32,4,32,0" IsVisible="False" />
+      <ContentControl x:Name="PageHost" Grid.Row="2" />
+    </Grid>
+  </Grid>
+</Window>
