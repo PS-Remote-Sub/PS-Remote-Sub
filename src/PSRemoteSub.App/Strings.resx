@@ -1143,4 +1143,43 @@
   <data name="GamesTriggerSub" xml:space="preserve">
     <value>เช่น ให้แปลเมื่อมีคำว่า Quest — ใส่หลายคำคั่นด้วย ,</value>
   </data>
+  <data name="DisplaySubtitle" xml:space="preserve">
+    <value>หน้าตาของซับไทยที่ขึ้นทับเกม — ปรับแล้วเห็นผลในภาพตัวอย่างทันที</value>
+  </data>
+  <data name="DisplayUsingGame" xml:space="preserve">
+    <value>ใช้กับ: {0}</value>
+  </data>
+  <data name="DisplayPreviewBadge" xml:space="preserve">
+    <value>ตัวอย่าง</value>
+  </data>
+  <data name="DisplaySampleName" xml:space="preserve">
+    <value>นักสืบ</value>
+  </data>
+  <data name="DisplaySampleLine" xml:space="preserve">
+    <value>เราต้องหาพยานให้เจอก่อนรุ่งสาง</value>
+  </data>
+  <data name="DisplayFontLabel" xml:space="preserve">
+    <value>แบบตัวอักษร</value>
+  </data>
+  <data name="DisplayOpacityLabel" xml:space="preserve">
+    <value>พื้นหลังหลังตัวอักษร</value>
+  </data>
+  <data name="DisplayThin" xml:space="preserve">
+    <value>ใส</value>
+  </data>
+  <data name="DisplayThick" xml:space="preserve">
+    <value>ทึบ</value>
+  </data>
+  <data name="DisplaySpeakerLabel" xml:space="preserve">
+    <value>ชื่อคนพูด</value>
+  </data>
+  <data name="DisplaySpeakerColors" xml:space="preserve">
+    <value>ใช้สีประจำตัวละคร</value>
+  </data>
+  <data name="DisplayOverlayShow" xml:space="preserve">
+    <value>แสดงซับบนจอคอม</value>
+  </data>
+  <data name="DisplayOverlayHint" xml:space="preserve">
+    <value>ซ่อน/แสดงเร็ว ๆ ระหว่างเล่น</value>
+  </data>
 </root>

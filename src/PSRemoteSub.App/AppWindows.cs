@@ -112,6 +112,7 @@ internal sealed class AppWindows : IDisposable
         switch (page)
         {
             case MainPage.Games: return new GamesPage(_host);
+            case MainPage.Display: return new DisplayPage(_host);
             default: return null;
         }
     }
