@@ -35,7 +35,10 @@ public sealed class AppSettings
     public bool SetupDone { get; set; } = true;
 
     /// <summary>Defaults for a brand-new install: same as <c>new AppSettings()</c> but the setup is still pending.</summary>
-    public static AppSettings CreateForFirstRun() => new() { SetupDone = false };
+    public static AppSettings CreateForFirstRun() => new() { SetupDone = false, TrayHintShown = false };
+
+    /// <summary>False until the "the app lives in the tray" hint was shown once (after the first-run wizard). True when absent, so existing users never see it.</summary>
+    public bool TrayHintShown { get; set; } = true;
 
     public Dictionary<HotkeyAction, string> Hotkeys { get; set; } = DefaultHotkeys();
 

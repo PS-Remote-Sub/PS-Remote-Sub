@@ -1,0 +1,39 @@
+<!-- The one-time "the app lives in the tray" hint (New-Tray). Always dark and topmost, shown without taking focus,
+     like a toast. Placed by the code-behind: bottom-right on Windows, top-right under the menu bar on Mac. -->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="clr-namespace:PSRemoteSub.App"
+        x:Class="PSRemoteSub.App.Views.TrayHintWindow"
+        Title="PS Remote Sub"
+        WindowDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        CanResize="False"
+        SizeToContent="Height"
+        Width="340"
+        RequestedThemeVariant="Dark"
+        FontFamily="{DynamicResource AppFont}"
+        FontSize="15">
+  <Border Background="{DynamicResource CardBrush}"
+          BorderBrush="{DynamicResource AccentBrush}"
+          BorderThickness="1"
+          CornerRadius="14"
+          Padding="20,18">
+    <StackPanel Spacing="10">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Border Grid.Column="0" Width="32" Height="32" CornerRadius="9" Margin="0,0,10,0"
+                Background="{DynamicResource AccentBrush}" x:Name="IconTile" />
+        <TextBlock Grid.Column="1" Classes="lbl" VerticalAlignment="Center" Text="{app:Tr TrayHintTitle}"
+                   Foreground="{DynamicResource TextBrush}" TextWrapping="Wrap" />
+        <Button x:Name="CloseButton" Grid.Column="2" Background="Transparent" BorderThickness="0" Padding="0"
+                MinHeight="0" MinWidth="0" VerticalAlignment="Center" Cursor="Hand"
+                Foreground="{DynamicResource Text3Brush}" />
+      </Grid>
+      <TextBlock x:Name="BodyText" Classes="mut" FontSize="14" LineHeight="22" TextWrapping="Wrap" />
+      <Button x:Name="OpenButton" Classes="btn sm primary" HorizontalAlignment="Left" Content="{app:Tr TrayOpenHome}" />
+    </StackPanel>
+  </Border>
+</Window>

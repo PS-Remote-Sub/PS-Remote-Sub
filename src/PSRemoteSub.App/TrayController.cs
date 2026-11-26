@@ -2,6 +2,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform;
 using PSRemoteSub.Core.Diagnostics;
+using PSRemoteSub.Core.Hub;
+using PSRemoteSub.Core.Input;
 using PSRemoteSub.Core.Settings;
 
 namespace PSRemoteSub.App;
@@ -11,7 +13,9 @@ internal sealed class TrayController : IDisposable
 {
     private readonly AppHost _host;
     private readonly TrayIcon _icon;
+    private readonly NativeMenuItem _state;
     private readonly NativeMenuItem _pause;
+    private readonly NativeMenuItem _selectRegion;
     private readonly NativeMenuItem _profiles;
     private readonly NativeMenuItem _overlay;
     private readonly NativeMenuItem _regionFrames;
@@ -23,25 +27,28 @@ internal sealed class TrayController : IDisposable
     public TrayController(Application app, AppHost host, Func<Task> exit)
     {
         _host = host;
+        // NativeMenu items are text only: the header and the state line are disabled items, hotkeys are part of the text.
+        var header = new NativeMenuItem(Loc.Get("TrayMenuTitle")) { IsEnabled = false };
+        _state = new NativeMenuItem { IsEnabled = false };
         _pause = new NativeMenuItem();
         _pause.Click += (_, _) => Safe(() => _host.SetPaused(!_host.IsPaused));
 
-        _profiles = new NativeMenuItem(Loc.Get("TrayProfiles")) { Menu = new NativeMenu() };
+        _profiles = new NativeMenuItem(Loc.Get("TrayMenuGames")) { Menu = new NativeMenu() };
 
-        var selectRegion = new NativeMenuItem(Loc.Get("TraySelectRegion"));
-        selectRegion.Click += (_, _) => Safe(() => _host.RequestRegionSelection(null));
+        _selectRegion = new NativeMenuItem();
+        _selectRegion.Click += (_, _) => Safe(() => _host.RequestRegionSelection(null));
 
         // Shown only with the capture card as the picture source (see Update).
-        _captureWindow = new NativeMenuItem(Loc.Get("TrayCaptureWindow"));
+        _captureWindow = new NativeMenuItem(Loc.Get("TrayMenuCapture"));
         _captureWindow.Click += (_, _) => Safe(_host.RequestCaptureWindow);
 
-        _overlay = new NativeMenuItem(Loc.Get("TrayOverlay")) { ToggleType = MenuItemToggleType.CheckBox };
+        _overlay = new NativeMenuItem(Loc.Get("TrayMenuOverlay")) { ToggleType = MenuItemToggleType.CheckBox };
         _overlay.Click += (_, _) => Safe(() => _host.SetOverlayEnabled(!_host.Settings.OverlayEnabled));
 
-        _regionFrames = new NativeMenuItem(Loc.Get("TrayRegionFrames")) { ToggleType = MenuItemToggleType.CheckBox };
+        _regionFrames = new NativeMenuItem(Loc.Get("TrayMenuFrames")) { ToggleType = MenuItemToggleType.CheckBox };
         _regionFrames.Click += (_, _) => Safe(() => _host.SetRegionFramesEnabled(!_host.Settings.ShowRegionFrames));
 
-        _web = new NativeMenuItem(Loc.Get("TrayWeb")) { ToggleType = MenuItemToggleType.CheckBox };
+        _web = new NativeMenuItem(Loc.Get("TrayMenuWeb")) { ToggleType = MenuItemToggleType.CheckBox };
         _web.Click += async (_, _) =>
         {
             try
@@ -58,10 +65,10 @@ internal sealed class TrayController : IDisposable
         var openHome = new NativeMenuItem(Loc.Get("TrayOpenHome"));
         openHome.Click += (_, _) => Safe(() => _host.RequestMainWindow(MainPage.Home));
 
-        var settings = new NativeMenuItem(Loc.Get("TraySettings"));
+        var settings = new NativeMenuItem(Loc.Get("TrayMenuSettings"));
         settings.Click += (_, _) => Safe(_host.RequestSettings);
 
-        var quit = new NativeMenuItem(Loc.Get("TrayExit"));
+        var quit = new NativeMenuItem(Loc.Get("TrayMenuExit"));
         quit.Click += async (_, _) =>
         {
             try { await exit(); }
@@ -72,8 +79,9 @@ internal sealed class TrayController : IDisposable
         var menu = new NativeMenu();
         foreach (var item in new NativeMenuItemBase[]
                  {
-                     openHome, new NativeMenuItemSeparator(), _pause, _profiles, selectRegion, _captureWindow, new NativeMenuItemSeparator(),
-                     _overlay, _regionFrames, _web, new NativeMenuItemSeparator(), settings, quit,
+                     header, _state, new NativeMenuItemSeparator(),
+                     openHome, _pause, _selectRegion, _profiles, new NativeMenuItemSeparator(),
+                     _overlay, _web, _regionFrames, _captureWindow, new NativeMenuItemSeparator(), settings, quit,
                  })
             menu.Items.Add(item);
         _icon = new TrayIcon { Icon = new WindowIcon(iconStream), Menu = menu, ToolTipText = host.StatusText }; // macOS rejects a null tooltip
@@ -96,13 +104,28 @@ internal sealed class TrayController : IDisposable
 
     private void Update()
     {
-        _pause.Header = Loc.Get(_host.IsPaused ? "TrayResume" : "TrayPause");
+        var summary = HomeStatus.Summarize(_host.Status, _host.IsPaused, DateTimeOffset.Now);
+        _state.Header = summary.State switch
+        {
+            HomeState.Paused => "● " + Loc.Get("StatePaused"),
+            HomeState.NeedsFix => "● " + Loc.Get("StateNeedsFix"),
+            _ => "● " + Loc.Format("TrayStateTranslatingGame", _host.Settings.GetActive().Name),
+        };
+        _pause.Header = WithHotkey(Loc.Get(_host.IsPaused ? "TrayMenuResume" : "TrayMenuPause"), HotkeyAction.TogglePause);
+        _selectRegion.Header = WithHotkey(Loc.Get("TrayMenuRegion"), HotkeyAction.SelectRegion);
         _overlay.IsChecked = _host.Settings.OverlayEnabled;
         _regionFrames.IsChecked = _host.Settings.ShowRegionFrames;
         _web.IsChecked = _host.IsWebRunning;
         _captureWindow.IsVisible = _host.PictureSource == PictureSource.CaptureCard;
         _icon.ToolTipText = _host.StatusText;
         UpdateProfiles();
+    }
+
+    /// <summary>The item text with its hotkey after it (platform symbols on Mac), as the New-Tray mockup shows it.</summary>
+    private string WithHotkey(string text, HotkeyAction action)
+    {
+        var key = HotkeyLabels.DisplaySetting(_host.Settings.Hotkeys.GetValueOrDefault(action, ""), _host.Platform.Kind);
+        return string.IsNullOrEmpty(key) ? text : $"{text}    {key}";
     }
 
     private void UpdateProfiles()

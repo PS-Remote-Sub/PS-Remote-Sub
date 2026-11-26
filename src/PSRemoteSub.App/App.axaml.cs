@@ -54,7 +54,10 @@ public partial class App : Application
                 // A missing file gives normalized defaults (SetupDone = true); a brand-new install runs the wizard first.
                 // Not for an unreadable file (the catch below): that is not a first run.
                 if (firstRun)
+                {
                     settings.SetupDone = false;
+                    settings.TrayHintShown = false;
+                }
             }
             catch (Exception ex)
             {
@@ -133,6 +136,30 @@ public partial class App : Application
         if (_exiting || !e.Completed)
             return;
         _windows?.ShowMain(e.NextPage);
+        ShowTrayHintOnce();
+    }
+
+    /// <summary>The one-time "the app lives in the tray" hint, after the wizard is completed or skipped. Never again once shown.</summary>
+    private void ShowTrayHintOnce()
+    {
+        try
+        {
+            var host = _host;
+            if (host is null || host.Settings.TrayHintShown)
+                return;
+            host.Settings.TrayHintShown = true;
+            host.SaveSettings();
+            var hint = new Views.TrayHintWindow(Program.Platform.Kind == PlatformKind.MacOS)
+            {
+                OverlayPlatform = Program.Platform.Overlay,
+            };
+            hint.OpenHomeClicked += (_, _) => host.RequestMainWindow(MainPage.Home);
+            hint.Show(); // ShowActivated is false: no focus change
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Showing the tray hint failed", ex); // a hint is never worth a crash
+        }
     }
 
     /// <summary>

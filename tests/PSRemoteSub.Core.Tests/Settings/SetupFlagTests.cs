@@ -35,6 +35,29 @@ public sealed class SetupFlagTests : IDisposable
     }
 
     [Fact]
+    public void TrayHintShown_DefaultsToTrue() => Assert.True(new AppSettings().TrayHintShown);
+
+    [Fact]
+    public void TrayHintShown_MissingInFile_LoadsTrue()
+    {
+        File.WriteAllText(PathOf, """{"settingsVersion":3}""");
+        Assert.True(new SettingsStore(PathOf).Load().TrayHintShown);
+    }
+
+    [Fact]
+    public void CreateForFirstRun_HintPending_AndRoundTrips()
+    {
+        var first = AppSettings.CreateForFirstRun();
+        Assert.False(first.TrayHintShown);
+        var store = new SettingsStore(PathOf);
+        store.Save(first);
+        Assert.False(store.Load().TrayHintShown);
+        first.TrayHintShown = true;
+        store.Save(first);
+        Assert.True(store.Load().TrayHintShown);
+    }
+
+    [Fact]
     public void CreateForFirstRun_OtherwiseMatchesDefaults()
     {
         var first = AppSettings.CreateForFirstRun();

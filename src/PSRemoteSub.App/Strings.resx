@@ -1601,4 +1601,19 @@
   <data name="NoticeActionChangeHotkey" xml:space="preserve"><value>เปลี่ยนปุ่มลัด</value></data>
   <data name="NoticeActionChangePort" xml:space="preserve"><value>เปลี่ยนพอร์ต</value></data>
   <data name="NoticeActionCheckRegion" xml:space="preserve"><value>ตรวจกรอบ</value></data>
+  <data name="TrayMenuTitle" xml:space="preserve"><value>PS Remote Sub</value></data>
+  <data name="TrayMenuPause" xml:space="preserve"><value>หยุดชั่วคราว</value></data>
+  <data name="TrayMenuResume" xml:space="preserve"><value>เริ่มแปลต่อ</value></data>
+  <data name="TrayMenuRegion" xml:space="preserve"><value>ปรับกรอบซับ</value></data>
+  <data name="TrayMenuGames" xml:space="preserve"><value>เปลี่ยนเกม</value></data>
+  <data name="TrayMenuOverlay" xml:space="preserve"><value>ซับบนจอคอม</value></data>
+  <data name="TrayMenuWeb" xml:space="preserve"><value>ดูบนมือถือ</value></data>
+  <data name="TrayMenuFrames" xml:space="preserve"><value>กรอบตรวจสอบ</value></data>
+  <data name="TrayMenuCapture" xml:space="preserve"><value>เปิดหน้าต่าง capture card</value></data>
+  <data name="TrayMenuSettings" xml:space="preserve"><value>ตั้งค่า</value></data>
+  <data name="TrayMenuExit" xml:space="preserve"><value>ออกจากแอป</value></data>
+  <data name="TrayStateTranslatingGame" xml:space="preserve"><value>กำลังแปล · {0}</value></data>
+  <data name="TrayHintTitle" xml:space="preserve"><value>PS Remote Sub อยู่ตรงนี้</value></data>
+  <data name="TrayHintBodyWin" xml:space="preserve"><value>แอปทำงานเงียบ ๆ อยู่เบื้องหลัง คลิกไอคอนนี้เพื่อเปิดหน้าหลัก หรือคลิกขวาเพื่อดูเมนูลัด</value></data>
+  <data name="TrayHintBodyMac" xml:space="preserve"><value>แอปทำงานเงียบ ๆ อยู่เบื้องหลัง คลิกไอคอนบนแถบเมนูด้านบนเพื่อเปิดเมนู แล้วเลือกเปิดหน้าหลัก</value></data>
 </root>
