@@ -438,9 +438,11 @@ public sealed class TranslationPage : SettingsPage
 
     private void SetTranslationMode(RadioButton button, TranslationMode mode)
     {
+        // On every IsChecked change, unchecks included: the newly checked card raises its event while the old one is
+        // still checked, so only the old card's later (unchecked) event leaves the looks right.
+        ShowModeCards();
         if (Loading || button.IsChecked != true)
             return;
-        ShowModeCards(); // the card look follows the checked card even when the mode did not change
         if (Settings.Translation.Mode == mode)
             return;
         Settings.Translation.Mode = mode;
