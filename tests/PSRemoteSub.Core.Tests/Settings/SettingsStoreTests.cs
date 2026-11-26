@@ -566,6 +566,22 @@ public sealed class SettingsStoreTests : IDisposable
     }
 
     [Fact]
+    public void AddZone_AppendsANamedDefaultZone()
+    {
+        var p = GameProfile.Create("g");
+        var zone = p.AddZone();
+        Assert.Same(zone, p.Zones[^1]);
+        Assert.Equal(2, p.Zones.Count);
+        Assert.Equal("โซน 2", zone.Name);
+        Assert.NotEqual(p.Zones[0].Id, zone.Id);
+        Assert.Equal(OverlayPlacement.Custom, zone.Placement);
+        Assert.False(zone.TriggerEnabled);
+        // CreateNext only names against the zones given; it adds nothing.
+        Assert.Equal("โซน 3", OcrZone.CreateNext(p.Zones).Name);
+        Assert.Equal(2, p.Zones.Count);
+    }
+
+    [Fact]
     public void HotkeyMove_StillRunsOnlyBelowVersion1()
     {
         File.WriteAllText(PathOf, "{\"settingsVersion\":1,\"hotkeys\":{\"SelectRegion\":\"Ctrl+Alt+S\"}}");

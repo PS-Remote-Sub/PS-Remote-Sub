@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Interactivity;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -27,12 +29,13 @@ public sealed record ZoneBoxEdit(string Id, RegionFraction? Ocr, RegionFraction?
 
 /// <summary>
 /// Borderless topmost window laid exactly over the Remote Play client area, showing a frozen frame dimmed to 50 %
-/// outside the selected zone's boxes: OCR (green), caption (orange, Custom placement only) and trigger (purple, trigger
-/// on only). The other zones' boxes show faint with their names and cannot be grabbed. A row of zone chips at the top
-/// (click, or keys 1–9) selects the zone. Each box moves by dragging inside it and resizes from its corner and edge
-/// handles; dragging on an empty area (or anywhere, while the active box does not exist yet) draws the active box. Tab
-/// cycles the zone's boxes, Enter saves every zone changed, Esc or a right-click cancels everything. Boxes are kept as
-/// fractions of the client area, so a DPI rescale while open changes nothing. UI thread only.
+/// outside the selected zone's boxes: read/OCR (blue), translation/caption (orange, Custom placement only) and trigger
+/// (purple, trigger on only). The other zones' boxes show faint with their names; a click on one selects that zone. The
+/// toolbar on top (New-RegionPicker) selects the zone (chips, or keys 1–9), adds a zone, switches the box being edited
+/// (or Tab), and cancels/saves. Each box moves by dragging inside it and resizes from its corners and edges; dragging on
+/// an empty area (or anywhere, while the active box does not exist yet) draws the active box. Enter saves every zone
+/// changed, Esc or a right-click cancels everything. Boxes are kept as fractions of the client area, so a DPI rescale
+/// while open changes nothing. UI thread only.
 /// </summary>
 public partial class RegionPickerWindow : Window
 {
@@ -43,8 +46,8 @@ public partial class RegionPickerWindow : Window
     /// <summary>How close to a corner or edge a press grabs it, in DIP.</summary>
     private const double Grip = 8;
 
-    private static readonly IImmutableSolidColorBrush ChipBrush = new ImmutableSolidColorBrush(Color.FromArgb(0xE0, 0x10, 0x11, 0x14));
-    private static readonly IImmutableSolidColorBrush ChipSelectedBrush = new ImmutableSolidColorBrush(Colors.White);
+    /// <summary>The bold words of the hint row (the dark theme's text colour: this window is always dark).</summary>
+    private static readonly IImmutableSolidColorBrush HintStrongBrush = new ImmutableSolidColorBrush(Color.FromRgb(0xF3, 0xF4, 0xF6));
 
     private static RegionPickerWindow? s_open;
 
@@ -56,7 +59,8 @@ public partial class RegionPickerWindow : Window
 
     private List<ZoneState> _zones = [];
     private ZoneState _zone = null!; // the selected zone, set by Load
-    private readonly List<Button> _chips = [];
+    private readonly List<RadioButton> _chips = [];
+    private Func<ZoneBoxes>? _newZone; // makes a zone for "add zone"; null hides the button
 
     // The drag in progress, always on the selected zone (zones cannot change while dragging): which box, what was
     // grabbed (None = a free drag that draws the box), where it started and the box before it (restored when a free
@@ -69,6 +73,7 @@ public partial class RegionPickerWindow : Window
     private EditRect _dragStartRect;
     private RegionFraction? _beforeDrag;
     private EditorBox? _clickSelects; // what a click (no drag) selects when the press would draw a missing box
+    private ZoneState? _clickZone; // the other zone a click (no drag) selects, when the press hit only its box
 
     public RegionPickerWindow()
     {
@@ -79,6 +84,16 @@ public partial class RegionPickerWindow : Window
         Surface.PointerMoved += (_, e) => Guard(() => OnSurfaceMoved(e), closeOnError: true);
         Surface.PointerReleased += (_, e) => Guard(() => OnSurfaceReleased(e), closeOnError: true);
         Surface.PointerCaptureLost += (_, _) => Guard(FinishDrag, closeOnError: true);
+        // Tunnel: the keys are handled before anything else sees them, so Tab never moves focus.
+        AddHandler(KeyDownEvent, OnPreviewKeyDown, RoutingStrategies.Tunnel);
+        AddZoneButton.Click += (_, _) => Guard(AddZone, closeOnError: true);
+        OcrSwitch.Click += (_, _) => Guard(() => SwitchBox(EditorBox.Ocr), closeOnError: true);
+        CaptionSwitch.Click += (_, _) => Guard(() => SwitchBox(EditorBox.Caption), closeOnError: true);
+        TriggerSwitch.Click += (_, _) => Guard(() => SwitchBox(EditorBox.Trigger), closeOnError: true);
+        CancelButton.Click += (_, _) => Guard(Close, closeOnError: true);
+        SaveButton.Click += (_, _) => Guard(Save, closeOnError: true);
+        HideKeysButton.Click += (_, _) => KeyLegend.IsVisible = false;
+        BuildHint();
         Opened += (_, _) => Guard(() =>
         {
             // If the window opened on a monitor with another DPI than the one under the client area, Windows has
@@ -116,9 +131,11 @@ public partial class RegionPickerWindow : Window
     /// <paramref name="zones"/>, starting on <paramref name="startZoneId"/> (the first zone when unknown), and lets the
     /// user move, resize and draw them. Returns every zone whose boxes changed and the zone selected last, or null on
     /// Esc, right-click or close. Only one editor is open at a time; a second call while one is open returns null.
+    /// "Add zone" calls <paramref name="newZone"/> (hidden when null) for each zone added: the caller keeps those zones
+    /// aside and adds them only when the editor returns a result (a cancel adds nothing).
     /// </summary>
     public static Task<(IReadOnlyList<ZoneBoxEdit> Edits, string LastZoneId)?> PickAsync(Frame frozen,
-        PixelRect clientScreen, IReadOnlyList<ZoneBoxes> zones, string startZoneId)
+        PixelRect clientScreen, IReadOnlyList<ZoneBoxes> zones, string startZoneId, Func<ZoneBoxes>? newZone = null)
     {
         ArgumentNullException.ThrowIfNull(frozen);
         ArgumentNullException.ThrowIfNull(zones);
@@ -129,6 +146,8 @@ public partial class RegionPickerWindow : Window
         var window = new RegionPickerWindow();
         try
         {
+            window._newZone = newZone;
+            window.AddZoneButton.IsVisible = newZone is not null;
             window.Load(frozen, clientScreen, zones, startZoneId);
             s_open = window;
             window.Show();
@@ -176,7 +195,10 @@ public partial class RegionPickerWindow : Window
         return bitmap;
     }
 
-    /// <summary>One chip per zone; never focusable, so Enter, Tab and the digits always reach the window.</summary>
+    /// <summary>
+    /// One segment per zone ("1 บทพูด"; no number past 9, as only 1–9 are keys); never focusable, so Enter, Tab and the
+    /// digits always reach the window. New controls each time (a control is never re-parented).
+    /// </summary>
     private void BuildChips()
     {
         ZoneChips.Children.Clear();
@@ -184,32 +206,73 @@ public partial class RegionPickerWindow : Window
         for (int i = 0; i < _zones.Count; i++)
         {
             var zone = _zones[i];
-            var chip = new Button
+            var chip = new RadioButton
             {
-                Content = i < 9 ? $"{i + 1} · {zone.Source.Name}" : zone.Source.Name,
+                Content = ZoneLabel(i),
                 Focusable = false,
                 IsTabStop = false,
-                Cursor = new Cursor(StandardCursorType.Hand),
-                Padding = new Thickness(12, 4),
-                CornerRadius = new CornerRadius(6),
-                FontFamily = new FontFamily("Leelawadee UI"),
-                FontSize = 15,
+                GroupName = "PickerZones",
             };
+            chip.Classes.Add("seg");
             chip.Click += (_, _) => Guard(() => SelectZone(zone), closeOnError: true);
             _chips.Add(chip);
             ZoneChips.Children.Add(chip);
         }
     }
 
+    /// <summary>"N name" for zones 1–9 (their key), the name alone after that.</summary>
+    private string ZoneLabel(int index) =>
+        index < 9 ? $"{index + 1} {_zones[index].Source.Name}" : _zones[index].Source.Name;
+
+    private void BuildHint()
+    {
+        var inlines = new InlineCollection();
+        void Part(string strong, string rest, bool last)
+        {
+            inlines.Add(new Run(Loc.Get(strong)) { FontWeight = FontWeight.SemiBold, Foreground = HintStrongBrush });
+            inlines.Add(new Run(" " + Loc.Get(rest) + (last ? "" : " · ")));
+        }
+        Part("PickerHintDraw", "PickerHintDrawRest", last: false);
+        Part("PickerHintMove", "PickerHintMoveRest", last: false);
+        Part("PickerHintResize", "PickerHintResizeRest", last: true);
+        HintText.Inlines = inlines;
+    }
+
     private void SelectZone(ZoneState zone)
     {
-        if (_dragging || zone == _zone)
+        if (!_dragging && zone != _zone)
+            _zone = zone;
+        ShowBoxes(); // also puts a clicked chip back when the zone did not change
+    }
+
+    /// <summary>"Add zone": a new zone from the caller, selected, with nothing drawn yet (a drag draws its read box).</summary>
+    private void AddZone()
+    {
+        if (_dragging || _newZone is null)
             return;
+        var zone = new ZoneState(_newZone());
+        _zones.Add(zone);
+        BuildChips();
         _zone = zone;
         ShowBoxes();
     }
 
-    protected override void OnKeyDown(KeyEventArgs e)
+    /// <summary>The box switch: edits <paramref name="box"/> of the selected zone if it shows it and has a read box.</summary>
+    private void SwitchBox(EditorBox box)
+    {
+        if (!_dragging && _zone.Shown.Contains(box) && (_zone.Ocr is not null || box == EditorBox.Ocr))
+            _zone.Active = box;
+        ShowBoxes(); // also puts the switch back when nothing changed
+    }
+
+    private void Save()
+    {
+        FinishDrag(); // Enter mid-drag: the same checks as a release
+        _picked = (_zones.Select(z => z.Edit()).OfType<ZoneBoxEdit>().ToList(), _zone.Source.Id);
+        Close();
+    }
+
+    private void OnPreviewKeyDown(object? sender, KeyEventArgs e)
     {
         try
         {
@@ -221,12 +284,12 @@ public partial class RegionPickerWindow : Window
                     return;
                 case Key.Enter:
                     e.Handled = true;
-                    FinishDrag(); // Enter mid-drag: the same checks as a release
-                    _picked = (_zones.Select(z => z.Edit()).OfType<ZoneBoxEdit>().ToList(), _zone.Source.Id);
-                    Close();
+                    Save();
                     return;
                 case Key.Tab:
-                    e.Handled = true; // never move focus away
+                    // Never move focus away. Read -> translation (-> trigger, when on) -> read; a zone that shows only
+                    // its read box stays on it.
+                    e.Handled = true;
                     if (!_dragging && _zone.Ocr is not null)
                     {
                         var shown = _zone.Shown;
@@ -238,11 +301,10 @@ public partial class RegionPickerWindow : Window
                 case >= Key.NumPad1 and <= Key.NumPad9:
                     e.Handled = true;
                     int index = e.Key >= Key.NumPad1 ? e.Key - Key.NumPad1 : e.Key - Key.D1;
-                    if (index < _zones.Count)
+                    if (index < _zones.Count) // no such zone: nothing happens
                         SelectZone(_zones[index]);
                     return;
             }
-            base.OnKeyDown(e);
         }
         catch (Exception ex)
         {
@@ -302,18 +364,45 @@ public partial class RegionPickerWindow : Window
 
     private void ShowBoxes()
     {
-        var others = new List<(string ZoneName, EditorBox Box, RegionFraction Region)>();
-        foreach (var zone in _zones.Where(z => z != _zone))
+        // Other zones: every shown box faint; the label once per zone, on its first box.
+        var others = new List<(string? Label, RegionFraction Region)>();
+        for (int i = 0; i < _zones.Count; i++)
+        {
+            var zone = _zones[i];
+            if (zone == _zone)
+                continue;
+            string? label = Loc.Format("PickerOtherZone", ZoneLabel(i));
             foreach (var box in zone.Shown)
                 if (zone.Get(box) is { } region)
-                    others.Add((zone.Source.Name, box, region));
+                {
+                    others.Add((label, region));
+                    label = null;
+                }
+        }
         Surface.Show(_zone.Shown.Select(b => (b, _zone.Get(b))).ToList(), _zone.Active, others);
         for (int i = 0; i < _chips.Count; i++)
+            _chips[i].IsChecked = _zones[i] == _zone;
+        bool hasOcr = _zone.Ocr is not null;
+        OcrSwitch.IsChecked = _zone.Active == EditorBox.Ocr;
+        CaptionSwitch.IsChecked = _zone.Active == EditorBox.Caption;
+        TriggerSwitch.IsChecked = _zone.Active == EditorBox.Trigger;
+        CaptionSwitch.IsVisible = _zone.Shown.Contains(EditorBox.Caption);
+        TriggerSwitch.IsVisible = _zone.Shown.Contains(EditorBox.Trigger);
+        CaptionSwitch.IsEnabled = TriggerSwitch.IsEnabled = hasOcr; // the read box comes first
+    }
+
+    /// <summary>The other zone whose box is under <paramref name="p"/> (DIP), the last drawn first; null when none.</summary>
+    private ZoneState? OtherZoneAt(Point p)
+    {
+        foreach (var zone in Enumerable.Reverse(_zones))
         {
-            bool selected = _zones[i] == _zone;
-            _chips[i].Background = selected ? ChipSelectedBrush : ChipBrush;
-            _chips[i].Foreground = selected ? Brushes.Black : Brushes.White;
+            if (zone == _zone)
+                continue;
+            foreach (var box in zone.Shown)
+                if (ToDip(zone.Get(box)) is { } r && p.X >= r.X && p.X <= r.X + r.Width && p.Y >= r.Y && p.Y <= r.Y + r.Height)
+                    return zone;
         }
+        return null;
     }
 
     private void OnSurfacePressed(PointerPressedEventArgs e)
@@ -331,6 +420,9 @@ public partial class RegionPickerWindow : Window
         var p = Clamp(point.Position);
         var (box, handle) = BoxEditor.Pick(Grabbable(), _zone.Active, p.X, p.Y, Grip);
         _clickSelects = null;
+        // Nothing of the selected zone under the press: a click on another zone's box selects that zone (a drag still
+        // draws).
+        _clickZone = handle == BoxHandle.None ? OtherZoneAt(p) : null;
         // With no OCR box yet, the only thing to do is draw one.
         if (_zone.Ocr is null)
         {
@@ -362,7 +454,9 @@ public partial class RegionPickerWindow : Window
         {
             var (_, hover) = BoxEditor.Pick(Grabbable(), _zone.Active, p.X, p.Y, Grip);
             bool draws = _zone.Ocr is null || _zone.Get(_zone.Active) is null;
-            Surface.Cursor = CursorFor(draws ? BoxHandle.None : hover);
+            if (draws)
+                hover = BoxHandle.None;
+            Surface.Cursor = hover == BoxHandle.None && OtherZoneAt(p) is not null ? HandCursor : CursorFor(hover);
             return;
         }
         ApplyDrag(p);
@@ -405,14 +499,20 @@ public partial class RegionPickerWindow : Window
         _dragging = false;
         if (!_moved)
         {
-            // A click: it only selects a box.
+            // A click: it only selects a box, or another zone.
             if (_clickSelects is { } selected)
             {
                 _zone.Active = selected;
                 ShowBoxes();
             }
+            else if (_clickZone is { } other)
+            {
+                SelectZone(other);
+            }
+            _clickZone = null;
             return;
         }
+        _clickZone = null;
         if (_dragHandle == BoxHandle.None)
         {
             var rect = ToDip(_zone.Get(_dragBox));
@@ -451,6 +551,8 @@ public partial class RegionPickerWindow : Window
         [BoxHandle.SW] = new Cursor(StandardCursorType.BottomLeftCorner),
         [BoxHandle.SE] = new Cursor(StandardCursorType.BottomRightCorner),
     };
+
+    private static readonly Cursor HandCursor = new(StandardCursorType.Hand);
 
     private static Cursor CursorFor(BoxHandle handle) => Cursors[handle];
 
@@ -511,32 +613,42 @@ public partial class RegionPickerWindow : Window
 }
 
 /// <summary>
-/// Draws the frozen frame stretched to its bounds, dimmed to 50 % outside the selected zone's boxes, with the OCR box in
-/// green, the caption box in orange and the trigger box in purple (the active one thicker, with handles), and the other
-/// zones' boxes faint, labelled with their zone's name.
+/// Draws the frozen frame stretched to its bounds, dimmed to 50 % outside the selected zone's boxes, with the read box
+/// solid blue, the translation box dashed orange and the trigger box dotted purple (New-RegionPicker), each tagged with
+/// what it is ("อ่านซับตรงนี้"…), the active one tinted with round corner handles; and the other zones' boxes faint
+/// white, tagged once per zone with its name.
 /// </summary>
 public sealed class RegionSelectionCanvas : Control
 {
-    public static readonly Color OcrColor = Color.FromRgb(0x22, 0xC5, 0x5E);
-    public static readonly Color CaptionColor = Color.FromRgb(0xF9, 0x73, 0x16);
-    public static readonly Color TriggerColor = Color.FromRgb(0xA8, 0x55, 0xF7);
+    public static readonly Color OcrColor = Color.FromRgb(0x5A, 0xA8, 0xFF);
+    public static readonly Color CaptionColor = Color.FromRgb(0xFF, 0x9D, 0x4D);
+    public static readonly Color TriggerColor = Color.FromRgb(0xC5, 0x8B, 0xFF);
 
-    /// <summary>Side of a handle square, in DIP.</summary>
-    private const double HandleSize = 8;
+    /// <summary>Diameter of a corner handle, in DIP.</summary>
+    private const double HandleSize = 12;
 
-    /// <summary>Opacity of the other zones' boxes.</summary>
-    private const double FaintOpacity = 0.45;
+    private const double BoxThickness = 3;
+
+    private static readonly Typeface LabelFace = new(
+        new FontFamily("avares://PSRemoteSub.App/Assets/Fonts#IBM Plex Sans Thai"), FontStyle.Normal, FontWeight.SemiBold);
+
+    /// <summary>Text on a coloured tag (the mockup's on-accent colour).</summary>
+    private static readonly IImmutableSolidColorBrush TagText = new ImmutableSolidColorBrush(Color.FromRgb(0x08, 0x11, 0x1F));
 
     private static readonly IImmutableSolidColorBrush Dim = new ImmutableSolidColorBrush(Color.FromArgb(128, 0, 0, 0));
     private static readonly IImmutableSolidColorBrush OcrBrush = new ImmutableSolidColorBrush(OcrColor);
     private static readonly IImmutableSolidColorBrush CaptionBrush = new ImmutableSolidColorBrush(CaptionColor);
     private static readonly IImmutableSolidColorBrush TriggerBrush = new ImmutableSolidColorBrush(TriggerColor);
-    private static readonly ImmutablePen HandleOutline = new(Brushes.White, 1);
+    private static readonly IImmutableSolidColorBrush HandleFill = new ImmutableSolidColorBrush(Colors.White);
+    private static readonly ImmutablePen OtherPen = new(new ImmutableSolidColorBrush(Color.FromArgb(0x66, 0xFF, 0xFF, 0xFF)), 2,
+        new ImmutableDashStyle([3, 2], 0));
+    private static readonly IImmutableSolidColorBrush OtherTagBrush = new ImmutableSolidColorBrush(Color.FromArgb(0xCC, 0x14, 0x16, 0x1B));
+    private static readonly IImmutableSolidColorBrush OtherTagText = new ImmutableSolidColorBrush(Color.FromRgb(0xC9, 0xCE, 0xD6));
 
     private Bitmap? _bitmap;
     private IReadOnlyList<(EditorBox Box, RegionFraction? Region)> _boxes = [];
     private EditorBox _active;
-    private IReadOnlyList<(string ZoneName, EditorBox Box, RegionFraction Region)> _others = [];
+    private IReadOnlyList<(string? Label, RegionFraction Region)> _others = [];
 
     public RegionSelectionCanvas()
     {
@@ -552,10 +664,10 @@ public sealed class RegionSelectionCanvas : Control
 
     /// <summary>
     /// Shows the selected zone's <paramref name="boxes"/> (fractions of the bounds; null ones are not drawn) with
-    /// <paramref name="active"/> on top, and the other zones' boxes faint.
+    /// <paramref name="active"/> on top, and the other zones' boxes faint (a null label draws no tag).
     /// </summary>
     public void Show(IReadOnlyList<(EditorBox Box, RegionFraction? Region)> boxes, EditorBox active,
-        IReadOnlyList<(string ZoneName, EditorBox Box, RegionFraction Region)> others)
+        IReadOnlyList<(string? Label, RegionFraction Region)> others)
     {
         _boxes = boxes;
         _active = active;
@@ -586,15 +698,13 @@ public sealed class RegionSelectionCanvas : Control
             context.FillRectangle(Dim, bounds);
         }
 
-        using (context.PushOpacity(FaintOpacity))
-        {
-            foreach (var (zoneName, box, region) in _others)
-                if (ToRect(region) is { Width: > 0, Height: > 0 } r)
-                {
-                    context.DrawRectangle(null, new ImmutablePen(BrushOf(box), 1.5), r);
-                    DrawLabel(context, $"{zoneName} · {LabelOf(box)}", BrushOf(box), r);
-                }
-        }
+        foreach (var (label, region) in _others)
+            if (ToRect(region) is { Width: > 0, Height: > 0 } r)
+            {
+                context.DrawRectangle(null, OtherPen, r, 6, 6);
+                if (label is not null)
+                    DrawLabel(context, label, OtherTagBrush, r, OtherTagText);
+            }
 
         // The active box last, so its outline and handles are on top.
         foreach (var (box, rect) in boxes.OrderBy(b => b.Box == _active))
@@ -613,39 +723,60 @@ public sealed class RegionSelectionCanvas : Control
         _ => TriggerBrush,
     };
 
-    private static string LabelOf(EditorBox box) => Loc.Get(box switch
+    /// <summary>Solid read box, dashed translation box, dotted trigger box (as the toolbar's switch shows them).</summary>
+    private static ImmutableDashStyle? DashOf(EditorBox box) => box switch
     {
-        EditorBox.Ocr => "BoxLabelOcr",
-        EditorBox.Caption => "BoxLabelCaption",
-        _ => "BoxLabelTrigger",
+        EditorBox.Ocr => null,
+        EditorBox.Caption => new ImmutableDashStyle([2, 1.3], 0),
+        _ => new ImmutableDashStyle([0.7, 1], 0),
+    };
+
+    private static string TagOf(EditorBox box) => Loc.Get(box switch
+    {
+        EditorBox.Ocr => "BoxTagOcr",
+        EditorBox.Caption => "BoxTagCaption",
+        _ => "BoxTagTrigger",
     });
 
-    private static void DrawBox(DrawingContext context, EditorBox box, Rect r, bool active)
+    private void DrawBox(DrawingContext context, EditorBox box, Rect r, bool active)
     {
         var brush = BrushOf(box);
-        var pen = new ImmutablePen(brush, active ? 3 : 1.5);
-        context.DrawRectangle(null, pen, r);
-        DrawLabel(context, LabelOf(box), brush, r);
+        var color = brush.Color;
+        // Tinted inside: 10 % for the box being edited, 6 % for the others.
+        context.FillRectangle(new ImmutableSolidColorBrush(Color.FromArgb(active ? (byte)26 : (byte)15, color.R, color.G, color.B)), r, 6);
+        context.DrawRectangle(null, new ImmutablePen(brush, BoxThickness, DashOf(box)), r, 6, 6);
+        // The translation tag sits under the box's right part, so it never covers a read box on top of it.
+        DrawLabel(context, TagOf(box), brush, r, TagText, box == EditorBox.Caption ? Bounds.Height : null);
         if (!active)
             return;
-        foreach (var (x, y) in new[]
-                 {
-                     (r.Left, r.Top), (r.Center.X, r.Top), (r.Right, r.Top), (r.Right, r.Center.Y),
-                     (r.Right, r.Bottom), (r.Center.X, r.Bottom), (r.Left, r.Bottom), (r.Left, r.Center.Y),
-                 })
-            context.DrawRectangle(brush, HandleOutline,
-                new Rect(x - HandleSize / 2, y - HandleSize / 2, HandleSize, HandleSize));
+        var outline = new ImmutablePen(brush, BoxThickness);
+        foreach (var corner in new[] { r.TopLeft, r.TopRight, r.BottomLeft, r.BottomRight })
+            context.DrawEllipse(HandleFill, outline, corner, HandleSize / 2, HandleSize / 2);
     }
 
-    /// <summary>A small coloured tag at the box's top-left: above it, or inside when the box touches the top.</summary>
-    internal static void DrawLabel(DrawingContext context, string text, IBrush background, Rect box)
+    /// <summary>
+    /// A small coloured tag on the box: above its top-left (inside when the box touches the top), or, given
+    /// <paramref name="belowWithin"/> (the surface height), under its bottom-right (inside when there is no room under it).
+    /// </summary>
+    internal static void DrawLabel(DrawingContext context, string text, IBrush background, Rect box,
+        IBrush? foreground = null, double? belowWithin = null)
     {
+        const double gap = 4;
         var formatted = new FormattedText(text, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight,
-            new Typeface("Leelawadee UI"), 13, Brushes.White);
-        var size = new Size(formatted.Width + 10, formatted.Height + 2);
-        double y = box.Top - size.Height - 2 >= 0 ? box.Top - size.Height - 2 : box.Top + 2;
-        var tag = new Rect(box.Left, y, size.Width, size.Height);
-        context.FillRectangle(background, tag, 3);
-        context.DrawText(formatted, new Point(tag.X + 5, tag.Y + 1));
+            LabelFace, 14, foreground ?? TagText);
+        var size = new Size(formatted.Width + 16, formatted.Height + 4);
+        double x = box.Left, y;
+        if (belowWithin is { } height)
+        {
+            x = Math.Max(box.Left, box.Right - size.Width - 40);
+            y = box.Bottom + gap + size.Height <= height ? box.Bottom + gap : box.Bottom - size.Height - gap;
+        }
+        else
+        {
+            y = box.Top - size.Height - gap >= 0 ? box.Top - size.Height - gap : box.Top + gap;
+        }
+        var tag = new Rect(x, y, size.Width, size.Height);
+        context.FillRectangle(background, tag, 6);
+        context.DrawText(formatted, new Point(tag.X + 8, tag.Y + 2));
     }
 }

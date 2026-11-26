@@ -37,6 +37,12 @@ public sealed class OcrZone
 
     public static OcrZone Dialogue() => new() { Name = DialogueName, SendToWeb = true, LearnToLibrary = true };
 
+    /// <summary>
+    /// A new zone as "add zone" makes it (Games page and the box editor): default settings, named after
+    /// <paramref name="zones"/> (the zones it joins). Not added to anything.
+    /// </summary>
+    public static OcrZone CreateNext(IEnumerable<OcrZone> zones) => new() { Name = NextName(zones) };
+
     /// <summary>"โซน N" with N = count + 1, bumped past names already taken.</summary>
     public static string NextName(IEnumerable<OcrZone> zones)
     {

@@ -89,9 +89,6 @@
     <value>ออก</value>
   </data>
   <!-- Task 13: region picker -->
-  <data name="PickerHint" xml:space="preserve">
-    <value>ลากที่ว่างเพื่อวาดกรอบใหม่ · ลากในกรอบเพื่อย้าย · ลากจุดที่มุม/ขอบเพื่อย่อขยาย · Tab สลับกรอบ · 1–9 / คลิกชื่อ: เลือกโซน · Enter บันทึก · Esc ยกเลิก</value>
-  </data>
   <data name="TrayRegionFrames" xml:space="preserve">
     <value>แสดงกรอบ debug</value>
   </data>
@@ -1616,4 +1613,70 @@
   <data name="TrayHintTitle" xml:space="preserve"><value>PS Remote Sub อยู่ตรงนี้</value></data>
   <data name="TrayHintBodyWin" xml:space="preserve"><value>แอปทำงานเงียบ ๆ อยู่เบื้องหลัง คลิกไอคอนนี้เพื่อเปิดหน้าหลัก หรือคลิกขวาเพื่อดูเมนูลัด</value></data>
   <data name="TrayHintBodyMac" xml:space="preserve"><value>แอปทำงานเงียบ ๆ อยู่เบื้องหลัง คลิกไอคอนบนแถบเมนูด้านบนเพื่อเปิดเมนู แล้วเลือกเปิดหน้าหลัก</value></data>
+  <data name="PickerTitle" xml:space="preserve">
+    <value>ปรับกรอบซับ</value>
+  </data>
+  <data name="PickerZones" xml:space="preserve">
+    <value>โซน</value>
+  </data>
+  <data name="PickerBoxOcr" xml:space="preserve">
+    <value>อ่านซับ</value>
+  </data>
+  <data name="PickerBoxCaption" xml:space="preserve">
+    <value>คำแปล</value>
+  </data>
+  <data name="PickerCancel" xml:space="preserve">
+    <value>ยกเลิก</value>
+  </data>
+  <data name="PickerSave" xml:space="preserve">
+    <value>บันทึก</value>
+  </data>
+  <data name="PickerHintDraw" xml:space="preserve">
+    <value>ลากบนจอ</value>
+  </data>
+  <data name="PickerHintDrawRest" xml:space="preserve">
+    <value>เพื่อวาดกรอบใหม่</value>
+  </data>
+  <data name="PickerHintMove" xml:space="preserve">
+    <value>ลากในกรอบ</value>
+  </data>
+  <data name="PickerHintMoveRest" xml:space="preserve">
+    <value>เพื่อย้าย</value>
+  </data>
+  <data name="PickerHintResize" xml:space="preserve">
+    <value>ลากจุดที่มุม</value>
+  </data>
+  <data name="PickerHintResizeRest" xml:space="preserve">
+    <value>เพื่อย่อขยาย</value>
+  </data>
+  <data name="PickerKeysTitle" xml:space="preserve">
+    <value>ปุ่มลัด</value>
+  </data>
+  <data name="PickerKeysHide" xml:space="preserve">
+    <value>ซ่อนปุ่มลัด</value>
+  </data>
+  <data name="PickerKeyBox" xml:space="preserve">
+    <value>สลับกรอบอ่าน/คำแปล</value>
+  </data>
+  <data name="PickerKeyZone" xml:space="preserve">
+    <value>เลือกโซน</value>
+  </data>
+  <data name="PickerKeySave" xml:space="preserve">
+    <value>บันทึก</value>
+  </data>
+  <data name="PickerKeyCancel" xml:space="preserve">
+    <value>ยกเลิก</value>
+  </data>
+  <data name="PickerOtherZone" xml:space="preserve">
+    <value>{0} · คลิกเพื่อเลือก</value>
+  </data>
+  <data name="BoxTagOcr" xml:space="preserve">
+    <value>อ่านซับตรงนี้</value>
+  </data>
+  <data name="BoxTagCaption" xml:space="preserve">
+    <value>คำแปลขึ้นตรงนี้</value>
+  </data>
+  <data name="BoxTagTrigger" xml:space="preserve">
+    <value>รอคำที่กำหนด</value>
+  </data>
 </root>

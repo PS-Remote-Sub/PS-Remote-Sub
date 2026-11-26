@@ -791,9 +791,7 @@ public sealed class GamesPage : SettingsPage
 
     private void AddNewZone() => EditActive(p =>
     {
-        var zone = new OcrZone { Name = OcrZone.NextName(p.Zones) };
-        p.Zones.Add(zone);
-        _zoneId = zone.Id;
+        _zoneId = p.AddZone().Id;
     }, after: ReloadZoneBlock);
 
     private void DeleteSelectedZone() => EditActive(p =>

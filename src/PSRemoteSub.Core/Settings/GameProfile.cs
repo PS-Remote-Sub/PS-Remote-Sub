@@ -60,6 +60,14 @@ public sealed class GameProfile
 
     public OcrZone GetLastZone() => GetZone(LastZoneId) ?? Zones[0];
 
+    /// <summary>Adds a new zone (<see cref="OcrZone.CreateNext"/>) at the end and returns it.</summary>
+    public OcrZone AddZone()
+    {
+        var zone = OcrZone.CreateNext(Zones);
+        Zones.Add(zone);
+        return zone;
+    }
+
     // Read-only from files written before zones; AppSettings.Normalize nulls them so they are never written back.
     [JsonPropertyName("region"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public RegionFraction? LegacyRegion { get; set; }

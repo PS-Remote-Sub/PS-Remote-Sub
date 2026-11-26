@@ -6,6 +6,7 @@ using PSRemoteSub.App.Views.Pages;
 using PSRemoteSub.App.Views.Setup;
 using PSRemoteSub.Core.Imaging;
 using PSRemoteSub.Core.Layout;
+using PSRemoteSub.Core.Settings;
 
 namespace PSRemoteSub.App;
 
@@ -188,13 +189,22 @@ internal sealed class AppWindows : IDisposable
             // Saved to the profile the boxes were shown from, even if the active one changes while the editor is open.
             var profile = _host.Settings.GetActive();
             var start = profile.GetZone(zoneId) ?? profile.GetLastZone();
-            var zones = profile.Zones
-                .Select(z => new ZoneBoxes(z.Id, z.Name, z.Region, z.CaptionRegion, z.TriggerRegion,
-                    ShowCaption: z.Placement == OverlayPlacement.Custom, ShowTrigger: z.TriggerEnabled))
-                .ToList();
-            var result = await RegionPickerWindow.PickAsync(frame, window.ClientScreenRect, zones, start.Id);
+            static ZoneBoxes ToBoxes(OcrZone z) => new(z.Id, z.Name, z.Region, z.CaptionRegion, z.TriggerRegion,
+                ShowCaption: z.Placement == OverlayPlacement.Custom, ShowTrigger: z.TriggerEnabled);
+            var zones = profile.Zones.Select(ToBoxes).ToList();
+            // Zones added in the editor ("เพิ่มโซน"), made like the Games page makes them; they join the profile only
+            // when the editor saves.
+            var added = new List<OcrZone>();
+            var result = await RegionPickerWindow.PickAsync(frame, window.ClientScreenRect, zones, start.Id, () =>
+            {
+                var zone = OcrZone.CreateNext(profile.Zones.Concat(added));
+                added.Add(zone);
+                return ToBoxes(zone);
+            });
             if (result is not { } picked || _disposed)
                 return;
+
+            profile.Zones.AddRange(added);
 
             foreach (var edit in picked.Edits)
             {
