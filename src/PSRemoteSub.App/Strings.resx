@@ -1278,4 +1278,58 @@
   <data name="TranslateServerSub" xml:space="preserve">
     <value>สำหรับ Ollama หรือ router ในบ้าน — ใส่ที่อยู่ URL</value>
   </data>
+  <data name="SourceSub" xml:space="preserve">
+    <value>แอปอ่านซับจากภาพนี้ เลือกให้ตรงกับวิธีที่คุณเล่น</value>
+  </data>
+  <data name="SourceRemotePlaySub" xml:space="preserve">
+    <value>แอปเล่น PS5 บนคอมเครื่องนี้</value>
+  </data>
+  <data name="SourceCaptureCardSub" xml:space="preserve">
+    <value>กล่องจับภาพที่ต่อ PS5 ผ่านสาย HDMI</value>
+  </data>
+  <data name="SourcePillFound" xml:space="preserve">
+    <value>พบแอป</value>
+  </data>
+  <data name="SourcePillNotFound" xml:space="preserve">
+    <value>ยังไม่พบ</value>
+  </data>
+  <data name="SourcePillInUse" xml:space="preserve">
+    <value>กำลังใช้</value>
+  </data>
+  <data name="SourcePillSignal" xml:space="preserve">
+    <value>มีสัญญาณภาพ</value>
+  </data>
+  <data name="SourcePillNoSignal" xml:space="preserve">
+    <value>ไม่มีสัญญาณภาพ</value>
+  </data>
+  <data name="SourceOpenWindow" xml:space="preserve">
+    <value>เปิดหน้าต่างดูภาพ</value>
+  </data>
+  <data name="SourceFixTitle" xml:space="preserve">
+    <value>ภาพไม่ขึ้น หรือสีเพี้ยน?</value>
+  </data>
+  <data name="SourceFixSub" xml:space="preserve">
+    <value>ตั้งที่เครื่อง PS5 ทำครั้งเดียว</value>
+  </data>
+  <data name="SourceHdcpTitle" xml:space="preserve">
+    <value>จอดำ ไม่มีสัญญาณภาพ</value>
+  </data>
+  <data name="SourceHdcpText" xml:space="preserve">
+    <value>ปิด HDCP บน PS5</value>
+  </data>
+  <data name="SourceMenuSettings" xml:space="preserve">
+    <value>ตั้งค่า</value>
+  </data>
+  <data name="SourceMenuSystem" xml:space="preserve">
+    <value>ระบบ</value>
+  </data>
+  <data name="SourceMenuHdcp" xml:space="preserve">
+    <value>ปิด “เปิดใช้งาน HDCP”</value>
+  </data>
+  <data name="SourceHdrTitle" xml:space="preserve">
+    <value>ภาพซีด หรือออกเทา</value>
+  </data>
+  <data name="SourceHdrText" xml:space="preserve">
+    <value>ปิด HDR ในการตั้งค่าหน้าจอและวิดีโอของ PS5</value>
+  </data>
 </root>
