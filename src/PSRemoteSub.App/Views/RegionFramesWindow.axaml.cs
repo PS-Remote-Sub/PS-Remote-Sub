@@ -43,6 +43,7 @@ public partial class RegionFramesWindow : Window
         Position = new PixelPoint(clientScreen.X, clientScreen.Y);
         Width = (clientScreen.Width + 0.5) / scaling;
         Height = (clientScreen.Height + 0.5) / scaling;
+        PlaceLegend(zones, clientScreen.Width / scaling, clientScreen.Height / scaling);
 
         if (!IsVisible)
             Show();
@@ -56,19 +57,74 @@ public partial class RegionFramesWindow : Window
         if (key == _legendCaps)
             return;
         _legendCaps = key;
-        Legend.Child = BuildLegend(caps);
+        _legendFull = BuildLegend(caps, compact: false);
+        _legendCompact = BuildLegend(caps, compact: true);
+        _legendPlacedFor = null;
+    }
+
+    private Control? _legendFull, _legendCompact;
+    private string? _legendPlacedFor;
+
+    /// <summary>
+    /// Puts the legend in the corner no frame (or its label) reaches; the full card only on a big client area, else a title line;
+    /// hidden when even that would cover a frame.
+    /// </summary>
+    private void PlaceLegend(IReadOnlyList<ZoneFrames> zones, double width, double height)
+    {
+        var boxes = new List<Rect>();
+        foreach (var z in zones)
+            foreach (var f in new[] { z.Ocr, z.Caption, z.Trigger })
+                if (f is not null)
+                    boxes.Add(new Rect(f.X * width, f.Y * height, f.Width * width, f.Height * height).Inflate(new Thickness(2, 30, 2, 8)));
+        string signature = $"{_legendCaps}|{width:F0}x{height:F0}|{string.Join(";", boxes.Select(b => b.ToString()))}";
+        if (signature == _legendPlacedFor)
+            return;
+        _legendPlacedFor = signature;
+        const double margin = 24;
+        var variants = width >= 900 && height >= 500 ? new[] { _legendFull, _legendCompact } : new[] { _legendCompact };
+        foreach (var variant in variants)
+        {
+            if (variant is null)
+                continue;
+            Legend.Child = variant;
+            Legend.Measure(Size.Infinity);
+            var size = Legend.DesiredSize;
+            // Corners, top left first.
+            (HorizontalAlignment h, VerticalAlignment v, double x, double y)[] corners =
+            [
+                (HorizontalAlignment.Left, VerticalAlignment.Top, margin, margin),
+                (HorizontalAlignment.Right, VerticalAlignment.Top, width - size.Width - margin, margin),
+                (HorizontalAlignment.Left, VerticalAlignment.Bottom, margin, height - size.Height - margin),
+                (HorizontalAlignment.Right, VerticalAlignment.Bottom, width - size.Width - margin, height - size.Height - margin),
+            ];
+            foreach (var c in corners)
+            {
+                var rect = new Rect(c.x, c.y, size.Width, size.Height);
+                if (rect.X < 0 || rect.Y < 0 || boxes.Any(b => b.Intersects(rect)))
+                    continue;
+                Legend.HorizontalAlignment = c.h;
+                Legend.VerticalAlignment = c.v;
+                Legend.IsVisible = true;
+                return;
+            }
+        }
+        Legend.IsVisible = false;
     }
 
     private static readonly IBrush LegendText = new SolidColorBrush(Color.Parse("#F2F4F7"));
     private static readonly IBrush LegendMuted = new SolidColorBrush(Color.Parse("#B4B9C3"));
 
-    private static Control BuildLegend(IReadOnlyList<string> caps)
+    private static Control BuildLegend(IReadOnlyList<string> caps, bool compact)
     {
-        var panel = new StackPanel { Spacing = 10, Width = 340 };
+        var panel = new StackPanel { Spacing = 10 };
+        if (!compact)
+            panel.Width = 340;
         var head = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         head.Children.Add(new Ellipse { Width = 9, Height = 9, Fill = new SolidColorBrush(RegionSelectionCanvas.OcrColor), VerticalAlignment = VerticalAlignment.Center });
         head.Children.Add(new TextBlock { Text = Loc.Get("FrameLegendTitle"), FontSize = 15, FontWeight = FontWeight.SemiBold, Foreground = LegendText });
         panel.Children.Add(head);
+        if (compact)
+            return Card(panel, 12, 8);
         panel.Children.Add(new TextBlock { Text = Loc.Get("FrameLegendIntro"), FontSize = 12, Foreground = LegendMuted, TextWrapping = TextWrapping.Wrap });
         panel.Children.Add(Entry(RegionSelectionCanvas.OcrColor, null, "FrameLabelOcr", "FrameLegendOcrHint"));
         panel.Children.Add(Entry(RegionSelectionCanvas.CaptionColor, DashStyle.Dash, "FrameLabelCaption", "FrameLegendCaptionHint"));
@@ -89,16 +145,19 @@ public partial class RegionFramesWindow : Window
                 });
             panel.Children.Add(off);
         }
-        return new Border
+        return Card(panel, 18, 16);
+    }
+
+    private static Border Card(Control panel, double padX, double padY) =>
+        new()
         {
             Background = new SolidColorBrush(Color.FromArgb(0xF0, 0x14, 0x16, 0x1B)),
             BorderBrush = new SolidColorBrush(Color.Parse("#3B404A")),
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(14),
-            Padding = new Thickness(18, 16),
+            Padding = new Thickness(padX, padY),
             Child = panel,
         };
-    }
 
     private static Control Entry(Color color, IDashStyle? dash, string label, string hint)
     {
