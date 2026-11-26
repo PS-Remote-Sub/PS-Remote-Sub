@@ -8,13 +8,12 @@ using PSRemoteSub.Core.Layout;
 namespace PSRemoteSub.App;
 
 /// <summary>
-/// Opens the region picker and the settings window when <see cref="AppHost"/> asks for them. UI thread only
+/// Opens the region picker and the main window when <see cref="AppHost"/> asks for them. UI thread only
 /// (AppHost raises both events on the UI thread); every handler catches all exceptions.
 /// </summary>
 internal sealed class AppWindows : IDisposable
 {
     private readonly AppHost _host;
-    private SettingsWindow? _settings;
     private MainWindow? _main;
     private bool _picking;
     private bool _disposed;
@@ -41,15 +40,6 @@ internal sealed class AppWindows : IDisposable
         {
             Log.Warn("Closing windows failed", ex); // exiting anyway
         }
-        try
-        {
-            _settings?.Close();
-        }
-        catch (Exception ex)
-        {
-            Log.Warn("Closing windows failed", ex); // exiting anyway
-        }
-        _settings = null;
         try
         {
             _main?.CloseForExit();
@@ -82,8 +72,8 @@ internal sealed class AppWindows : IDisposable
             return;
         if (_main is null)
         {
-            var window = new MainWindow(_host, ShowLegacySettings);
-            window.HomeFactory = () => new HomePage(_host, ShowLegacySettings);
+            var window = new MainWindow(_host);
+            window.HomeFactory = () => new HomePage(_host, window.ShowPage);
             window.PageFactory = CreateSettingsPage;
             window.Closed += (_, _) =>
             {
@@ -103,10 +93,7 @@ internal sealed class AppWindows : IDisposable
         _main.Activate();
     }
 
-    /// <summary>
-    /// The settings page for a nav item, or null while it still lives in the old settings window (each Phase 2 page task
-    /// adds its case; Task 10 removes the fallback).
-    /// </summary>
+    /// <summary>The settings page for a nav item (null for Home).</summary>
     private SettingsPage? CreateSettingsPage(MainPage page)
     {
         switch (page)
@@ -119,20 +106,6 @@ internal sealed class AppWindows : IDisposable
             case MainPage.Tv: return new TvPage(_host);
             case MainPage.General: return new GeneralPage(_host);
             default: return null;
-        }
-    }
-
-    /// <summary>Opens (or fronts) the old settings window on the tab holding a settings page. Phase 2 retires it.</summary>
-    public void ShowLegacySettings(MainPage page)
-    {
-        try
-        {
-            ShowSettings();
-            _settings?.SelectSection(page);
-        }
-        catch (Exception ex)
-        {
-            Log.Warn("Opening settings failed", ex); // must not take the app down
         }
     }
 
@@ -210,26 +183,5 @@ internal sealed class AppWindows : IDisposable
                 }
             }
         }
-    }
-    private void ShowSettings()
-    {
-        if (_disposed)
-            return;
-        if (_settings is { } open)
-        {
-            if (open.WindowState == WindowState.Minimized)
-                open.WindowState = WindowState.Normal;
-            open.Activate();
-            return;
-        }
-        var window = new SettingsWindow(_host);
-        window.Closed += (_, _) =>
-        {
-            if (_settings == window)
-                _settings = null;
-        };
-        _settings = window;
-        window.Show();
-        window.Activate();
     }
 }

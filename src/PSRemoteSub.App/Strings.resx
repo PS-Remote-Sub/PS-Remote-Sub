@@ -13,9 +13,6 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <!-- Neutral resources are Thai (v1). Status keys match PipelineStatus / SubtitleEntry error keys. -->
-  <data name="AppName" xml:space="preserve">
-    <value>PS Remote Sub</value>
-  </data>
   <data name="NoRemotePlay" xml:space="preserve">
     <value>ไม่พบ PS Remote Play</value>
   </data>
@@ -117,92 +114,23 @@
     <value>บันทึกกรอบซับของโปรไฟล์ {0} แล้ว</value>
   </data>
   <!-- Task 13: settings window -->
-  <data name="SettingsTitle" xml:space="preserve">
-    <value>ตั้งค่า — PS Remote Sub</value>
-  </data>
-  <data name="TabProfiles" xml:space="preserve">
-    <value>โปรไฟล์</value>
-  </data>
-  <data name="TabOcr" xml:space="preserve">
-    <value>ภาษา OCR</value>
-  </data>
-  <data name="TabWeb" xml:space="preserve">
-    <value>หน้าเว็บ</value>
-  </data>
-  <data name="TabGeneral" xml:space="preserve">
-    <value>ทั่วไป</value>
-  </data>
-  <data name="ProfileListHint" xml:space="preserve">
-    <value>เลือกโปรไฟล์ที่จะใช้</value>
-  </data>
-  <data name="ProfileNameLabel" xml:space="preserve">
-    <value>ชื่อโปรไฟล์</value>
-  </data>
   <data name="ProfileAdd" xml:space="preserve">
     <value>เพิ่ม</value>
   </data>
   <data name="ProfileRename" xml:space="preserve">
     <value>เปลี่ยนชื่อ</value>
   </data>
-  <data name="ProfileDelete" xml:space="preserve">
-    <value>ลบ</value>
-  </data>
-  <data name="ProfileNameEmpty" xml:space="preserve">
-    <value>ใส่ชื่อโปรไฟล์ก่อน</value>
-  </data>
-  <data name="ProfileNameTaken" xml:space="preserve">
-    <value>มีโปรไฟล์ชื่อนี้แล้ว</value>
-  </data>
-  <data name="SourceLangLabel" xml:space="preserve">
-    <value>ภาษาต้นทาง</value>
-  </data>
-  <data name="FilterLabel" xml:space="preserve">
-    <value>ตัวกรองภาพ</value>
-  </data>
   <data name="FilterNormal" xml:space="preserve">
     <value>ปกติ</value>
-  </data>
-  <data name="FilterWhiteText" xml:space="preserve">
-    <value>ตัวขาวขอบดำ</value>
   </data>
   <data name="FilterDarkText" xml:space="preserve">
     <value>ตัวเข้มบนพื้นสว่าง</value>
   </data>
-  <data name="PlacementLabel" xml:space="preserve">
-    <value>ตำแหน่งคำแปล</value>
-  </data>
-  <data name="PlacementFit" xml:space="preserve">
-    <value>ทับทีละบรรทัด</value>
-  </data>
   <data name="PlacementCustom" xml:space="preserve">
     <value>รวมก้อนเดียว</value>
   </data>
-  <data name="FontFamilyLabel" xml:space="preserve">
-    <value>ฟอนต์</value>
-  </data>
   <data name="FontSizeLabel" xml:space="preserve">
     <value>ขนาดตัวอักษร</value>
-  </data>
-  <data name="OpacityLabel" xml:space="preserve">
-    <value>ความทึบพื้นหลัง</value>
-  </data>
-  <data name="OcrIntro" xml:space="preserve">
-    <value>ภาษาที่ Windows ใช้อ่านตัวอักษรบนจอ ต้องติดตั้งก่อนจึงจะอ่านซับภาษานั้นได้</value>
-  </data>
-  <data name="OcrReady" xml:space="preserve">
-    <value>พร้อมใช้</value>
-  </data>
-  <data name="OcrMissing" xml:space="preserve">
-    <value>ยังไม่ได้ติดตั้ง</value>
-  </data>
-  <data name="OcrChecking" xml:space="preserve">
-    <value>กำลังตรวจ…</value>
-  </data>
-  <data name="OcrInstall" xml:space="preserve">
-    <value>ติดตั้ง</value>
-  </data>
-  <data name="OcrInstalling" xml:space="preserve">
-    <value>กำลังติดตั้ง…</value>
   </data>
   <data name="OcrInstallDone" xml:space="preserve">
     <value>ติดตั้งเสร็จแล้ว</value>
@@ -213,23 +141,11 @@
   <data name="OcrInstallFailed" xml:space="preserve">
     <value>ติดตั้งไม่สำเร็จ (อาจกดยกเลิกตอนขอสิทธิ์ผู้ดูแล)</value>
   </data>
-  <data name="TargetLangLabel" xml:space="preserve">
-    <value>ภาษาปลายทาง (รหัสภาษา เช่น th)</value>
-  </data>
   <data name="TargetLangHint" xml:space="preserve">
     <value>ค่าเริ่มต้น th = ไทย</value>
   </data>
   <data name="TargetLangInvalid" xml:space="preserve">
     <value>รหัสภาษาไม่ถูกต้อง เช่น th, en, zh-CN</value>
-  </data>
-  <data name="WebEnable" xml:space="preserve">
-    <value>เปิดหน้าเว็บ</value>
-  </data>
-  <data name="WebRunning" xml:space="preserve">
-    <value>หน้าเว็บกำลังทำงาน</value>
-  </data>
-  <data name="WebStopped" xml:space="preserve">
-    <value>หน้าเว็บปิดอยู่</value>
   </data>
   <data name="PortLabel" xml:space="preserve">
     <value>พอร์ต</value>
@@ -240,20 +156,8 @@
   <data name="PortInvalid" xml:space="preserve">
     <value>พอร์ตต้องเป็นตัวเลข 1024–65535</value>
   </data>
-  <data name="UrlsLabel" xml:space="preserve">
-    <value>เปิดในมือถือหรือแท็บเล็ตที่ต่อ Wi-Fi เดียวกัน</value>
-  </data>
   <data name="NoLan" xml:space="preserve">
     <value>ไม่พบเครือข่าย LAN</value>
-  </data>
-  <data name="FirewallOpen" xml:space="preserve">
-    <value>เปิดให้เครื่องอื่นเข้าแล้ว</value>
-  </data>
-  <data name="FirewallOpenButton" xml:space="preserve">
-    <value>เปิด firewall ให้เครื่องอื่นเข้าได้</value>
-  </data>
-  <data name="FirewallChecking" xml:space="preserve">
-    <value>กำลังตรวจ firewall…</value>
   </data>
   <data name="FirewallFailed" xml:space="preserve">
     <value>เปิด firewall ไม่สำเร็จ</value>
@@ -267,50 +171,8 @@
   <data name="WebClients" xml:space="preserve">
     <value>เครื่องที่เปิดดูอยู่: {0}</value>
   </data>
-  <data name="KeepAwakeLabel" xml:space="preserve">
-    <value>กันเครื่องหลับระหว่างอ่านซับ</value>
-  </data>
   <data name="HotkeysHeader" xml:space="preserve">
     <value>ปุ่มลัด</value>
-  </data>
-  <data name="HotkeySelectRegion" xml:space="preserve">
-    <value>ปรับกรอบ OCR / ซับไทย</value>
-  </data>
-  <data name="HotkeyToggleOverlay" xml:space="preserve">
-    <value>เปิด/ปิด overlay</value>
-  </data>
-  <data name="HotkeyTogglePause" xml:space="preserve">
-    <value>หยุด/เริ่มอ่าน</value>
-  </data>
-  <data name="HotkeySaveFrame" xml:space="preserve">
-    <value>บันทึกภาพกรอบซับ</value>
-  </data>
-  <data name="HotkeyToggleRegionFrames" xml:space="preserve">
-    <value>เปิด/ปิดกรอบ debug</value>
-  </data>
-  <data name="RegionFramesLabel" xml:space="preserve">
-    <value>แสดงกรอบ debug (เขียว = OCR, ส้ม = ซับไทย)</value>
-  </data>
-  <data name="HotkeyHint" xml:space="preserve">
-    <value>กด Enter หรือคลิกที่อื่นเพื่อบันทึก · ต้องมี Ctrl, Alt หรือ Shift แล้วตามด้วย A–Z หรือ 0–9</value>
-  </data>
-  <data name="HotkeyInvalid" xml:space="preserve">
-    <value>ปุ่มลัดไม่ถูกต้อง — ใช้รูปแบบ Ctrl+Alt+Shift+S</value>
-  </data>
-  <data name="HotkeyDuplicate" xml:space="preserve">
-    <value>ปุ่มลัดนี้ซ้ำกับคำสั่งอื่น</value>
-  </data>
-  <data name="StatusHeader" xml:space="preserve">
-    <value>สถานะ</value>
-  </data>
-  <data name="StatusRemotePlayFound" xml:space="preserve">
-    <value>พบ PS Remote Play</value>
-  </data>
-  <data name="StatusFrames" xml:space="preserve">
-    <value>ภาพจาก Remote Play: {0}×{1} · ล่าสุด {2} วินาทีที่แล้ว</value>
-  </data>
-  <data name="StatusOcr" xml:space="preserve">
-    <value>ภาษา OCR ({0}): {1}</value>
   </data>
   <data name="VersionLabel" xml:space="preserve">
     <value>เวอร์ชัน {0}</value>
@@ -327,20 +189,11 @@
   <data name="UpdateDownloading" xml:space="preserve">
     <value>กำลังดาวน์โหลดเวอร์ชัน {0}…</value>
   </data>
-  <data name="TabTranslation" xml:space="preserve">
-    <value>การแปล</value>
-  </data>
   <data name="AiProviderLabel" xml:space="preserve">
     <value>ผู้ให้บริการ</value>
   </data>
   <data name="AiKeyLabel" xml:space="preserve">
     <value>API key</value>
-  </data>
-  <data name="AiTestButton" xml:space="preserve">
-    <value>ทดสอบ</value>
-  </data>
-  <data name="AiTestOk" xml:space="preserve">
-    <value>ใช้งานได้ ({0} วิ)</value>
   </data>
   <data name="AiModelLabel" xml:space="preserve">
     <value>โมเดล</value>
@@ -350,9 +203,6 @@
   </data>
   <data name="AiUrlLabel" xml:space="preserve">
     <value>URL</value>
-  </data>
-  <data name="AiAdvanced" xml:space="preserve">
-    <value>ขั้นสูง</value>
   </data>
   <data name="AiContextLabel" xml:space="preserve">
     <value>บริบท</value>
@@ -371,9 +221,6 @@
   </data>
   <data name="AiParallelSuffix" xml:space="preserve">
     <value>บรรทัด (1 = ส่งทีละบรรทัด; ผลแปลแสดงตามลำดับเสมอ)</value>
-  </data>
-  <data name="AiStatusLabel" xml:space="preserve">
-    <value>สถานะ AI</value>
   </data>
   <data name="AiReady" xml:space="preserve">
     <value>พร้อมใช้</value>
@@ -402,20 +249,11 @@
   <data name="AiHttpWarning" xml:space="preserve">
     <value>key จะถูกส่งแบบไม่เข้ารหัส</value>
   </data>
-  <data name="AiPrivacyNote" xml:space="preserve">
-    <value>ข้อความซับและบริบทจะถูกส่งไปยังผู้ให้บริการ AI ที่เลือกเท่านั้น และอาจมีค่าใช้จ่ายตามการใช้งาน</value>
-  </data>
-  <data name="GameTitleLabel" xml:space="preserve">
-    <value>ชื่อเกม (ช่วย AI)</value>
-  </data>
   <data name="LibraryLabel" xml:space="preserve">
     <value>คลังคำแปล</value>
   </data>
   <data name="SpeakerLinesOnly" xml:space="preserve">
     <value>แปลเฉพาะบรรทัดที่มีชื่อคนพูด</value>
-  </data>
-  <data name="SpeakerLinesOnlyHint" xml:space="preserve">
-    <value>ข้อความที่ไม่มีชื่อคนพูด เช่น ป้ายร้าน ทะเบียนรถ จะไม่แสดงและไม่ส่งแปล (ไม่ควรเปิดกับเกมที่ซับไม่มีชื่อคนพูด)</value>
   </data>
   <data name="LibraryNone" xml:space="preserve">
     <value>ไม่ใช้คลัง</value>
@@ -429,12 +267,6 @@
   <data name="LibraryUpdated" xml:space="preserve">
     <value>คลังคำแปลอัปเดตแล้ว ({0})</value>
   </data>
-  <data name="MinDisplayLabel" xml:space="preserve">
-    <value>เวลาค้างขั้นต่ำ (วินาที)</value>
-  </data>
-  <data name="TranslationAiHeader" xml:space="preserve">
-    <value>แปลด้วย AI</value>
-  </data>
   <data name="AiProviderCustom" xml:space="preserve">
     <value>กำหนดเอง</value>
   </data>
@@ -444,38 +276,14 @@
   <data name="AiTesting" xml:space="preserve">
     <value>กำลังทดสอบ…</value>
   </data>
-  <data name="ZoneLabel" xml:space="preserve">
-    <value>โซน</value>
-  </data>
-  <data name="AddZone" xml:space="preserve">
-    <value>+ เพิ่ม</value>
-  </data>
-  <data name="DeleteZone" xml:space="preserve">
-    <value>ลบ</value>
-  </data>
   <data name="ZoneNameLabel" xml:space="preserve">
     <value>ชื่อโซน</value>
-  </data>
-  <data name="ZoneSendToWeb" xml:space="preserve">
-    <value>ส่งไปหน้าเว็บ</value>
-  </data>
-  <data name="ZoneLearn" xml:space="preserve">
-    <value>จำคำแปล AI ของโซนนี้ไว้ใช้ซ้ำ</value>
   </data>
   <data name="ZoneTrigger" xml:space="preserve">
     <value>อ่านเมื่อเจอคำ</value>
   </data>
-  <data name="ZoneTriggerHint" xml:space="preserve">
-    <value>คั่นหลายคำด้วย , (เจอคำไหนก็ได้)</value>
-  </data>
   <data name="ZoneTriggerNoBox" xml:space="preserve">
     <value>ยังไม่ได้ตั้งกรอบเงื่อนไข</value>
-  </data>
-  <data name="EditZoneBoxes" xml:space="preserve">
-    <value>ปรับกรอบของโซนนี้</value>
-  </data>
-  <data name="ZoneBoxesStateFormat" xml:space="preserve">
-    <value>OCR {0} · ซับไทย {1} · เงื่อนไข {2}</value>
   </data>
   <data name="CaptureWindowTitle" xml:space="preserve">
     <value>PS Remote Sub — Capture card</value>
@@ -528,15 +336,6 @@
   <data name="TrayCaptureWindow" xml:space="preserve">
     <value>เปิดจอ capture card</value>
   </data>
-  <data name="TabSource" xml:space="preserve">
-    <value>แหล่งภาพ</value>
-  </data>
-  <data name="SourceRemotePlay" xml:space="preserve">
-    <value>Remote Play</value>
-  </data>
-  <data name="SourceCaptureCard" xml:space="preserve">
-    <value>Capture card</value>
-  </data>
   <data name="CaptureDevice" xml:space="preserve">
     <value>อุปกรณ์</value>
   </data>
@@ -549,32 +348,11 @@
   <data name="CaptureUnavailable" xml:space="preserve">
     <value>ใช้ capture card ในเครื่องนี้ไม่ได้ — ดูรายละเอียดใน log</value>
   </data>
-  <data name="CaptureNote" xml:space="preserve">
-    <value>PS5: ปิด HDCP ก่อน (ตั้งค่า → ระบบ → HDMI) · ถ้าภาพซีดหรือออกเทา ให้ปิด HDR บน PS5</value>
-  </data>
-  <data name="TabTv" xml:space="preserve">
-    <value>ทีวี</value>
-  </data>
   <data name="TvEnable" xml:space="preserve">
     <value>ส่งซับไปทีวี</value>
   </data>
-  <data name="TvConnected" xml:space="preserve">
-    <value>ทีวีเชื่อมต่ออยู่: {0}</value>
-  </data>
   <data name="TvNotConnected" xml:space="preserve">
     <value>ยังไม่พบทีวี</value>
-  </data>
-  <data name="TvIntro" xml:space="preserve">
-    <value>ซับภาษาไทยขึ้นบนจอ Android TV ทับภาพ PS5 ที่ต่อ HDMI — ต้องติดตั้งแอปบนทีวีก่อน (ด้านล่าง) และให้ PC กับทีวีอยู่ในวง LAN เดียวกัน</value>
-  </data>
-  <data name="TvModeLabel" xml:space="preserve">
-    <value>รูปแบบ</value>
-  </data>
-  <data name="TvModeCover" xml:space="preserve">
-    <value>ทับซับอังกฤษ</value>
-  </data>
-  <data name="TvModeStrip" xml:space="preserve">
-    <value>แถบขอบล่าง</value>
   </data>
   <data name="TvTextScaleLabel" xml:space="preserve">
     <value>ขนาดตัวอักษร</value>
@@ -590,9 +368,6 @@
   </data>
   <data name="TvCalibrate" xml:space="preserve">
     <value>ปรับตำแหน่งบนทีวี</value>
-  </data>
-  <data name="TvCalibHint" xml:space="preserve">
-    <value>เปิดแล้วทีวีจะแสดงกรอบสีขาว — ปรับจนกรอบตรงกับขอบภาพเกม (ปิดเองเมื่อปิดหน้าต่างนี้)</value>
   </data>
   <data name="TvCalibScaleLabel" xml:space="preserve">
     <value>ขนาด</value>
@@ -732,20 +507,8 @@
   <data name="PermAfterUpdate" xml:space="preserve">
     <value>หลังอัปเดต macOS อาจขอให้อนุญาตใหม่</value>
   </data>
-  <data name="TranslationModeLabel" xml:space="preserve">
-    <value>วิธีแปล</value>
-  </data>
-  <data name="TranslationModeGoogle" xml:space="preserve">
-    <value>Google Translate (ฟรี ไม่ต้องตั้งค่า)</value>
-  </data>
-  <data name="TranslationModeAi" xml:space="preserve">
-    <value>AI (ต้องมี API key, Ollama หรือ router)</value>
-  </data>
   <data name="GoogleDown" xml:space="preserve">
     <value>แปลไม่ได้ชั่วคราว — จะลองใหม่ใน 30 วินาที</value>
-  </data>
-  <data name="GooglePrivacyNote" xml:space="preserve">
-    <value>ข้อความซับจะถูกส่งไปที่ Google Translate</value>
   </data>
   <data name="TranslationStatusLabel" xml:space="preserve">
     <value>สถานะการแปล</value>

@@ -7,6 +7,7 @@ using PSRemoteSub.App.Updates;
 using PSRemoteSub.App.Views.Pages;
 using PSRemoteSub.Core.Diagnostics;
 using PSRemoteSub.Core.Hub;
+using PSRemoteSub.Core.Platform;
 using PSRemoteSub.Core.Settings;
 
 namespace PSRemoteSub.App.Views;
@@ -23,7 +24,7 @@ public partial class MainWindow : Window
     private const string PlayGlyph = "M8 5l11 7-11 7z";
 
     private readonly AppHost? _host;
-    private readonly Action<MainPage>? _openLegacySettings;
+    private PlatformPermission[]? _shownMissingPermissions; // what the permission banner shows (null: not built yet)
     private Func<Control>? _homeFactory;
     private Control? _home;
     private readonly Dictionary<MainPage, SettingsPage> _pages = [];
@@ -36,10 +37,9 @@ public partial class MainWindow : Window
     /// <summary>For the XAML loader and designer only.</summary>
     public MainWindow() => InitializeComponent();
 
-    internal MainWindow(AppHost host, Action<MainPage> openLegacySettings) : this()
+    internal MainWindow(AppHost host) : this()
     {
         _host = host;
-        _openLegacySettings = openLegacySettings;
         foreach (var nav in NavButtons())
             nav.IsCheckedChanged += OnNavChanged;
         GamePicker.SelectionChanged += (_, _) => Safe(OnGamePicked);
@@ -51,6 +51,7 @@ public partial class MainWindow : Window
         if (Application.Current is { } app)
             app.ActualThemeVariantChanged += OnThemeChanged;
         Closing += OnClosing;
+        Activated += (_, _) => Safe(host.RefreshPermissions); // the user may have just granted one in System Settings
         Closed += (_, _) =>
         {
             CommitAndFlushCurrent();
@@ -59,6 +60,7 @@ public partial class MainWindow : Window
             if (Application.Current is { } a)
                 a.ActualThemeVariantChanged -= OnThemeChanged;
         };
+        host.RefreshPermissions();
         Refresh();
         UpdateThemeButton();
         ShowPage(MainPage.Home);
@@ -80,14 +82,12 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Builds the settings page for a <see cref="MainPage"/>, or returns null when it has none yet (the legacy settings
-    /// window then opens instead). One instance per page is kept for the window's life.
+    /// Builds the settings page for a <see cref="MainPage"/>. One instance per page is kept for the window's life.
     /// </summary>
     internal Func<MainPage, SettingsPage?>? PageFactory { get; set; }
 
     /// <summary>
-    /// Shows a page in the host and keeps its nav item checked. Pages without a <see cref="SettingsPage"/> still open the
-    /// old settings window on the matching tab, and the sidebar stays on Home. Safe to call from a nav button's
+    /// Shows a page in the host and keeps its nav item checked. A page with no <see cref="SettingsPage"/> shows Home. Safe to call from a nav button's
     /// IsCheckedChanged.
     /// </summary>
     public void ShowPage(MainPage page)
@@ -109,11 +109,8 @@ public partial class MainWindow : Window
         var target = GetSettingsPage(page);
         if (target is null)
         {
-            // No page yet: show Home and open the old window. Posted: when called from a nav button's IsCheckedChanged,
-            // that button's group update runs after us and would uncheck Home again, leaving the settings item lit.
             ShowPage(MainPage.Home);
             Avalonia.Threading.Dispatcher.UIThread.Post(() => NavHome.IsChecked = true);
-            _openLegacySettings?.Invoke(page);
             return;
         }
         LeaveCurrentPage();
@@ -202,6 +199,7 @@ public partial class MainWindow : Window
     private void OnHostStateChanged(object? sender, EventArgs e) => Safe(() =>
     {
         Refresh();
+        ShowPermissionBanner();
         ReloadIfGameChanged();
     });
 
@@ -223,6 +221,34 @@ public partial class MainWindow : Window
             return;
         _shownGame = Host.Settings.ActiveProfile;
         Safe(page.OnShown);
+    }
+
+    /// <summary>
+    /// One row per missing permission (what it is for, and a button to its System Settings page); hidden when none. Rebuilt
+    /// only when the missing set changed: StateChanged fires often, and a rebuild under the pointer can swallow a click.
+    /// </summary>
+    private void ShowPermissionBanner()
+    {
+        var missing = Host.MissingPermissions;
+        if (_shownMissingPermissions is { } shown && shown.SequenceEqual(missing))
+            return;
+        _shownMissingPermissions = [.. missing];
+        PermBanner.Children.Clear();
+        PermBanner.IsVisible = missing.Count > 0;
+        foreach (var p in missing)
+        {
+            var open = new Button { Content = Loc.Get("PermOpenSettings"), Classes = { "btn", "sm" }, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+            var permission = p;
+            open.Click += (_, _) => Safe(() => Host.OpenPermissionSettings(permission));
+            var text = new StackPanel { Spacing = 2, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+            text.Children.Add(new TextBlock { Text = AppHost.PermissionText(p), TextWrapping = Avalonia.Media.TextWrapping.Wrap });
+            text.Children.Add(new TextBlock { Classes = { "mut" }, FontSize = 13, Text = Loc.Get("PermAfterUpdate"), TextWrapping = Avalonia.Media.TextWrapping.Wrap });
+            var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 12 };
+            row.Children.Add(text);
+            Grid.SetColumn(open, 1);
+            row.Children.Add(open);
+            PermBanner.Children.Add(new Border { Classes = { "note", "warn" }, Child = row });
+        }
     }
 
     private void Refresh()

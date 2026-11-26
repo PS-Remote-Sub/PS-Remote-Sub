@@ -894,7 +894,7 @@ public sealed class AppHost : IAsyncDisposable
     }
 
     /// <summary>UI thread. The "ตั้งค่า" tray item: the main window's Home page.</summary>
-    public void RequestSettings() => RequestMainWindow(MainPage.Home);
+    public void RequestSettings() => RequestMainWindow(MainPage.Games);
 
     /// <summary>
     /// UI thread. Switches the picture source: the pipeline, overlay and region picker follow the new source's target,

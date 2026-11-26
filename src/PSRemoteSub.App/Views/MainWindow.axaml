@@ -93,7 +93,7 @@
     </Border>
 
     <!-- Content -->
-    <Grid Grid.Column="1" RowDefinitions="Auto,*">
+    <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*">
       <Button x:Name="ThemeButton" Grid.Row="0" Classes="btn ghost sm" HorizontalAlignment="Right" Margin="0,8,16,0"
               Foreground="{DynamicResource Text2Brush}" ToolTip.Tip="{app:Tr ThemeToggleTip}">
         <StackPanel Orientation="Horizontal" Spacing="6">
@@ -101,7 +101,8 @@
           <TextBlock x:Name="ThemeText" FontSize="13" VerticalAlignment="Center" />
         </StackPanel>
       </Button>
-      <ContentControl x:Name="PageHost" Grid.Row="1" />
+      <StackPanel x:Name="PermBanner" Grid.Row="1" Spacing="6" Margin="32,4,32,0" IsVisible="False" />
+      <ContentControl x:Name="PageHost" Grid.Row="2" />
     </Grid>
   </Grid>
 </Window>
