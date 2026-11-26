@@ -44,7 +44,7 @@ public sealed class GeneralPage : SettingsPage
     private bool _recordingNeedsModifier;
     private Window? _window;
 
-    public GeneralPage(AppHost host) : base(host)
+    public GeneralPage(AppHost host, Action? openSetup = null) : base(host)
     {
         _themeDark.Content = ThemeLabel("M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z", Loc.Get("GeneralThemeDark"));
         _themeLight.Content = ThemeLabel(
@@ -79,6 +79,9 @@ public sealed class GeneralPage : SettingsPage
                 Child = new StackPanel { Orientation = Orientation.Horizontal, Children = { _themeDark, _themeLight, _themeSystem } },
             }, controlWidth: 330);
 
+        var setupButton = new Button { Content = Loc.Get("GeneralSetupButton"), Classes = { "btn" }, HorizontalAlignment = HorizontalAlignment.Left };
+        setupButton.Click += (_, _) => Safe(() => openSetup?.Invoke());
+
         var other = new StackPanel
         {
             Spacing = 18,
@@ -89,6 +92,8 @@ public sealed class GeneralPage : SettingsPage
                 FormToggleRow(Loc.Get("GeneralKeepAwake"), Loc.Get("GeneralKeepAwakeSub"), _keepAwake),
                 new Border { Classes = { "hr" } },
                 FormToggleRow(Loc.Get("GeneralRegionFrames"), Loc.Get("GeneralRegionFramesSub"), _regionFrames),
+                new Border { Classes = { "hr" } },
+                FormRow(Loc.Get("GeneralSetupTitle"), Loc.Get("GeneralSetupSub"), setupButton, controlWidth: 200),
             },
         };
 

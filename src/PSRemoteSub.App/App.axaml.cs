@@ -50,6 +50,10 @@ public partial class App : Application
             {
                 settings = store.Load();
                 loaded = true;
+                // A missing file gives normalized defaults (SetupDone = true); a brand-new install runs the wizard first.
+                // Not for an unreadable file (the catch below): that is not a first run.
+                if (firstRun)
+                    settings.SetupDone = false;
             }
             catch (Exception ex)
             {
@@ -95,10 +99,13 @@ public partial class App : Application
                 activatable.Activated += (_, _) => host.RefreshPermissions();
             }
             _tray = new TrayController(this, _host, () => ExitAsync(desktop));
-            // First run: Home. Later launches stay quiet in the tray and open Home only when something needs fixing in
-            // the app (checked once the status has settled; not finding Remote Play yet is not such a problem).
-            if (firstRun)
-                _host.RequestMainWindow(MainPage.Home);
+            // Setup pending (first run, or the wizard was closed with X last time): the wizard; the main window opens when
+            // it is finished. Closed with X again: tray only. Otherwise later launches stay quiet in the tray and open Home
+            // only when something needs fixing in the app (checked once the status has settled; not finding Remote Play
+            // yet is not such a problem).
+            _windows.SetupFinished += OnSetupFinished;
+            if (!settings.SetupDone)
+                _windows.ShowSetup();
             else
                 _ = OpenHomeIfNeededLaterAsync(_host);
             _ = CheckForUpdatesLaterAsync(_host, () => ExitAsync(desktop));
@@ -117,6 +124,14 @@ public partial class App : Application
                 await ExitAsync(desktop);
             }
         }
+    }
+
+    /// <summary>The wizard ended (first launch or reopened from General): completed/skipped opens the main window on the page it names.</summary>
+    private void OnSetupFinished(object? sender, Views.Setup.SetupFinishedEventArgs e)
+    {
+        if (_exiting || !e.Completed)
+            return;
+        _windows?.ShowMain(e.NextPage);
     }
 
     /// <summary>

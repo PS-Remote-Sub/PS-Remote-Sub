@@ -1566,4 +1566,7 @@
   <data name="SetupRegionLater" xml:space="preserve">
     <value>ทำทีหลังได้ทุกเมื่อด้วย</value>
   </data>
+  <data name="GeneralSetupTitle" xml:space="preserve"><value>ตัวช่วยตั้งค่าครั้งแรก</value></data>
+  <data name="GeneralSetupSub" xml:space="preserve"><value>ทำตามขั้นตอนอีกครั้ง — ค่าที่ตั้งไว้จะยังอยู่</value></data>
+  <data name="GeneralSetupButton" xml:space="preserve"><value>เปิดตัวช่วยตั้งค่าอีกครั้ง</value></data>
 </root>

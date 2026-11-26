@@ -155,7 +155,7 @@ internal sealed class AppWindows : IDisposable
             case MainPage.Source: return new SourcePage(_host);
             case MainPage.Phone: return new PhonePage(_host);
             case MainPage.Tv: return new TvPage(_host);
-            case MainPage.General: return new GeneralPage(_host);
+            case MainPage.General: return new GeneralPage(_host, ShowSetup);
             default: return null;
         }
     }
