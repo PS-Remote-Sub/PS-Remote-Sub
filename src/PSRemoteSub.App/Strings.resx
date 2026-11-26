@@ -807,4 +807,196 @@
   <data name="ResumeButton" xml:space="preserve">
     <value>แปลต่อ</value>
   </data>
+  <data name="HomeTitle" xml:space="preserve">
+    <value>หน้าหลัก</value>
+  </data>
+  <data name="HomeReadyLine" xml:space="preserve">
+    <value>ทุกอย่างพร้อมแล้ว เล่นเกมได้เลย ซับไทยจะขึ้นเอง</value>
+  </data>
+  <data name="HomeTranslatingTitle" xml:space="preserve">
+    <value>กำลังแปลซับให้อยู่</value>
+  </data>
+  <data name="HomePausedLine" xml:space="preserve">
+    <value>พักการแปลไว้ — กดแปลต่อเมื่อพร้อม</value>
+  </data>
+  <data name="HomePausedTitle" xml:space="preserve">
+    <value>หยุดแปลชั่วคราวอยู่</value>
+  </data>
+  <data name="HomeGameLine" xml:space="preserve">
+    <value>{0} · {1} → {2}</value>
+  </data>
+  <data name="HomeOrPress" xml:space="preserve">
+    <value>หรือกด</value>
+  </data>
+  <data name="HomeLatest" xml:space="preserve">
+    <value>ซับล่าสุด</value>
+  </data>
+  <data name="HomeCardSource" xml:space="preserve">
+    <value>ภาพจากเกม</value>
+  </data>
+  <data name="HomeSourceSeen" xml:space="preserve">
+    <value>เห็นภาพ</value>
+  </data>
+  <data name="HomeSourceNone" xml:space="preserve">
+    <value>ยังไม่เห็นภาพ</value>
+  </data>
+  <data name="HomeFrameFresh" xml:space="preserve">
+    <value>{0}×{1} · อัปเดตเมื่อกี้</value>
+  </data>
+  <data name="HomeFrameSize" xml:space="preserve">
+    <value>{0}×{1}</value>
+  </data>
+  <data name="HomeCardOcr" xml:space="preserve">
+    <value>อ่านตัวอักษร</value>
+  </data>
+  <data name="HomeReady" xml:space="preserve">
+    <value>พร้อม</value>
+  </data>
+  <data name="HomeNeedsFix" xml:space="preserve">
+    <value>ต้องแก้</value>
+  </data>
+  <data name="HomeOcrLang" xml:space="preserve">
+    <value>ภาษา{0}</value>
+  </data>
+  <data name="HomeOcrOk" xml:space="preserve">
+    <value>อ่านได้ปกติ</value>
+  </data>
+  <data name="HomeOcrMissing" xml:space="preserve">
+    <value>ยังไม่มีภาษานี้ในเครื่อง</value>
+  </data>
+  <data name="HomeCardTranslate" xml:space="preserve">
+    <value>การแปล</value>
+  </data>
+  <data name="HomeGoogleNote" xml:space="preserve">
+    <value>ฟรี · ไม่ต้องตั้งค่า</value>
+  </data>
+  <data name="HomeAiNote" xml:space="preserve">
+    <value>แปลด้วย AI</value>
+  </data>
+  <data name="HomeCardShown" xml:space="preserve">
+    <value>ซับแสดงที่</value>
+  </data>
+  <data name="HomeShownCount" xml:space="preserve">
+    <value>{0} ที่</value>
+  </data>
+  <data name="HomeShownPc" xml:space="preserve">
+    <value>จอคอม</value>
+  </data>
+  <data name="HomeShownPhone" xml:space="preserve">
+    <value>มือถือ</value>
+  </data>
+  <data name="HomeShownTv" xml:space="preserve">
+    <value>ทีวี</value>
+  </data>
+  <data name="HomeShownNone" xml:space="preserve">
+    <value>ปิดอยู่ทุกที่</value>
+  </data>
+  <data name="HomePhoneViewers" xml:space="preserve">
+    <value>มือถือเปิดดูอยู่ {0} เครื่อง</value>
+  </data>
+  <data name="HomeRegionTitle" xml:space="preserve">
+    <value>ปรับกรอบซับ</value>
+  </data>
+  <data name="HomeRegionSub" xml:space="preserve">
+    <value>บอกแอปว่าซับในเกมอยู่ตรงไหน</value>
+  </data>
+  <data name="HomePhoneTitle" xml:space="preserve">
+    <value>ดูซับบนมือถือ</value>
+  </data>
+  <data name="HomePhoneSub" xml:space="preserve">
+    <value>สแกน QR แล้วอ่านซับบนมือถือได้เลย</value>
+  </data>
+  <data name="HomeTvTitle" xml:space="preserve">
+    <value>ส่งซับขึ้นทีวี</value>
+  </data>
+  <data name="HomeTvSubOff" xml:space="preserve">
+    <value>ยังไม่ได้ตั้ง · ใช้เวลาราว 5 นาที</value>
+  </data>
+  <data name="HomeTvSubOn" xml:space="preserve">
+    <value>เปิดส่งซับไปทีวีอยู่</value>
+  </data>
+  <data name="HomeIssuesLine" xml:space="preserve">
+    <value>แอปตรวจเจอสิ่งที่ต้องแก้ ทำตามลำดับด้านล่างได้เลย</value>
+  </data>
+  <data name="HomeIssuesTitle" xml:space="preserve">
+    <value>ยังแปลไม่ได้ — มี {0} อย่างต้องแก้</value>
+  </data>
+  <data name="HomeIssuesHint" xml:space="preserve">
+    <value>แก้ครบแล้วแอปจะเริ่มแปลเอง ไม่ต้องกดอะไรเพิ่ม</value>
+  </data>
+  <data name="HomeReadyHeader" xml:space="preserve">
+    <value>พร้อมแล้ว</value>
+  </data>
+  <data name="HomeReadyTranslate" xml:space="preserve">
+    <value>แปลด้วย {0}</value>
+  </data>
+  <data name="HomeReadyOverlay" xml:space="preserve">
+    <value>ซับจะขึ้นบนจอคอม</value>
+  </data>
+  <data name="HomeReadyRegion" xml:space="preserve">
+    <value>ตั้งกรอบซับแล้ว</value>
+  </data>
+  <data name="IssueNoSourceTitle" xml:space="preserve">
+    <value>ไม่เห็นภาพจาก PS Remote Play</value>
+  </data>
+  <data name="IssueNoSourceBody" xml:space="preserve">
+    <value>เปิดแอป PS Remote Play แล้วเริ่มเล่นเกม แอปจะเจอหน้าต่างเองและเริ่มแปลให้</value>
+  </data>
+  <data name="IssueNoCaptureTitle" xml:space="preserve">
+    <value>ไม่เห็นภาพจาก capture card</value>
+  </data>
+  <data name="IssueNoCaptureBody" xml:space="preserve">
+    <value>เปิดหน้าต่าง capture card ค้างไว้ระหว่างเล่น แอปอ่านซับจากภาพในหน้าต่างนั้น</value>
+  </data>
+  <data name="IssueMinimizedTitle" xml:space="preserve">
+    <value>ไม่เห็นภาพจาก PS Remote Play</value>
+  </data>
+  <data name="IssueMinimizedBody" xml:space="preserve">
+    <value>หน้าต่าง Remote Play ถูกย่อลงแถบงานอยู่ — เปิดค้างไว้ได้เลย จะมีหน้าต่างอื่นบังก็ได้ แต่อย่าย่อ</value>
+  </data>
+  <data name="IssueMinimizedCaptureTitle" xml:space="preserve">
+    <value>ไม่เห็นภาพจาก capture card</value>
+  </data>
+  <data name="IssueMinimizedCaptureBody" xml:space="preserve">
+    <value>หน้าต่าง capture card ถูกย่ออยู่ — เปิดค้างไว้ได้เลย จะมีหน้าต่างอื่นบังก็ได้ แต่อย่าย่อ</value>
+  </data>
+  <data name="IssueStalledTitle" xml:space="preserve">
+    <value>ภาพจากเกมไม่ขยับ</value>
+  </data>
+  <data name="IssueStalledBody" xml:space="preserve">
+    <value>ยังไม่ได้ภาพใหม่จากเกมสักพัก — เช็กว่าเกมยังเล่นอยู่และหน้าต่างไม่ได้ค้าง</value>
+  </data>
+  <data name="IssueOcrTitle" xml:space="preserve">
+    <value>ยังไม่มีภาษา{0}สำหรับอ่านตัวอักษร</value>
+  </data>
+  <data name="IssueOcrBody" xml:space="preserve">
+    <value>เกมนี้ตั้งไว้เป็นภาษา{0} ต้องดาวน์โหลดก่อน (ราว 1 นาที)</value>
+  </data>
+  <data name="IssueOcrWinNote" xml:space="preserve">
+    <value> — ถ้า Windows ถามว่าอนุญาตไหม ให้กด “ใช่”</value>
+  </data>
+  <data name="IssueOcrButton" xml:space="preserve">
+    <value>ดาวน์โหลดภาษา{0}</value>
+  </data>
+  <data name="IssueOcrInstalling" xml:space="preserve">
+    <value>กำลังดาวน์โหลด…</value>
+  </data>
+  <data name="IssueRegionTitle" xml:space="preserve">
+    <value>ยังไม่ได้บอกว่าซับอยู่ตรงไหน</value>
+  </data>
+  <data name="IssueRegionBody" xml:space="preserve">
+    <value>ลากกรอบครอบบรรทัดซับในเกม ทำครั้งเดียวต่อเกม แอปจะจำไว้ให้</value>
+  </data>
+  <data name="IssueAiTitle" xml:space="preserve">
+    <value>การแปลด้วย AI มีปัญหา</value>
+  </data>
+  <data name="IssueAiButton" xml:space="preserve">
+    <value>ไปที่การแปล</value>
+  </data>
+  <data name="IssueUseCapture" xml:space="preserve">
+    <value>ใช้ capture card แทน</value>
+  </data>
+  <data name="IssueOpenCapture" xml:space="preserve">
+    <value>เปิดหน้าต่าง capture card</value>
+  </data>
 </root>

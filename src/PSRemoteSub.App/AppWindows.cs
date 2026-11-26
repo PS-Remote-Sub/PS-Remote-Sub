@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using PSRemoteSub.Core.Diagnostics;
 using PSRemoteSub.App.Views;
+using PSRemoteSub.App.Views.Pages;
 using PSRemoteSub.Core.Imaging;
 using PSRemoteSub.Core.Layout;
 
@@ -82,6 +83,7 @@ internal sealed class AppWindows : IDisposable
         if (_main is null)
         {
             var window = new MainWindow(_host, ShowLegacySettings);
+            window.HomeFactory = () => new HomePage(_host, ShowLegacySettings);
             window.Closed += (_, _) =>
             {
                 if (_main == window)

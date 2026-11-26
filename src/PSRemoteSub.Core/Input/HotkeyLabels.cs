@@ -16,6 +16,32 @@ public static class HotkeyLabels
     /// A stored hotkey setting as shown on this OS: <see cref="Display"/> when it parses, otherwise the setting's own text
     /// (so a status line still names the key the user typed rather than nothing).
     /// </summary>
+    /// <summary>
+    /// The keys of a hotkey setting as separate key caps (modifiers first, then the key): <c>Ctrl</c> <c>Alt</c>
+    /// <c>Shift</c> <c>P</c> on Windows, <c>⌃</c> <c>⌥</c> <c>⇧</c> <c>P</c> on Mac. Unparsable: one cap with the text;
+    /// empty: none.
+    /// </summary>
+    public static IReadOnlyList<string> KeyCaps(string? setting, PlatformKind kind)
+    {
+        if (string.IsNullOrWhiteSpace(setting)) return [];
+        HotkeySpec spec;
+        try
+        {
+            spec = HotkeySpec.Parse(setting);
+        }
+        catch (FormatException)
+        {
+            return [setting];
+        }
+        bool mac = kind == PlatformKind.MacOS;
+        var caps = new List<string>(4);
+        if (spec.Ctrl) caps.Add(mac ? "⌃" : "Ctrl");
+        if (spec.Alt) caps.Add(mac ? "⌥" : "Alt");
+        if (spec.Shift) caps.Add(mac ? "⇧" : "Shift");
+        caps.Add(spec.Key.ToString());
+        return caps;
+    }
+
     public static string DisplaySetting(string? setting, PlatformKind kind)
     {
         try
