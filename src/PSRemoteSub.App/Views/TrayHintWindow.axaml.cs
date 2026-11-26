@@ -12,7 +12,6 @@ namespace PSRemoteSub.App.Views;
 /// </summary>
 public partial class TrayHintWindow : Window
 {
-    private const string LogoGlyph = "M4 5h8M8 3v2M10 5c-1 4-3.5 7-6 8.5M6 9c1.2 2 3 3.5 5 4.3M13 21l4-10 4 10M14.5 17.5h5";
     private const string CloseGlyph = "M6 6l12 12M18 6 6 18";
     private const int EdgeMargin = 16;
 
@@ -24,15 +23,6 @@ public partial class TrayHintWindow : Window
     {
         _mac = mac;
         InitializeComponent();
-        var onAccent = new StrokeIcon
-        {
-            Data = LogoGlyph,
-            Size = 18,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
-        };
-        onAccent.Bind(StrokeIcon.ForegroundProperty, IconTile.GetResourceObservable("OnAccentBrush"));
-        IconTile.Child = onAccent;
         CloseButton.Content = new StrokeIcon { Data = CloseGlyph, Size = 18 };
         ToolTip.SetTip(CloseButton, Loc.Get("ToastClose"));
         Avalonia.Automation.AutomationProperties.SetName(CloseButton, Loc.Get("ToastClose"));
