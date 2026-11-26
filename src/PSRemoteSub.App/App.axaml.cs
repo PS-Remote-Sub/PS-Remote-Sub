@@ -198,15 +198,10 @@ public partial class App : Application
 
     private static async Task CheckForUpdatesLaterAsync(AppHost host, Func<Task> exitApp)
     {
-        try
-        {
-            await Task.Delay(UpdateCheckDelay);
-            await new UpdateChecker(host.Notify, host.AskUpdateAsync, exitApp).CheckAsync();
-        }
-        catch (Exception ex)
-        {
-            Log.Warn("Update check failed", ex); // never disturb the app
-        }
+        await Task.Delay(UpdateCheckDelay);
+        // Not awaited before the library update: the update question is a sticky notice the user may leave up all
+        // session, and the library must not wait for that answer.
+        var appUpdate = CheckForAppUpdateAsync(host, exitApp);
         try
         {
             // UI thread: AppHost members are UI-thread only. The download itself runs on the thread pool.
@@ -215,6 +210,19 @@ public partial class App : Application
         catch (Exception ex)
         {
             Log.Warn("Library update failed", ex); // never disturb the app
+        }
+        await appUpdate;
+    }
+
+    private static async Task CheckForAppUpdateAsync(AppHost host, Func<Task> exitApp)
+    {
+        try
+        {
+            await new UpdateChecker(host.Notify, host.AskUpdateAsync, exitApp).CheckAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Update check failed", ex); // never disturb the app
         }
     }
 
