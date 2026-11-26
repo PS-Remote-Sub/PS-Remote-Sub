@@ -1182,4 +1182,100 @@
   <data name="DisplayOverlayHint" xml:space="preserve">
     <value>ซ่อน/แสดงเร็ว ๆ ระหว่างเล่น</value>
   </data>
+  <data name="TranslateLangSection" xml:space="preserve">
+    <value>ภาษา</value>
+  </data>
+  <data name="TranslateSourceLabel" xml:space="preserve">
+    <value>ภาษาในเกม</value>
+  </data>
+  <data name="TranslateTargetLabel" xml:space="preserve">
+    <value>แปลเป็น</value>
+  </data>
+  <data name="TranslateLangNote" xml:space="preserve">
+    <value>ภาษาในเกมตั้งแยกได้ในแต่ละเกม (เมนู “เกมและโซนซับ”)</value>
+  </data>
+  <data name="TranslateWith" xml:space="preserve">
+    <value>แปลด้วย</value>
+  </data>
+  <data name="TranslateRecommended" xml:space="preserve">
+    <value>แนะนำ</value>
+  </data>
+  <data name="TranslateGoogleGood" xml:space="preserve">
+    <value>ฟรี ไม่ต้องตั้งค่า</value>
+  </data>
+  <data name="TranslateGoogleBad" xml:space="preserve">
+    <value>แปลตรงตัว อาจแข็งบ้าง</value>
+  </data>
+  <data name="TranslateAiGood" xml:space="preserve">
+    <value>แปลลื่น เข้าใจเรื่อง</value>
+  </data>
+  <data name="TranslateAiBad" xml:space="preserve">
+    <value>ต้องมี API key อาจมีค่าใช้จ่าย</value>
+  </data>
+  <data name="TranslatePrivacyGoogle" xml:space="preserve">
+    <value>ข้อความซับจะถูกส่งไปที่ Google Translate เพื่อแปลเท่านั้น</value>
+  </data>
+  <data name="TranslatePrivacyAi" xml:space="preserve">
+    <value>ข้อความซับจะถูกส่งไปที่ ผู้ให้บริการ AI ที่เลือก เพื่อแปลเท่านั้น</value>
+  </data>
+  <data name="TranslateAiSection" xml:space="preserve">
+    <value>ตั้งค่า AI</value>
+  </data>
+  <data name="TranslateAiSteps" xml:space="preserve">
+    <value>ทำครบ {0} ข้อ แล้วกดทดสอบ</value>
+  </data>
+  <data name="TranslateModelSub" xml:space="preserve">
+    <value>รุ่นเล็กแปลเร็วและถูกกว่า</value>
+  </data>
+  <data name="TranslateStyleLabel" xml:space="preserve">
+    <value>สไตล์การแปล</value>
+  </data>
+  <data name="TranslateStyleSub" xml:space="preserve">
+    <value>ยิ่งเข้าใจเรื่องมาก ยิ่งแปลลื่น แต่ซับอาจขึ้นช้าลงเล็กน้อย</value>
+  </data>
+  <data name="TranslateStyleFast" xml:space="preserve">
+    <value>เร็วทันใจ</value>
+  </data>
+  <data name="TranslateStyleBalanced" xml:space="preserve">
+    <value>สมดุล · แนะนำ</value>
+  </data>
+  <data name="TranslateStyleContext" xml:space="preserve">
+    <value>เข้าใจเรื่องมากขึ้น</value>
+  </data>
+  <data name="TranslateStyleCustom" xml:space="preserve">
+    <value>กำหนดเอง</value>
+  </data>
+  <data name="TranslateLineContext" xml:space="preserve">
+    <value>ดูประโยคก่อนหน้า {0} บรรทัด</value>
+  </data>
+  <data name="TranslateLineNoContext" xml:space="preserve">
+    <value>ไม่ดูประโยคก่อนหน้า</value>
+  </data>
+  <data name="TranslateLineOneAtATime" xml:space="preserve">
+    <value>ส่งแปลทีละบรรทัด</value>
+  </data>
+  <data name="TranslateLineParallel" xml:space="preserve">
+    <value>ส่งแปลพร้อมกัน {0} บรรทัด</value>
+  </data>
+  <data name="TranslateLineQueue" xml:space="preserve">
+    <value>ถ้าซับรอแปลเกิน {0} บรรทัดจะข้ามบรรทัดเก่าสุด</value>
+  </data>
+  <data name="TranslateTest" xml:space="preserve">
+    <value>ทดสอบการเชื่อมต่อ</value>
+  </data>
+  <data name="TranslateTestOk" xml:space="preserve">
+    <value>ใช้งานได้ · ตอบใน {0} วินาที</value>
+  </data>
+  <data name="TranslateFine" xml:space="preserve">
+    <value>ปรับละเอียด</value>
+  </data>
+  <data name="TranslateFineSub" xml:space="preserve">
+    <value>จำนวนบรรทัดก่อนหน้า, คิวรอแปล, ส่งพร้อมกัน</value>
+  </data>
+  <data name="TranslateServer" xml:space="preserve">
+    <value>ใช้เซิร์ฟเวอร์ของตัวเอง</value>
+  </data>
+  <data name="TranslateServerSub" xml:space="preserve">
+    <value>สำหรับ Ollama หรือ router ในบ้าน — ใส่ที่อยู่ URL</value>
+  </data>
 </root>

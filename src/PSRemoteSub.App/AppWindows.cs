@@ -113,6 +113,7 @@ internal sealed class AppWindows : IDisposable
         {
             case MainPage.Games: return new GamesPage(_host);
             case MainPage.Display: return new DisplayPage(_host);
+            case MainPage.Translation: return new TranslationPage(_host);
             default: return null;
         }
     }
