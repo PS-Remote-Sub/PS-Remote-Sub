@@ -128,6 +128,8 @@ internal sealed class CaptureController : IDisposable
             window.VolumeChanged += OnVolumeChanged;
             window.MutedChanged += OnMutedChanged;
             window.ModeChosen += OnModeChosen;
+            window.RetryRequested += OnRetryRequested;
+            window.PickDeviceRequested += OnPickDeviceRequested;
 
             window.Show();
             // Created at the primary screen's scaling: size it again for the screen it landed on.
@@ -409,6 +411,8 @@ internal sealed class CaptureController : IDisposable
         window.VolumeChanged -= OnVolumeChanged;
         window.MutedChanged -= OnMutedChanged;
         window.ModeChosen -= OnModeChosen;
+        window.RetryRequested -= OnRetryRequested;
+        window.PickDeviceRequested -= OnPickDeviceRequested;
         _card.StateChanged -= OnCardStateChanged;
 
         Safe(_card.Close);
@@ -496,6 +500,21 @@ internal sealed class CaptureController : IDisposable
         _audio.Muted = muted;
         _host.SaveSettings();
     });
+
+    // "ลองอีกครั้ง": reopen the card even for the same device and mode (as after a permission grant), looking the device up again.
+    private void OnRetryRequested(object? sender, EventArgs e) => Safe(() =>
+    {
+        if (_window is null)
+            return;
+        Log.Info("Capture: retry requested from the no-picture panel");
+        _deviceId = null;
+        _openedMode = null;
+        _ = StartCaptureAsync();
+    });
+
+    // "เลือกอุปกรณ์อื่น": the main window on the Source page.
+    private void OnPickDeviceRequested(object? sender, EventArgs e) =>
+        Safe(() => _host.RequestMainWindow(MainPage.Source));
 
     private void OnModeChosen(object? sender, CaptureModeSetting? mode) => Safe(() =>
     {

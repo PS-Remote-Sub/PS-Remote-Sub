@@ -1712,4 +1712,52 @@
   <data name="FrameLegendOff" xml:space="preserve">
     <value>ปิด</value>
   </data>
+  <data name="CaptureNoVideoTitle" xml:space="preserve">
+    <value>ยังไม่เห็นภาพจาก capture card</value>
+  </data>
+  <data name="CaptureAutoRetry" xml:space="preserve">
+    <value>กำลังลองเชื่อมต่อใหม่อัตโนมัติ…</value>
+  </data>
+  <data name="CaptureCheckHeading" xml:space="preserve">
+    <value>ลองเช็ก 3 อย่างนี้</value>
+  </data>
+  <data name="CaptureCheckUsb" xml:space="preserve">
+    <value>เสียบสาย USB ของกล่องจับภาพแล้ว</value>
+  </data>
+  <data name="CaptureCheckUsbSub" xml:space="preserve">
+    <value>ถ้าเพิ่งถอดออก เสียบกลับแล้วภาพจะกลับมาเอง</value>
+  </data>
+  <data name="CaptureCheckClose" xml:space="preserve">
+    <value>ปิดโปรแกรมอื่นที่ใช้กล่องอยู่</value>
+  </data>
+  <data name="CaptureCheckCloseSub" xml:space="preserve">
+    <value>เช่น OBS หรือโปรแกรมของกล่องจับภาพ</value>
+  </data>
+  <data name="CaptureCheckHdcp" xml:space="preserve">
+    <value>ต่อกับ PS5 อยู่? ปิด HDCP ก่อน</value>
+  </data>
+  <data name="CaptureChipSettings" xml:space="preserve">
+    <value>ตั้งค่า</value>
+  </data>
+  <data name="CaptureChipSystem" xml:space="preserve">
+    <value>ระบบ</value>
+  </data>
+  <data name="CaptureChipHdmi" xml:space="preserve">
+    <value>HDMI</value>
+  </data>
+  <data name="CaptureChipHdcp" xml:space="preserve">
+    <value>ปิด “เปิดใช้งาน HDCP”</value>
+  </data>
+  <data name="CaptureRetry" xml:space="preserve">
+    <value>ลองอีกครั้ง</value>
+  </data>
+  <data name="CapturePickOther" xml:space="preserve">
+    <value>เลือกอุปกรณ์อื่น</value>
+  </data>
+  <data name="CaptureQuality" xml:space="preserve">
+    <value>คุณภาพภาพ</value>
+  </data>
+  <data name="CaptureFullScreenLabel" xml:space="preserve">
+    <value>เต็มจอ</value>
+  </data>
 </root>

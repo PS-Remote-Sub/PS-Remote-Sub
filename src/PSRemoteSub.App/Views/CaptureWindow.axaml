@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:app="using:PSRemoteSub.App"
+        xmlns:c="using:PSRemoteSub.App.Views.Controls"
         x:Class="PSRemoteSub.App.Views.CaptureWindow"
         x:ClassModifier="internal"
         Title="{app:Tr CaptureWindowTitle}"
@@ -8,12 +9,44 @@
         MinWidth="320" MinHeight="200"
         Background="Black"
         RequestedThemeVariant="Dark"
-        FontFamily="Leelawadee UI, Segoe UI"
-        FontSize="14">
+        FontFamily="{DynamicResource AppFont}"
+        FontSize="15">
+  <Window.Styles>
+    <!-- A menu-path chip of the checklist (mockup: card2 fill, border2 outline, radius 6). -->
+    <Style Selector="Border.chip">
+      <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Border2Brush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Padding" Value="10,2" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.chip TextBlock">
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+    </Style>
+    <Style Selector="Border.step">
+      <Setter Property="Width" Value="28" />
+      <Setter Property="Height" Value="28" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Border2Brush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+    <Style Selector="Border.step TextBlock">
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+    </Style>
+  </Window.Styles>
+
   <Grid RowDefinitions="*,Auto">
-    <!-- The video (a VideoHost, added first by the code-behind), or (when there is none) the state message in its place:
-         nothing can be drawn over the native surface. -->
+    <!-- The video (a VideoHost, added first by the code-behind), or (when there is none) the state message / the
+         no-signal checklist in its place: nothing can be drawn over the native surface. -->
     <Panel Grid.Row="0" x:Name="VideoArea" Background="Black">
+      <!-- The plain message: only while the card is opening. -->
       <TextBlock x:Name="Message"
                  IsVisible="False"
                  Foreground="White"
@@ -24,20 +57,102 @@
                  VerticalAlignment="Center"
                  MaxWidth="720"
                  Margin="24" />
+
+      <!-- No picture: heading, the specific state line, the 3-item checklist, retry / pick another device. -->
+      <Border x:Name="NoVideo" IsVisible="False" Background="{DynamicResource BgBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <Border Classes="card" MaxWidth="600" Margin="24" Padding="32,28"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Center">
+            <StackPanel Spacing="18">
+              <Grid ColumnDefinitions="Auto,*">
+                <Border Width="52" Height="52" CornerRadius="12" Background="{DynamicResource WarnBgBrush}" VerticalAlignment="Top">
+                  <c:StrokeIcon Size="26" Foreground="{DynamicResource WarnBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Data="M7 7h10v10H7zM10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="16,0,0,0" Spacing="4" VerticalAlignment="Center">
+                  <TextBlock Text="{app:Tr CaptureNoVideoTitle}" FontSize="20" FontWeight="Bold" TextWrapping="Wrap"
+                             Foreground="{DynamicResource TextBrush}" />
+                  <TextBlock x:Name="StateLine" Classes="sub" TextWrapping="Wrap" />
+                  <StackPanel x:Name="AutoRetry" Orientation="Horizontal" Spacing="6" IsVisible="False">
+                    <c:StrokeIcon Size="14" Foreground="{DynamicResource Text3Brush}" VerticalAlignment="Center"
+                                  Data="M20 11.5a8 8 0 1 1-2.4-5.7M20 4v5h-5" />
+                    <TextBlock Classes="sub" Text="{app:Tr CaptureAutoRetry}" VerticalAlignment="Center" />
+                  </StackPanel>
+                </StackPanel>
+              </Grid>
+
+              <Border Classes="hr" />
+              <TextBlock Classes="sub" FontWeight="SemiBold" Text="{app:Tr CaptureCheckHeading}" />
+
+              <Grid ColumnDefinitions="Auto,*">
+                <Border Classes="step"><TextBlock Text="1" /></Border>
+                <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                  <TextBlock Classes="lbl" Text="{app:Tr CaptureCheckUsb}" TextWrapping="Wrap" Foreground="{DynamicResource TextBrush}" />
+                  <TextBlock Classes="sub" FontSize="14" Text="{app:Tr CaptureCheckUsbSub}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Grid>
+              <Grid ColumnDefinitions="Auto,*">
+                <Border Classes="step"><TextBlock Text="2" /></Border>
+                <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                  <TextBlock Classes="lbl" Text="{app:Tr CaptureCheckClose}" TextWrapping="Wrap" Foreground="{DynamicResource TextBrush}" />
+                  <TextBlock Classes="sub" FontSize="14" Text="{app:Tr CaptureCheckCloseSub}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Grid>
+              <Grid ColumnDefinitions="Auto,*">
+                <Border Classes="step"><TextBlock Text="3" /></Border>
+                <StackPanel Grid.Column="1" Margin="14,0,0,0" Spacing="6">
+                  <TextBlock Classes="lbl" Text="{app:Tr CaptureCheckHdcp}" TextWrapping="Wrap" Foreground="{DynamicResource TextBrush}" />
+                  <WrapPanel Orientation="Horizontal">
+                    <Border Classes="chip" Margin="0,0,6,6"><TextBlock Text="{app:Tr CaptureChipSettings}" /></Border>
+                    <c:StrokeIcon Size="14" Foreground="{DynamicResource Text3Brush}" Margin="0,0,6,6" VerticalAlignment="Center" Data="M9 6l6 6-6 6" />
+                    <Border Classes="chip" Margin="0,0,6,6"><TextBlock Text="{app:Tr CaptureChipSystem}" /></Border>
+                    <c:StrokeIcon Size="14" Foreground="{DynamicResource Text3Brush}" Margin="0,0,6,6" VerticalAlignment="Center" Data="M9 6l6 6-6 6" />
+                    <Border Classes="chip" Margin="0,0,6,6"><TextBlock Text="{app:Tr CaptureChipHdmi}" /></Border>
+                    <c:StrokeIcon Size="14" Foreground="{DynamicResource Text3Brush}" Margin="0,0,6,6" VerticalAlignment="Center" Data="M9 6l6 6-6 6" />
+                    <Border Classes="chip" Margin="0,0,6,6"><TextBlock Text="{app:Tr CaptureChipHdcp}" /></Border>
+                  </WrapPanel>
+                </StackPanel>
+              </Grid>
+
+              <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,4,0,0">
+                <Button x:Name="RetryButton" Classes="btn primary">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <c:StrokeIcon Size="18" VerticalAlignment="Center" Data="M20 11.5a8 8 0 1 1-2.4-5.7M20 4v5h-5" />
+                    <TextBlock Text="{app:Tr CaptureRetry}" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Button>
+                <Button x:Name="PickDeviceButton" Classes="btn" Content="{app:Tr CapturePickOther}" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+        </ScrollViewer>
+      </Border>
     </Panel>
 
-    <Border Grid.Row="1" x:Name="Toolbar" Background="#FF1E1E1E" Padding="10,6">
-      <StackPanel Orientation="Horizontal" Spacing="10">
-        <Slider x:Name="VolumeSlider" Minimum="0" Maximum="100" Width="140" VerticalAlignment="Center" />
-        <ToggleButton x:Name="MuteButton" Content="{app:Tr CaptureMute}" VerticalAlignment="Center" />
-        <ComboBox x:Name="ModeBox" MinWidth="170" VerticalAlignment="Center" />
-        <Button x:Name="FullScreenButton" Content="{app:Tr CaptureFullScreen}" VerticalAlignment="Center" />
-        <TextBlock x:Name="AudioMissing"
-                   IsVisible="False"
-                   Text="{app:Tr CaptureNoAudio}"
-                   Foreground="#FFB74D"
-                   VerticalAlignment="Center" />
-      </StackPanel>
+    <Border Grid.Row="1" x:Name="Toolbar" Background="{DynamicResource SideBrush}"
+            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="20,0" Height="64">
+      <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto">
+        <ToggleButton x:Name="MuteButton" Grid.Column="0" Width="42" Height="40" Padding="0" VerticalAlignment="Center"
+                      HorizontalContentAlignment="Center" ToolTip.Tip="{app:Tr CaptureMute}">
+          <c:StrokeIcon Size="18" Data="M4 9h4l5-4v14l-5-4H4zM17 9a4 4 0 0 1 0 6M19.5 6.5a8 8 0 0 1 0 11" />
+        </ToggleButton>
+        <Slider x:Name="VolumeSlider" Grid.Column="1" Minimum="0" Maximum="100" Width="160" Margin="14,0,0,0" VerticalAlignment="Center" />
+        <Border x:Name="AudioMissing" Grid.Column="2" Classes="pill warn" Margin="14,0,0,0" IsVisible="False" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <c:StrokeIcon Size="14" VerticalAlignment="Center" Data="M12 3.5 2.5 20h19L12 3.5zM12 10v4.5M12 17.3h.01" />
+            <TextBlock Text="{app:Tr CaptureNoAudio}" VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+        <TextBlock Grid.Column="4" Classes="sub" Text="{app:Tr CaptureQuality}" VerticalAlignment="Center" Margin="0,0,14,0" />
+        <ComboBox x:Name="ModeBox" Grid.Column="5" Classes="sel" MinWidth="170" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,14,0" />
+        <Button x:Name="FullScreenButton" Grid.Column="6" Classes="btn" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <c:StrokeIcon Size="18" VerticalAlignment="Center" Data="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />
+            <TextBlock Text="{app:Tr CaptureFullScreenLabel}" VerticalAlignment="Center" />
+            <Border Classes="kbd"><TextBlock Text="F11" /></Border>
+          </StackPanel>
+        </Button>
+      </Grid>
     </Border>
   </Grid>
 </Window>
