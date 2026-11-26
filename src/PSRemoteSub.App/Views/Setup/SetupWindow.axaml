@@ -1,0 +1,60 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="using:PSRemoteSub.App"
+        xmlns:c="using:PSRemoteSub.App.Views.Controls"
+        x:Class="PSRemoteSub.App.Views.Setup.SetupWindow"
+        Title="{app:Tr SetupWindowTitle}"
+        Icon="/Assets/app.ico"
+        Width="880" Height="640"
+        MinWidth="760" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BgBrush}"
+        Foreground="{DynamicResource TextBrush}"
+        FontFamily="{DynamicResource AppFont}"
+        FontSize="15">
+  <!-- Mockups New-Setup-1 … 4: stepper, title block, step content, footer bar. -->
+  <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Button x:Name="ThemeButton" Grid.Row="0" Classes="btn ghost sm" HorizontalAlignment="Right" Margin="0,8,16,0"
+            Foreground="{DynamicResource Text2Brush}" ToolTip.Tip="{app:Tr ThemeToggleTip}">
+      <StackPanel Orientation="Horizontal" Spacing="6">
+        <c:StrokeIcon x:Name="ThemeIcon" Size="16" VerticalAlignment="Center" />
+        <TextBlock x:Name="ThemeText" FontSize="13" VerticalAlignment="Center" />
+      </StackPanel>
+    </Button>
+
+    <Grid x:Name="Stepper" Grid.Row="1" Margin="40,6,40,0" />
+
+    <ScrollViewer x:Name="Scroller" Grid.Row="2" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Margin="40,30,40,24" Spacing="22">
+        <StackPanel>
+          <TextBlock x:Name="StepOf" Classes="sub" FontWeight="SemiBold" />
+          <TextBlock x:Name="TitleText" Classes="h1" TextWrapping="Wrap" />
+          <TextBlock x:Name="SubText" Classes="mut" Margin="0,2,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+        <ContentControl x:Name="StepHost" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Grid.Row="3" Background="{DynamicResource SideBrush}" BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="0,1,0,0" Padding="40,18">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <Button x:Name="BackButton" Grid.Column="0" Classes="btn ghost">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <c:StrokeIcon Data="M15 6l-6 6 6 6" Size="18" VerticalAlignment="Center" />
+            <TextBlock Text="{app:Tr SetupBack}" VerticalAlignment="Center" />
+          </StackPanel>
+        </Button>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+          <Button x:Name="SkipButton" Classes="btn ghost" Foreground="{DynamicResource Text2Brush}"
+                  Content="{app:Tr SetupSkip}" VerticalAlignment="Center" />
+          <Button x:Name="NextButton" Classes="btn primary lg" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock x:Name="NextText" VerticalAlignment="Center" />
+              <c:StrokeIcon Data="M9 6l6 6-6 6" Size="18" StrokeThickness="2.2" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

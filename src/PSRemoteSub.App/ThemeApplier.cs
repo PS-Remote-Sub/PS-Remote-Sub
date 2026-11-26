@@ -15,6 +15,13 @@ internal static class ThemeApplier
             _ => ThemeVariant.Dark,
         };
 
+    /// <summary>The theme toggle (main window, setup wizard): flips light/dark into the settings and applies it; the caller saves.</summary>
+    public static void Toggle(Application app, AppSettings settings)
+    {
+        settings.Theme = IsLight(app) ? AppTheme.Dark : AppTheme.Light;
+        Apply(app, settings.Theme);
+    }
+
     /// <summary>Whether the app is showing its light variant right now (System resolves to the OS setting).</summary>
     public static bool IsLight(Application app) => app.ActualThemeVariant == ThemeVariant.Light;
 }

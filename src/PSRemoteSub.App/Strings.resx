@@ -1434,4 +1434,136 @@
   <data name="GeneralRegionFramesSub" xml:space="preserve">
     <value>สำหรับแก้ปัญหา: แสดงกรอบสีบนจอให้เห็นว่าแอปกำลังอ่านตรงไหน</value>
   </data>
+  <data name="SetupWindowTitle" xml:space="preserve">
+    <value>ตั้งค่าครั้งแรก — PS Remote Sub</value>
+  </data>
+  <data name="SetupStepOf" xml:space="preserve">
+    <value>ขั้นที่ {0} จาก {1}</value>
+  </data>
+  <data name="SetupStepSource" xml:space="preserve">
+    <value>ภาพเกม</value>
+  </data>
+  <data name="SetupStepLanguage" xml:space="preserve">
+    <value>ภาษา</value>
+  </data>
+  <data name="SetupStepTranslator" xml:space="preserve">
+    <value>การแปล</value>
+  </data>
+  <data name="SetupStepRegion" xml:space="preserve">
+    <value>ตำแหน่งซับ</value>
+  </data>
+  <data name="SetupBack" xml:space="preserve">
+    <value>ย้อนกลับ</value>
+  </data>
+  <data name="SetupSkip" xml:space="preserve">
+    <value>ข้ามไปก่อน</value>
+  </data>
+  <data name="SetupNext" xml:space="preserve">
+    <value>ถัดไป</value>
+  </data>
+  <data name="SetupFinish" xml:space="preserve">
+    <value>เสร็จแล้ว ไปหน้าหลัก</value>
+  </data>
+  <data name="SetupSourceTitle" xml:space="preserve">
+    <value>ภาพเกมมาจากไหน</value>
+  </data>
+  <data name="SetupSourceSub" xml:space="preserve">
+    <value>แอปจะอ่านซับจากภาพเกม เลือกวิธีที่คุณใช้เล่นอยู่</value>
+  </data>
+  <data name="SetupRemotePlayDesc" xml:space="preserve">
+    <value>เล่น PS5 ผ่านแอป PS Remote Play บนคอมเครื่องนี้</value>
+  </data>
+  <data name="SetupRemotePlayFound" xml:space="preserve">
+    <value>พบแอปแล้ว · เปิดอยู่</value>
+  </data>
+  <data name="SetupCaptureDesc" xml:space="preserve">
+    <value>ต่อ PS5 เข้าคอมด้วยสาย HDMI ผ่านกล่องจับภาพ</value>
+  </data>
+  <data name="SetupCaptureHdcp" xml:space="preserve">
+    <value>ต้องปิด HDCP บน PS5 ก่อน — เดี๋ยวแอปบอกวิธีให้</value>
+  </data>
+  <data name="SetupSourceNoteLead" xml:space="preserve">
+    <value>ไม่แน่ใจ? ถ้าคุณเล่น PS5 บนคอมผ่านแอปของ PlayStation ให้เลือก </value>
+  </data>
+  <data name="SetupLanguageTitle" xml:space="preserve">
+    <value>ซับในเกมเป็นภาษาอะไร</value>
+  </data>
+  <data name="SetupLanguageSub" xml:space="preserve">
+    <value>เลือกภาษาที่ตัวหนังสือในเกมใช้ เปลี่ยนแยกได้ทีหลังในแต่ละเกม</value>
+  </data>
+  <data name="SetupOcrReady" xml:space="preserve">
+    <value>พร้อมใช้</value>
+  </data>
+  <data name="SetupOcrAuto" xml:space="preserve">
+    <value>ดาวน์โหลดให้อัตโนมัติ</value>
+  </data>
+  <data name="SetupTargetLabel" xml:space="preserve">
+    <value>แปลเป็นภาษา</value>
+  </data>
+  <data name="SetupTargetThai" xml:space="preserve">
+    <value>ไทย</value>
+  </data>
+  <data name="SetupOcrNoteLead" xml:space="preserve">
+    <value>ภาษาที่ยังไม่มีในเครื่อง แอปจะดาวน์โหลดให้ (ราว 1 นาที) — ถ้า Windows ถามว่าอนุญาตไหม ให้กด </value>
+  </data>
+  <data name="SetupOcrNoteYes" xml:space="preserve">
+    <value>ใช่</value>
+  </data>
+  <data name="SetupTranslatorTitle" xml:space="preserve">
+    <value>แปลด้วยอะไรดี</value>
+  </data>
+  <data name="SetupTranslatorSub" xml:space="preserve">
+    <value>ถ้าไม่แน่ใจ ใช้ Google ไปก่อนได้เลย</value>
+  </data>
+  <data name="SetupGoogleDesc" xml:space="preserve">
+    <value>เหมาะกับคนเริ่มต้น</value>
+  </data>
+  <data name="SetupGoogleGood1" xml:space="preserve">
+    <value>ฟรี ไม่ต้องสมัคร</value>
+  </data>
+  <data name="SetupGoogleGood2" xml:space="preserve">
+    <value>เริ่มใช้ได้ทันที</value>
+  </data>
+  <data name="SetupGoogleBad" xml:space="preserve">
+    <value>แปลตรงตัว อาจแข็งบ้าง</value>
+  </data>
+  <data name="SetupAiDesc" xml:space="preserve">
+    <value>สำหรับคนที่มีบัญชี AI อยู่แล้ว</value>
+  </data>
+  <data name="SetupAiGood" xml:space="preserve">
+    <value>แปลลื่น เข้าใจเรื่องและชื่อตัวละคร</value>
+  </data>
+  <data name="SetupAiBad1" xml:space="preserve">
+    <value>ต้องมี API key หรือ Ollama</value>
+  </data>
+  <data name="SetupAiBad2" xml:space="preserve">
+    <value>อาจมีค่าใช้จ่ายตามการใช้งาน</value>
+  </data>
+  <data name="SetupPrivacy" xml:space="preserve">
+    <value>ข้อความซับจะถูกส่งไปแปลที่ผู้ให้บริการที่เลือกเท่านั้น · เปลี่ยนทีหลังได้ในเมนู “การแปล”</value>
+  </data>
+  <data name="SetupRegionTitle" xml:space="preserve">
+    <value>บอกแอปว่าซับอยู่ตรงไหน</value>
+  </data>
+  <data name="SetupRegionSub" xml:space="preserve">
+    <value>ทำครั้งเดียวต่อเกม แอปจะจำไว้ให้</value>
+  </data>
+  <data name="SetupRegionHere" xml:space="preserve">
+    <value>ซับอยู่ตรงนี้</value>
+  </data>
+  <data name="SetupRegionStep1" xml:space="preserve">
+    <value>เปิดเกมไว้ ให้มีซับขึ้นบนจอสักบรรทัด</value>
+  </data>
+  <data name="SetupRegionStep2" xml:space="preserve">
+    <value>กดปุ่ม “เริ่มลากกรอบ” — หน้าจอจะมืดลง</value>
+  </data>
+  <data name="SetupRegionStep3" xml:space="preserve">
+    <value>ลากกรอบครอบบรรทัดซับ แล้วกด</value>
+  </data>
+  <data name="SetupRegionStart" xml:space="preserve">
+    <value>เริ่มลากกรอบ</value>
+  </data>
+  <data name="SetupRegionLater" xml:space="preserve">
+    <value>ทำทีหลังได้ทุกเมื่อด้วย</value>
+  </data>
 </root>

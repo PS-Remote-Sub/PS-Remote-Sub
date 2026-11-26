@@ -56,7 +56,6 @@ public sealed class TranslationPage : SettingsPage
             AiRefiner.AiBillingKey, "AiKeyNeeded", "AiNoModel", AiRefiner.GoogleDownKey];
 
     /// <summary>Language codes: <c>th</c>, <c>en</c>, <c>zh-CN</c>, <c>zh-TW</c>, <c>haw</c>…</summary>
-    private static readonly Regex LanguageCode = new("^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,4})?$", RegexOptions.CultureInvariant);
 
     // Language
     private readonly TextBlock _sourceLang = new() { VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
@@ -365,14 +364,10 @@ public sealed class TranslationPage : SettingsPage
     {
         if (Loading)
             return;
-        string code = (_targetLang.Text ?? "").Trim();
-        bool valid = LanguageCode.IsMatch(code);
-        _targetLangError.IsVisible = !valid;
-        if (!valid || code == Settings.TargetLang)
-            return;
-        Settings.TargetLang = code;
-        Host.ApplySettings();
-        ScheduleSave();
+        var result = TargetLanguage.TryApply(Host, _targetLang.Text);
+        _targetLangError.IsVisible = result == TargetLanguageResult.Invalid;
+        if (result == TargetLanguageResult.Applied)
+            ScheduleSave();
     }
 
     // ---- translation (AI) -----------------------------------------------------------------------------------------
@@ -443,11 +438,9 @@ public sealed class TranslationPage : SettingsPage
         ShowModeCards();
         if (Loading || button.IsChecked != true)
             return;
-        if (Settings.Translation.Mode == mode)
-            return;
-        Settings.Translation.Mode = mode;
-        ShowTranslationMode();
-        Host.ApplyTranslationSettings(); // rebuilds the translator handle: new generation, status cleared
+        // Rebuilds the translator handle: new generation, status cleared.
+        if (SettingsEdits.SetTranslationMode(Host, mode))
+            ShowTranslationMode();
     }
 
     private bool GoogleMode => Settings.Translation.Mode != TranslationMode.Ai;

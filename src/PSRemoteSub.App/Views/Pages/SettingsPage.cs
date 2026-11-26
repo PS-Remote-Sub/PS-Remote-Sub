@@ -72,8 +72,7 @@ public abstract class SettingsPage : UserControl
     {
         if (Loading)
             return;
-        edit(Settings.GetActive());
-        Host.ApplySettings();
+        SettingsEdits.EditActiveGame(Host, edit);
         ScheduleSave();
         after?.Invoke();
     });

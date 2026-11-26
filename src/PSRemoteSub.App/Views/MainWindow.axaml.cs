@@ -307,8 +307,7 @@ public partial class MainWindow : Window
     {
         if (Application.Current is not { } app)
             return;
-        Host.Settings.Theme = ThemeApplier.IsLight(app) ? AppTheme.Dark : AppTheme.Light;
-        ThemeApplier.Apply(app, Host.Settings.Theme);
+        ThemeApplier.Toggle(app, Host.Settings);
         Host.SaveSettings();
     }
 

@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using PSRemoteSub.Core.Diagnostics;
 using PSRemoteSub.App.Views;
 using PSRemoteSub.App.Views.Pages;
+using PSRemoteSub.App.Views.Setup;
 using PSRemoteSub.Core.Imaging;
 using PSRemoteSub.Core.Layout;
 
@@ -15,6 +16,7 @@ internal sealed class AppWindows : IDisposable
 {
     private readonly AppHost _host;
     private MainWindow? _main;
+    private SetupWindow? _setup;
     private bool _picking;
     private bool _disposed;
 
@@ -49,6 +51,55 @@ internal sealed class AppWindows : IDisposable
             Log.Warn("Closing windows failed", ex); // exiting anyway
         }
         _main = null;
+        try
+        {
+            _setup?.CloseForExit();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Closing windows failed", ex); // exiting anyway
+        }
+        _setup = null;
+    }
+
+    /// <summary>
+    /// Raised when the setup wizard ends (completed, skipped, or closed with X): see <see cref="SetupFinishedEventArgs"/>.
+    /// Not raised when the app exits with the wizard open.
+    /// </summary>
+    public event EventHandler<SetupFinishedEventArgs>? SetupFinished;
+
+    /// <summary>Shows the one setup wizard: creates it on its first step, or restores and fronts the open one. Hides nothing else.</summary>
+    public void ShowSetup()
+    {
+        if (_disposed)
+            return;
+        if (_setup is null)
+        {
+            var window = new SetupWindow(_host);
+            window.Finished += (_, e) =>
+            {
+                if (_setup == window)
+                    _setup = null;
+                try
+                {
+                    SetupFinished?.Invoke(this, e);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Handling the end of the setup wizard failed", ex);
+                }
+            };
+            window.Closed += (_, _) =>
+            {
+                if (_setup == window)
+                    _setup = null;
+            };
+            _setup = window;
+            window.Show();
+        }
+        if (_setup.WindowState == WindowState.Minimized)
+            _setup.WindowState = WindowState.Normal;
+        _setup.Activate();
     }
 
     private void OnRegionSelectionRequested(object? sender, string? zoneId) => _ = PickRegionAsync(zoneId);
