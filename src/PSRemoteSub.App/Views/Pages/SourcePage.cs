@@ -29,6 +29,7 @@ public sealed class SourcePage : SettingsPage
     private const string ChipGlyph = "M7 7h10v10H7zM10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4";
     private const string EyeGlyph = "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z";
     private const string CheckGlyph = "M5 12.5l4.5 4.5L19 7.5";
+    private const string WarnGlyph = "M12 3 2 20h20zM12 10v4.5M12 17.5h.01";
     private const string ArrowGlyph = "M9 6l6 6-6 6";
     private const string RefreshGlyph = "M20 11.5a8 8 0 1 1-2.4-5.7M20 4v5h-5";
     private const string OpenGlyph = "M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5";
@@ -242,6 +243,8 @@ public sealed class SourcePage : SettingsPage
             return;
         pill.Classes.Add(kind);
         text.Text = label;
+        if (pill.Child is StackPanel { Children: [StrokeIcon icon, ..] })
+            icon.Data = kind == "warn" ? WarnGlyph : CheckGlyph;
     }
 
     // ---- devices and modes (ported from PictureSourcePanel) -------------------------------------------------------
