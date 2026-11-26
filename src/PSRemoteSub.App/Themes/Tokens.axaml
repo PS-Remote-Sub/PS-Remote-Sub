@@ -1,0 +1,67 @@
+<!-- Style A colour tokens (dark + light), copied from the design's CSS variables (.app / .app.light). -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="BgBrush" Color="#17191E" />
+      <SolidColorBrush x:Key="SideBrush" Color="#121418" />
+      <SolidColorBrush x:Key="CardBrush" Color="#1F2228" />
+      <SolidColorBrush x:Key="Card2Brush" Color="#15171B" />
+      <SolidColorBrush x:Key="BorderBrush" Color="#2B2F37" />
+      <SolidColorBrush x:Key="Border2Brush" Color="#363B44" />
+      <SolidColorBrush x:Key="TextBrush" Color="#F3F4F6" />
+      <SolidColorBrush x:Key="Text2Brush" Color="#B4B9C3" />
+      <SolidColorBrush x:Key="Text3Brush" Color="#8F96A3" />
+      <SolidColorBrush x:Key="AccentBrush" Color="#5AA8FF" />
+      <SolidColorBrush x:Key="OnAccentBrush" Color="#08111F" />
+      <SolidColorBrush x:Key="AccentHoverBrush" Color="#7AB9FF" />
+      <SolidColorBrush x:Key="LinkBrush" Color="#7AB9FF" />
+      <SolidColorBrush x:Key="OkBrush" Color="#6FE09A" />
+      <SolidColorBrush x:Key="OkBgBrush" Color="#245BD68A" />
+      <SolidColorBrush x:Key="WarnBrush" Color="#F7C561" />
+      <SolidColorBrush x:Key="WarnBgBrush" Color="#24F6B94A" />
+      <SolidColorBrush x:Key="BadBrush" Color="#FF8F87" />
+      <SolidColorBrush x:Key="BadBgBrush" Color="#24FF7B72" />
+      <SolidColorBrush x:Key="InfoBrush" Color="#7AB9FF" />
+      <SolidColorBrush x:Key="InfoBgBrush" Color="#245AA8FF" />
+      <SolidColorBrush x:Key="BtnBrush" Color="#262A31" />
+      <SolidColorBrush x:Key="BtnHoverBrush" Color="#2E333B" />
+      <SolidColorBrush x:Key="NavOnBrush" Color="#23272E" />
+      <SolidColorBrush x:Key="NavHoverBrush" Color="#1B1E23" />
+      <SolidColorBrush x:Key="TrackOffBrush" Color="#3D424C" />
+      <SolidColorBrush x:Key="KnobOffBrush" Color="#CFD3DA" />
+      <SolidColorBrush x:Key="TitleBrush" Color="#121418" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="BgBrush" Color="#F3F4F6" />
+      <SolidColorBrush x:Key="SideBrush" Color="#EAECF0" />
+      <SolidColorBrush x:Key="CardBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="Card2Brush" Color="#F6F7F9" />
+      <SolidColorBrush x:Key="BorderBrush" Color="#E1E4E9" />
+      <SolidColorBrush x:Key="Border2Brush" Color="#CFD4DB" />
+      <SolidColorBrush x:Key="TextBrush" Color="#15171B" />
+      <SolidColorBrush x:Key="Text2Brush" Color="#4A515C" />
+      <SolidColorBrush x:Key="Text3Brush" Color="#626975" />
+      <SolidColorBrush x:Key="AccentBrush" Color="#2563EB" />
+      <SolidColorBrush x:Key="OnAccentBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="AccentHoverBrush" Color="#1D4ED8" />
+      <SolidColorBrush x:Key="LinkBrush" Color="#1D4ED8" />
+      <SolidColorBrush x:Key="OkBrush" Color="#15803D" />
+      <SolidColorBrush x:Key="OkBgBrush" Color="#DCFCE7" />
+      <SolidColorBrush x:Key="WarnBrush" Color="#9A5800" />
+      <SolidColorBrush x:Key="WarnBgBrush" Color="#FFF1D6" />
+      <SolidColorBrush x:Key="BadBrush" Color="#C62828" />
+      <SolidColorBrush x:Key="BadBgBrush" Color="#FDE7E7" />
+      <SolidColorBrush x:Key="InfoBrush" Color="#1D4ED8" />
+      <SolidColorBrush x:Key="InfoBgBrush" Color="#E0EAFF" />
+      <SolidColorBrush x:Key="BtnBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="BtnHoverBrush" Color="#EEF0F3" />
+      <SolidColorBrush x:Key="NavOnBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="NavHoverBrush" Color="#E0E3E8" />
+      <SolidColorBrush x:Key="TrackOffBrush" Color="#C4C9D1" />
+      <SolidColorBrush x:Key="KnobOffBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="TitleBrush" Color="#EAECF0" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+  <FontFamily x:Key="AppFont">avares://PSRemoteSub.App/Assets/Fonts#IBM Plex Sans Thai</FontFamily>
+</ResourceDictionary>

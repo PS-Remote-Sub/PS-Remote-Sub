@@ -66,6 +66,7 @@ public partial class App : Application
                 }
             }
 
+            ThemeApplier.Apply(this, settings.Theme);
             _host = new AppHost(settings, store, Program.Platform);
             if (!File.Exists(AppPaths.SettingsFile))
                 _host.SaveSettings();

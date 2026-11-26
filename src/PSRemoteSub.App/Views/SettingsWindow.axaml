@@ -9,6 +9,7 @@
         MinWidth="640" MinHeight="480"
         WindowStartupLocation="CenterScreen"
         FontFamily="Leelawadee UI, Segoe UI"
+        RequestedThemeVariant="Dark"
         FontSize="14">
   <Window.Styles>
     <Style Selector="TextBlock.hint">

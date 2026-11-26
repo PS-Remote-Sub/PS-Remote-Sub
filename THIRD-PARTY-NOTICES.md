@@ -99,3 +99,10 @@ shipped verbatim in
 [`licenses/android-platform-tools-darwin-NOTICE.txt`](licenses/android-platform-tools-darwin-NOTICE.txt).
 
 Each build ships only its own adb and NOTICE file.
+
+## IBM Plex Sans Thai 1.1
+
+`src/PSRemoteSub.App/Assets/Fonts/IBMPlexSansThai-{Regular,Medium,SemiBold,Bold}.ttf` are shipped unmodified from
+https://github.com/google/fonts/tree/main/ofl/ibmplexsansthai and used as the app's UI font.
+Copyright © 2017 IBM Corp. with Reserved Font Name "Plex". Licensed under the SIL Open Font License, Version 1.1; the
+full license text is shipped in [`licenses/IBM-Plex-Sans-Thai-OFL.txt`](licenses/IBM-Plex-Sans-Thai-OFL.txt).
