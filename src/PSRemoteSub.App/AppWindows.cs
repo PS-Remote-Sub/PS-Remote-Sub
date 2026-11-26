@@ -116,6 +116,7 @@ internal sealed class AppWindows : IDisposable
             case MainPage.Translation: return new TranslationPage(_host);
             case MainPage.Source: return new SourcePage(_host);
             case MainPage.Phone: return new PhonePage(_host);
+            case MainPage.Tv: return new TvPage(_host);
             default: return null;
         }
     }

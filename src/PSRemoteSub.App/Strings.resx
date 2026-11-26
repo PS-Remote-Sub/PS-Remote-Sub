@@ -1431,4 +1431,148 @@
   <data name="PhonePortUseDefault" xml:space="preserve">
     <value>ใช้ {0} แทน</value>
   </data>
+  <data name="TvPageSub" xml:space="preserve">
+    <value>ซับไทยขึ้นบนจอ Android TV ทับภาพ PS5 ที่ต่อ HDMI</value>
+  </data>
+  <data name="TvConnectedTo" xml:space="preserve">
+    <value>เชื่อมต่อแล้ว: {0}</value>
+  </data>
+  <data name="TvConnectedSub" xml:space="preserve">
+    <value>ซับจะขึ้นบนทีวีทุกครั้งที่แอปแปล</value>
+  </data>
+  <data name="TvNotConnectedSub" xml:space="preserve">
+    <value>เปิดทีวีไว้ และให้คอมกับทีวีต่อเน็ตบ้านวงเดียวกัน</value>
+  </data>
+  <data name="TvOffSub" xml:space="preserve">
+    <value>เปิดสวิตช์ “ส่งซับไปทีวี” ด้านบนเพื่อเริ่มส่งซับ</value>
+  </data>
+  <data name="TvChangeTv" xml:space="preserve">
+    <value>เปลี่ยนทีวี</value>
+  </data>
+  <data name="TvModeTitle" xml:space="preserve">
+    <value>ซับขึ้นบนทีวีแบบไหน</value>
+  </data>
+  <data name="TvModeCoverTitle" xml:space="preserve">
+    <value>ทับซับภาษาอังกฤษ</value>
+  </data>
+  <data name="TvModeCoverSub" xml:space="preserve">
+    <value>กล่องดำทับตรงซับเดิมของเกม</value>
+  </data>
+  <data name="TvModeStripTitle" xml:space="preserve">
+    <value>แถบด้านล่างจอ</value>
+  </data>
+  <data name="TvModeStripSub" xml:space="preserve">
+    <value>แถบยาวชิดขอบล่าง ไม่บังภาพเกม</value>
+  </data>
+  <data name="TvSizeTitle" xml:space="preserve">
+    <value>ขนาดและความชัด</value>
+  </data>
+  <data name="TvStripBottomSub" xml:space="preserve">
+    <value>ใช้ได้กับแบบแถบด้านล่าง</value>
+  </data>
+  <data name="TvCalibQuestion" xml:space="preserve">
+    <value>ซับบนทีวีไม่ตรงกับเกม?</value>
+  </data>
+  <data name="TvCalibQuestionSub" xml:space="preserve">
+    <value>ทีวีจะแสดงกรอบสีขาว เลื่อนให้กรอบตรงกับขอบภาพเกม</value>
+  </data>
+  <data name="TvCalibStart" xml:space="preserve">
+    <value>จัดตำแหน่งบนทีวี</value>
+  </data>
+  <data name="TvCalibHintPage" xml:space="preserve">
+    <value>เปิดแล้วทีวีจะแสดงกรอบสีขาว — ปรับจนกรอบตรงกับขอบภาพเกม (ปิดเองเมื่อออกจากหน้านี้)</value>
+  </data>
+  <data name="TvDiagLead" xml:space="preserve">
+    <value>มีปัญหากับทีวี?</value>
+  </data>
+  <data name="TvDiagTail" xml:space="preserve">
+    <value>แล้วแนบไฟล์ตอนแจ้งปัญหา</value>
+  </data>
+  <data name="TvInstallSub" xml:space="preserve">
+    <value>ทำครั้งเดียว 4 ขั้น ราว 5 นาที — ถือรีโมททีวีไว้ใกล้ ๆ และให้คอมกับทีวีต่อเน็ตบ้านวงเดียวกัน</value>
+  </data>
+  <data name="TvStep1Title" xml:space="preserve">
+    <value>เปิดโหมดนักพัฒนาบนทีวี</value>
+  </data>
+  <data name="TvStep1Sub" xml:space="preserve">
+    <value>ทำบนทีวีด้วยรีโมท ใช้เวลาราว 2 นาที</value>
+  </data>
+  <data name="TvStep1Line1" xml:space="preserve">
+    <value>บนทีวี เปิด</value>
+  </data>
+  <data name="TvStep1Line2" xml:space="preserve">
+    <value>เลื่อนไปที่</value>
+  </data>
+  <data name="TvStep1Line3a" xml:space="preserve">
+    <value>กดปุ่ม OK ที่รีโมท</value>
+  </data>
+  <data name="TvStep1Line3Bold" xml:space="preserve">
+    <value>7 ครั้ง</value>
+  </data>
+  <data name="TvStep1Line3b" xml:space="preserve">
+    <value>จนทีวีบอกว่าคุณเป็นนักพัฒนาแล้ว</value>
+  </data>
+  <data name="TvStep1Line4" xml:space="preserve">
+    <value>กลับไปที่</value>
+  </data>
+  <data name="TvStep1Line5" xml:space="preserve">
+    <value>เปิดสวิตช์ 2 อัน</value>
+  </data>
+  <data name="TvStep1And" xml:space="preserve">
+    <value>และ</value>
+  </data>
+  <data name="TvChipSettings" xml:space="preserve">
+    <value>ตั้งค่า</value>
+  </data>
+  <data name="TvChipSystem" xml:space="preserve">
+    <value>ระบบ</value>
+  </data>
+  <data name="TvChipAbout" xml:space="preserve">
+    <value>เกี่ยวกับ</value>
+  </data>
+  <data name="TvChipBuild" xml:space="preserve">
+    <value>บิลด์ระบบปฏิบัติการ Android TV</value>
+  </data>
+  <data name="TvChipDevOptions" xml:space="preserve">
+    <value>ตัวเลือกสำหรับนักพัฒนาซอฟต์แวร์</value>
+  </data>
+  <data name="TvChipUsbDebug" xml:space="preserve">
+    <value>การแก้ไขข้อบกพร่อง USB</value>
+  </data>
+  <data name="TvChipNetDebug" xml:space="preserve">
+    <value>การแก้ไขข้อบกพร่องผ่านเครือข่าย</value>
+  </data>
+  <data name="TvGuideModel" xml:space="preserve">
+    <value>รุ่น</value>
+  </data>
+  <data name="TvGuideOsVersion" xml:space="preserve">
+    <value>เวอร์ชัน Android TV OS</value>
+  </data>
+  <data name="TvGuideCaption" xml:space="preserve">
+    <value>กด OK ตรงแถวนี้ 7 ครั้ง</value>
+  </data>
+  <data name="TvStep1Next" xml:space="preserve">
+    <value>ทำครบแล้ว ไปขั้นถัดไป</value>
+  </data>
+  <data name="TvStep2Title" xml:space="preserve">
+    <value>ค้นหาทีวี</value>
+  </data>
+  <data name="TvStep2Sub" xml:space="preserve">
+    <value>แอปจะหาทีวีในบ้านให้เอง หาไม่เจอค่อยใส่ IP ของทีวี</value>
+  </data>
+  <data name="TvStep3Title" xml:space="preserve">
+    <value>กด “อนุญาต” บนทีวี</value>
+  </data>
+  <data name="TvStep3Sub" xml:space="preserve">
+    <value>ติ๊ก “อนุญาตเสมอ” แล้วกด OK — รอได้ 2 นาที</value>
+  </data>
+  <data name="TvStep4Title" xml:space="preserve">
+    <value>ติดตั้งเสร็จ</value>
+  </data>
+  <data name="TvStep4Sub" xml:space="preserve">
+    <value>แอปจะส่งซับไปทีวีให้อัตโนมัติ</value>
+  </data>
+  <data name="TvInstallFinish" xml:space="preserve">
+    <value>ไปตั้งค่าซับบนทีวี</value>
+  </data>
 </root>
