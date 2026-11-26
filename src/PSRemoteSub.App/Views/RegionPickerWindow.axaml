@@ -7,6 +7,7 @@
         WindowDecorations="None"
         WindowStartupLocation="Manual"
         Background="Black"
+        RequestedThemeVariant="Dark"
         Topmost="True"
         ShowInTaskbar="False"
         CanResize="False"

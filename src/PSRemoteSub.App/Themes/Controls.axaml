@@ -1,6 +1,7 @@
 <!-- Style A control styles. Class names follow the design's CSS classes (.btn, .card, .pill, .kbd, .nav, .h1 ...). -->
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="using:PSRemoteSub.App.Views.Controls">
 
   <!-- Buttons: .btn is the base; add .primary / .ghost and .lg / .sm. -->
   <Style Selector="Button.btn">
@@ -97,15 +98,19 @@
   <Style Selector="Border.pill.ok"><Setter Property="Background" Value="{DynamicResource OkBgBrush}" /></Style>
   <Style Selector="Border.pill.ok TextBlock"><Setter Property="Foreground" Value="{DynamicResource OkBrush}" /></Style>
   <Style Selector="Border.pill.ok PathIcon"><Setter Property="Foreground" Value="{DynamicResource OkBrush}" /></Style>
+  <Style Selector="Border.pill.ok c|StrokeIcon"><Setter Property="Foreground" Value="{DynamicResource OkBrush}" /></Style>
   <Style Selector="Border.pill.warn"><Setter Property="Background" Value="{DynamicResource WarnBgBrush}" /></Style>
   <Style Selector="Border.pill.warn TextBlock"><Setter Property="Foreground" Value="{DynamicResource WarnBrush}" /></Style>
   <Style Selector="Border.pill.warn PathIcon"><Setter Property="Foreground" Value="{DynamicResource WarnBrush}" /></Style>
+  <Style Selector="Border.pill.warn c|StrokeIcon"><Setter Property="Foreground" Value="{DynamicResource WarnBrush}" /></Style>
   <Style Selector="Border.pill.bad"><Setter Property="Background" Value="{DynamicResource BadBgBrush}" /></Style>
   <Style Selector="Border.pill.bad TextBlock"><Setter Property="Foreground" Value="{DynamicResource BadBrush}" /></Style>
   <Style Selector="Border.pill.bad PathIcon"><Setter Property="Foreground" Value="{DynamicResource BadBrush}" /></Style>
+  <Style Selector="Border.pill.bad c|StrokeIcon"><Setter Property="Foreground" Value="{DynamicResource BadBrush}" /></Style>
   <Style Selector="Border.pill.info"><Setter Property="Background" Value="{DynamicResource InfoBgBrush}" /></Style>
   <Style Selector="Border.pill.info TextBlock"><Setter Property="Foreground" Value="{DynamicResource InfoBrush}" /></Style>
   <Style Selector="Border.pill.info PathIcon"><Setter Property="Foreground" Value="{DynamicResource InfoBrush}" /></Style>
+  <Style Selector="Border.pill.info c|StrokeIcon"><Setter Property="Foreground" Value="{DynamicResource InfoBrush}" /></Style>
 
   <!-- Key caps -->
   <Style Selector="Border.kbd">

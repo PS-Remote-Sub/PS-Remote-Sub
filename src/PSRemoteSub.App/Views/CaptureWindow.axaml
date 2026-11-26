@@ -7,6 +7,7 @@
         Icon="/Assets/app.ico"
         MinWidth="320" MinHeight="200"
         Background="Black"
+        RequestedThemeVariant="Dark"
         FontFamily="Leelawadee UI, Segoe UI"
         FontSize="14">
   <Grid RowDefinitions="*,Auto">

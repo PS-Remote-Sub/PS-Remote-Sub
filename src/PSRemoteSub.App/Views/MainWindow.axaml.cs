@@ -79,7 +79,9 @@ public partial class MainWindow : Window
     {
         if (page != MainPage.Home)
         {
-            NavHome.IsChecked = true;
+            // Posted: when called from a nav button's IsCheckedChanged, that button's group update runs after us and
+            // would uncheck Home again, leaving the settings item lit (and a second click doing nothing).
+            Avalonia.Threading.Dispatcher.UIThread.Post(() => NavHome.IsChecked = true);
             _openLegacySettings?.Invoke(page);
             return;
         }
@@ -106,7 +108,8 @@ public partial class MainWindow : Window
 
     private void OnClosing(object? sender, WindowClosingEventArgs e)
     {
-        if (_exiting)
+        // Only the user's own close (X, Cmd+W) hides; sign-out, shutdown and app quit must not be blocked.
+        if (_exiting || e.CloseReason != WindowCloseReason.WindowClosing || e.IsProgrammatic)
             return;
         e.Cancel = true; // X hides to the tray; translation keeps running
         Hide();

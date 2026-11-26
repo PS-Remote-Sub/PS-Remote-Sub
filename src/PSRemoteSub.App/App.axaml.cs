@@ -41,6 +41,8 @@ public partial class App : Application
     {
         try
         {
+            // Decided before anything writes the file: the Mac migration below saves it on a first run too.
+            bool firstRun = !File.Exists(AppPaths.SettingsFile);
             var store = new SettingsStore(AppPaths.SettingsFile);
             AppSettings settings;
             var loaded = false;
@@ -71,8 +73,7 @@ public partial class App : Application
 
             ThemeApplier.Apply(this, settings.Theme);
             _host = new AppHost(settings, store, Program.Platform);
-            bool firstRun = !File.Exists(AppPaths.SettingsFile);
-            if (firstRun)
+            if (!File.Exists(AppPaths.SettingsFile))
                 _host.SaveSettings();
 
             await _host.StartAsync();
