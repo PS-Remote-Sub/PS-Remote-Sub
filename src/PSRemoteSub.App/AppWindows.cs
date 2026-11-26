@@ -19,6 +19,7 @@ internal sealed class AppWindows : IDisposable
     private readonly AppHost _host;
     private MainWindow? _main;
     private SetupWindow? _setup;
+    private PermissionsWindow? _permissions;
     private bool _picking;
     private bool _disposed;
 
@@ -27,6 +28,7 @@ internal sealed class AppWindows : IDisposable
         _host = host;
         _host.RegionSelectionRequested += OnRegionSelectionRequested;
         _host.MainWindowRequested += OnMainWindowRequested;
+        _host.PermissionsWindowRequested += OnPermissionsWindowRequested;
     }
 
     public void Dispose()
@@ -36,6 +38,7 @@ internal sealed class AppWindows : IDisposable
         _disposed = true;
         _host.RegionSelectionRequested -= OnRegionSelectionRequested;
         _host.MainWindowRequested -= OnMainWindowRequested;
+        _host.PermissionsWindowRequested -= OnPermissionsWindowRequested;
         try
         {
             RegionPickerWindow.CancelOpen();
@@ -62,6 +65,69 @@ internal sealed class AppWindows : IDisposable
             Log.Warn("Closing windows failed", ex); // exiting anyway
         }
         _setup = null;
+        try
+        {
+            _permissions?.CloseForExit();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Closing windows failed", ex); // exiting anyway
+        }
+        _permissions = null;
+    }
+
+    private void OnPermissionsWindowRequested(object? sender, EventArgs e)
+    {
+        try
+        {
+            ShowPermissions();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Opening the permissions window failed", ex);
+        }
+    }
+
+    /// <summary>
+    /// Shows the one macOS permissions window (created, or the open one fronted). <paramref name="whenClosed"/> runs when it
+    /// closes by the user ("ทำทีหลัง", "เสร็จแล้ว" or X), not when the app exits; with the window already open it is added to
+    /// the ones to run.
+    /// </summary>
+    public void ShowPermissions(Action? whenClosed = null)
+    {
+        if (_disposed)
+            return;
+        if (_permissions is null)
+        {
+            var window = new PermissionsWindow(_host);
+            window.Closed += (_, _) =>
+            {
+                if (_permissions == window)
+                    _permissions = null;
+            };
+            _permissions = window;
+            window.Show();
+        }
+        var open = _permissions;
+        if (whenClosed is not null)
+        {
+            open.Closed += (_, _) =>
+            {
+                if (_disposed || open.ClosedForExit)
+                    return;
+                try
+                {
+                    whenClosed();
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn("Handling the end of the permissions window failed", ex);
+                }
+            };
+        }
+        if (open.WindowState == WindowState.Minimized)
+            open.WindowState = WindowState.Normal;
+        open.Activate();
     }
 
     /// <summary>

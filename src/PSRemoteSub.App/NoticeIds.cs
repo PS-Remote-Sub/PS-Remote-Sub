@@ -12,6 +12,7 @@ internal static class NoticeActionIds
     public const string SelectRegion = "select-region";
     public const string UpdateNow = "update-now";
     public const string UpdateLater = "update-later";
+    public const string OpenPermissions = "open-permissions";
     public const string PagePrefix = "page:";
     public const string PermissionPrefix = "permission:";
 
@@ -38,6 +39,7 @@ internal static class NoticeTopics
     public const string Ai = "ai";
     public const string Hotkey = "hotkey";
     public const string Web = "web";
+    public const string Permissions = "permissions";
 
     public static string Permission(PlatformPermission p) => "permission:" + p;
 }

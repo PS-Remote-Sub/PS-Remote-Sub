@@ -106,6 +106,8 @@ public sealed class AppHost : IAsyncDisposable
     // Permissions the current picture source needs, and the ones already asked for in this run (asked once, never in a loop).
     private PermissionNotice? _permNotice;
     private readonly HashSet<PlatformPermission> _permRequested = [];
+    private readonly HashSet<PlatformPermission> _permEverGranted = []; // seen granted in this run: losing one later is a "revoked" case
+    private readonly HashSet<PlatformPermission> _permLostNotified = [];
     // Turns found/minimized changes of the picture source's target into notices (topic "source").
     private readonly SourceWatch _sourceWatch = new();
     // The pending "update now?" answer (the update notice's buttons or ×), while an update notice is up.
@@ -145,6 +147,9 @@ public sealed class AppHost : IAsyncDisposable
     /// language install starts or ends.
     /// </summary>
     public event EventHandler? StateChanged;
+
+    /// <summary>UI thread. Raised when the macOS permissions window is wanted (banner "ดูทั้งหมด", the lost-permission notice).</summary>
+    public event EventHandler? PermissionsWindowRequested;
 
     /// <summary>
     /// UI thread. Raised for the SelectRegion hotkey, tray item and settings button with the zone to open on (null =
@@ -392,12 +397,30 @@ public sealed class AppHost : IAsyncDisposable
             var needed = NeededPermissions();
             bool changed = _permNotice.Refresh(needed);
             var granted = PermissionNotice.NewlyGranted(missingBefore, _permNotice.Missing, needed);
+            foreach (var p in needed.Where(p => perms.Check(p) == PermissionState.Granted))
+            {
+                _permEverGranted.Add(p);
+                _permLostNotified.Remove(p); // a later loss is announced again
+            }
+            // Granted before and missing now (revoked in System Settings, or reset by a macOS update): one notice for all.
+            var lost = _permNotice.Missing.Where(_permEverGranted.Contains).ToArray();
+            var newlyLost = lost.Where(_permLostNotified.Add).ToArray();
+            if (newlyLost.Length > 0)
+            {
+                Notify(Notice.Warn(Loc.Get("PermLostTitle"),
+                    Loc.Format("PermLostBody", string.Join(", ", lost.Select(PermissionName))), NoticeTopics.Permissions,
+                    new NoticeAction(Loc.Get("PermViewAll"), NoticeActionIds.OpenPermissions)));
+                Log.Info($"Permission lost: {string.Join(", ", newlyLost)}");
+            }
+            else if (lost.Length == 0)
+                _notifier.DismissTopic(NoticeTopics.Permissions);
             foreach (var p in _permNotice.Missing.ToArray())
             {
                 if (!_permNotice.ShouldNotify(p))
                     continue;
-                Notify(Notice.Warn(PermissionText(p), topic: NoticeTopics.Permission(p),
-                    actions: new NoticeAction(Loc.Get("PermOpenSettings"), NoticeActionIds.OpenPermission(p))));
+                if (!_permEverGranted.Contains(p)) // a lost one is covered by the notice above
+                    Notify(Notice.Warn(PermissionText(p), topic: NoticeTopics.Permission(p),
+                        actions: new NoticeAction(Loc.Get("PermOpenSettings"), NoticeActionIds.OpenPermission(p))));
                 Log.Info($"Permission missing: {p} ({perms.Check(p)})");
                 bool askable = perms.Check(p) == PermissionState.NotDetermined || p == PlatformPermission.ScreenRecording;
                 if (askable && _permRequested.Add(p))
@@ -432,6 +455,67 @@ public sealed class AppHost : IAsyncDisposable
         }
         // The answer may arrive on any thread; the check is back on the UI thread.
         Dispatcher.UIThread.Post(RefreshPermissions);
+    }
+
+    /// <summary>English name of a permission, as macOS lists it.</summary>
+    public static string PermissionName(PlatformPermission p) => p switch
+    {
+        PlatformPermission.ScreenRecording => "Screen Recording",
+        PlatformPermission.LocalNetwork => "Local Network",
+        _ => p.ToString(),
+    };
+
+    /// <summary>UI thread. Where the OS reports a permission (never throws; Unknown on failure).</summary>
+    public PermissionState PermissionStateOf(PlatformPermission p)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        try
+        {
+            return _platform.Permissions.Check(p);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn($"Permission check failed for {p}", ex);
+            return PermissionState.Unknown;
+        }
+    }
+
+    /// <summary>
+    /// UI thread. "อนุญาต" on the permissions window: asks the OS when it can still ask (Camera, Microphone; Screen Recording,
+    /// whose request lists the app in System Settings), then opens the settings page if it is still not granted.
+    /// </summary>
+    public void RequestPermission(PlatformPermission p)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (_disposed)
+            return;
+        _ = RequestAndOpenAsync(p);
+    }
+
+    private async Task RequestAndOpenAsync(PlatformPermission p)
+    {
+        try
+        {
+            var perms = _platform.Permissions;
+            bool askable = p != PlatformPermission.LocalNetwork
+                && (perms.Check(p) == PermissionState.NotDetermined || (p == PlatformPermission.ScreenRecording && _permRequested.Add(p)));
+            bool granted = askable && await perms.RequestAsync(p);
+            if (!granted && !_disposed)
+                perms.OpenSettings(p);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn($"Permission request failed for {p}", ex);
+        }
+        Dispatcher.UIThread.Post(RefreshPermissions);
+    }
+
+    /// <summary>UI thread. Asks for the macOS permissions window (<see cref="PermissionsWindowRequested"/>).</summary>
+    public void RequestPermissionsWindow()
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (!_disposed)
+            PermissionsWindowRequested?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>UI thread. Opens the OS settings page where the permission can be granted.</summary>
@@ -1115,6 +1199,9 @@ public sealed class AppHost : IAsyncDisposable
                 return;
             case NoticeActionIds.SelectRegion:
                 RequestRegionSelection();
+                return;
+            case NoticeActionIds.OpenPermissions:
+                RequestPermissionsWindow();
                 return;
         }
         if (id.StartsWith(NoticeActionIds.PagePrefix, StringComparison.Ordinal)

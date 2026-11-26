@@ -109,7 +109,20 @@ public partial class App : Application
             // yet is not such a problem).
             _windows.SetupFinished += OnSetupFinished;
             if (!settings.SetupDone)
-                _windows.ShowSetup();
+            {
+                // Mac: the permissions window first (it can be left with "ทำทีหลัง" or X); the wizard follows when it closes.
+                if (Program.Platform.Kind == PlatformKind.MacOS)
+                {
+                    var windows = _windows;
+                    windows.ShowPermissions(() =>
+                    {
+                        if (!_exiting)
+                            windows.ShowSetup();
+                    });
+                }
+                else
+                    _windows.ShowSetup();
+            }
             else
                 _ = OpenHomeIfNeededLaterAsync(_host);
             _ = CheckForUpdatesLaterAsync(_host, () => ExitAsync(desktop));

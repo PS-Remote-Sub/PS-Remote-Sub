@@ -248,10 +248,15 @@ public partial class MainWindow : Window
             var text = new StackPanel { Spacing = 2, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
             text.Children.Add(new TextBlock { Text = AppHost.PermissionText(p), TextWrapping = Avalonia.Media.TextWrapping.Wrap });
             text.Children.Add(new TextBlock { Classes = { "mut" }, FontSize = 13, Text = Loc.Get("PermAfterUpdate"), TextWrapping = Avalonia.Media.TextWrapping.Wrap });
+            var viewAll = new Button { Content = Loc.Get("PermViewAll"), Classes = { "btn", "ghost", "sm" }, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+            viewAll.Click += (_, _) => Safe(Host.RequestPermissionsWindow);
+            var buttons = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+            buttons.Children.Add(viewAll);
+            buttons.Children.Add(open);
             var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 12 };
             row.Children.Add(text);
-            Grid.SetColumn(open, 1);
-            row.Children.Add(open);
+            Grid.SetColumn(buttons, 1);
+            row.Children.Add(buttons);
             PermBanner.Children.Add(new Border { Classes = { "note", "warn" }, Child = row });
         }
     }

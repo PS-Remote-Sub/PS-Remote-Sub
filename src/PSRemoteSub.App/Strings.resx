@@ -1760,4 +1760,73 @@
   <data name="CaptureFullScreenLabel" xml:space="preserve">
     <value>เต็มจอ</value>
   </data>
+  <data name="PermWindowTitle" xml:space="preserve">
+    <value>อนุญาตให้แอปทำงานบน Mac</value>
+  </data>
+  <data name="PermWindowIntro" xml:space="preserve">
+    <value>macOS ต้องให้คุณกดอนุญาตเองทีละอย่าง กด “อนุญาต” แล้วเปิดสวิตช์ของ PS Remote Sub ในหน้าที่เด้งขึ้นมา</value>
+  </data>
+  <data name="PermScreenRecordingName" xml:space="preserve">
+    <value>อ่านภาพจากหน้าจอ</value>
+  </data>
+  <data name="PermScreenRecordingWhy" xml:space="preserve">
+    <value>เพื่ออ่านซับจากหน้าต่าง PS Remote Play</value>
+  </data>
+  <data name="PermCameraName" xml:space="preserve">
+    <value>ใช้กล้อง</value>
+  </data>
+  <data name="PermCameraWhy" xml:space="preserve">
+    <value>เพื่อแสดงภาพจาก capture card — macOS นับกล่องจับภาพเป็นกล้อง</value>
+  </data>
+  <data name="PermMicrophoneName" xml:space="preserve">
+    <value>ใช้ไมโครโฟน</value>
+  </data>
+  <data name="PermMicrophoneWhy" xml:space="preserve">
+    <value>เพื่อเล่นเสียงจาก capture card</value>
+  </data>
+  <data name="PermLocalNetworkName" xml:space="preserve">
+    <value>เชื่อมต่อในเครือข่ายบ้าน</value>
+  </data>
+  <data name="PermLocalNetworkWhy" xml:space="preserve">
+    <value>เพื่อส่งซับไปมือถือและทีวี</value>
+  </data>
+  <data name="PermBadgeRequired" xml:space="preserve">
+    <value>จำเป็น</value>
+  </data>
+  <data name="PermBadgeCapture" xml:space="preserve">
+    <value>เฉพาะ capture card</value>
+  </data>
+  <data name="PermBadgePhoneTv" xml:space="preserve">
+    <value>มือถือ / ทีวี</value>
+  </data>
+  <data name="PermGranted" xml:space="preserve">
+    <value>อนุญาตแล้ว</value>
+  </data>
+  <data name="PermAllow" xml:space="preserve">
+    <value>อนุญาต</value>
+  </data>
+  <data name="PermReaskNote" xml:space="preserve">
+    <value>หลังอัปเดต macOS ระบบอาจขอให้อนุญาตใหม่ — แอปจะเตือนและพากลับมาหน้านี้ให้เอง</value>
+  </data>
+  <data name="PermShortcutBefore" xml:space="preserve">
+    <value>บน Mac ปุ่มลัดใช้ </value>
+  </data>
+  <data name="PermShortcutAfter" xml:space="preserve">
+    <value> แทน Ctrl Alt Shift · แอปอยู่บนแถบเมนูด้านบน ไม่มีใน Dock</value>
+  </data>
+  <data name="PermLater" xml:space="preserve">
+    <value>ทำทีหลัง</value>
+  </data>
+  <data name="PermDone" xml:space="preserve">
+    <value>เสร็จแล้ว</value>
+  </data>
+  <data name="PermViewAll" xml:space="preserve">
+    <value>ดูทั้งหมด</value>
+  </data>
+  <data name="PermLostTitle" xml:space="preserve">
+    <value>macOS เพิกถอนสิทธิ์ของแอป</value>
+  </data>
+  <data name="PermLostBody" xml:space="preserve">
+    <value>ต้องอนุญาตใหม่: {0}</value>
+  </data>
 </root>
