@@ -23,4 +23,13 @@ public class MacShellTests
     {
         Assert.Equal(1, Native.psrs_overlay_configure(0));
     }
+
+    [MacFact]
+    public void Toast_ConfigureZero_NoThrow() => new MacOverlayPlatform().ConfigureToast(0);
+
+    [MacFact]
+    public void Toast_NativeRejectsNull_ByCode()
+    {
+        Assert.Equal(1, Native.psrs_toast_configure(0));
+    }
 }

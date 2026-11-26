@@ -47,22 +47,22 @@
     <value>ยังไม่มีหน้าเลือกกรอบ</value>
   </data>
   <data name="FrameSaved" xml:space="preserve">
-    <value>บันทึกภาพกรอบซับแล้ว: {0}</value>
+    <value>บันทึกภาพกรอบซับแล้ว</value>
   </data>
   <data name="NoFrameToSave" xml:space="preserve">
     <value>ยังไม่มีภาพกรอบซับให้บันทึก</value>
   </data>
   <data name="FrameSaveFailed" xml:space="preserve">
-    <value>บันทึกภาพกรอบซับไม่ได้: {0}</value>
+    <value>บันทึกภาพกรอบซับไม่ได้</value>
   </data>
   <data name="WebStartFailed" xml:space="preserve">
-    <value>เปิดหน้าเว็บไม่ได้ — พอร์ต {0} อาจถูกโปรแกรมอื่นใช้อยู่</value>
+    <value>เปิดหน้าเว็บไม่ได้</value>
   </data>
   <data name="SettingsSaveFailed" xml:space="preserve">
-    <value>บันทึกค่าตั้งไม่ได้: {0}</value>
+    <value>บันทึกค่าตั้งไม่ได้</value>
   </data>
   <data name="StartFailed" xml:space="preserve">
-    <value>เริ่มโปรแกรมไม่ได้: {0}</value>
+    <value>เริ่มโปรแกรมไม่ได้</value>
   </data>
   <data name="TrayPause" xml:space="preserve">
     <value>หยุดอ่าน</value>
@@ -108,10 +108,10 @@
     <value>ยังไม่ได้ภาพจาก Remote Play</value>
   </data>
   <data name="RegionPickFailed" xml:space="preserve">
-    <value>เลือกกรอบซับไม่สำเร็จ ลองใหม่อีกครั้ง</value>
+    <value>เลือกกรอบซับไม่สำเร็จ</value>
   </data>
   <data name="RegionSaved" xml:space="preserve">
-    <value>บันทึกกรอบซับของโปรไฟล์ {0} แล้ว</value>
+    <value>บันทึกกรอบซับแล้ว</value>
   </data>
   <!-- Task 13: settings window -->
   <data name="ProfileAdd" xml:space="preserve">
@@ -178,7 +178,7 @@
     <value>เวอร์ชัน {0}</value>
   </data>
   <data name="UpdateAvailable" xml:space="preserve">
-    <value>มีเวอร์ชันใหม่ {0} — อัปเดตเลยไหม?</value>
+    <value>มีเวอร์ชันใหม่ {0}</value>
   </data>
   <data name="UpdateYes" xml:space="preserve">
     <value>อัปเดต</value>
@@ -265,7 +265,7 @@
     <value>เปิดโฟลเดอร์คลังของเกม</value>
   </data>
   <data name="LibraryUpdated" xml:space="preserve">
-    <value>คลังคำแปลอัปเดตแล้ว ({0})</value>
+    <value>คลังคำแปลอัปเดตแล้ว</value>
   </data>
   <data name="AiProviderCustom" xml:space="preserve">
     <value>กำหนดเอง</value>
@@ -322,7 +322,7 @@
     <value>เต็มจอ (F11)</value>
   </data>
   <data name="SourceSwitched" xml:space="preserve">
-    <value>เปลี่ยนแหล่งภาพแล้ว — ตรวจกรอบ OCR / ซับอีกครั้งด้วย {0}</value>
+    <value>เปลี่ยนแหล่งภาพแล้ว</value>
   </data>
   <data name="CaptureWindowClosed" xml:space="preserve">
     <value>จอ capture card ปิดอยู่ — เปิดได้จากเมนูที่ไอคอน tray</value>
@@ -451,10 +451,10 @@
     <value>ติดตั้งแล้วแต่เปิดบริการไม่ได้ — เปิดเองที่ ตั้งค่า → การเข้าถึง (Accessibility) → PSRS TV Overlay</value>
   </data>
   <data name="TvUpdateNeedsApproval" xml:space="preserve">
-    <value>อัปเดตแอปบนทีวีไม่ได้: ทีวียังไม่อนุญาตเครื่องนี้ — กดติดตั้งบนทีวีอีกครั้งในแท็บ "ทีวี" ของการตั้งค่า</value>
+    <value>อัปเดตแอปบนทีวีไม่ได้</value>
   </data>
   <data name="TvUpdateSignatureMismatch" xml:space="preserve">
-    <value>อัปเดตแอปบนทีวีไม่ได้: แอปบนทีวีเซ็นด้วยกุญแจอื่น — ถอนแอป PSRS TV Overlay บนทีวีออก แล้วติดตั้งใหม่จากแท็บ "ทีวี" ของการตั้งค่า</value>
+    <value>อัปเดตแอปบนทีวีไม่ได้</value>
   </data>
   <data name="TvInstallBusy" xml:space="preserve">
     <value>กำลังทำงานกับทีวี…</value>
@@ -1569,4 +1569,36 @@
   <data name="GeneralSetupTitle" xml:space="preserve"><value>ตัวช่วยตั้งค่าครั้งแรก</value></data>
   <data name="GeneralSetupSub" xml:space="preserve"><value>ทำตามขั้นตอนอีกครั้ง — ค่าที่ตั้งไว้จะยังอยู่</value></data>
   <data name="GeneralSetupButton" xml:space="preserve"><value>เปิดตัวช่วยตั้งค่าอีกครั้ง</value></data>
+  <data name="ToastClose" xml:space="preserve"><value>ปิด</value></data>
+  <data name="TvUpdateNeedsApprovalBody" xml:space="preserve"><value>ทีวียังไม่อนุญาตเครื่องนี้ — กดติดตั้งบนทีวีอีกครั้งในหน้า “ดูบนทีวี”</value></data>
+  <data name="TvUpdateSignatureMismatchBody" xml:space="preserve"><value>แอปบนทีวีเซ็นด้วยกุญแจอื่น — ถอนแอป PSRS TV Overlay บนทีวีออก แล้วติดตั้งใหม่จากหน้า “ดูบนทีวี”</value></data>
+  <data name="SourceSwitchedBody" xml:space="preserve"><value>ตรวจกรอบ OCR / ซับอีกครั้งด้วย {0}</value></data>
+  <data name="LibraryUpdatedBody" xml:space="preserve"><value>เวอร์ชัน {0}</value></data>
+  <data name="WebStartFailedBody" xml:space="preserve"><value>พอร์ต {0} อาจถูกโปรแกรมอื่นใช้อยู่</value></data>
+  <data name="RegionSavedBody" xml:space="preserve"><value>โปรไฟล์ {0}</value></data>
+  <data name="RegionPickFailedBody" xml:space="preserve"><value>ลองใหม่อีกครั้ง</value></data>
+  <data name="HotkeyInUseBody" xml:space="preserve"><value>เปลี่ยนปุ่มลัดได้ในหน้า “ปุ่มลัดและอื่น ๆ”</value></data>
+  <data name="UpdateAvailableBody" xml:space="preserve"><value>อัปเดตตอนนี้ใช้เวลาไม่ถึง 1 นาที</value></data>
+  <data name="NoticeCaptureUnavailableTitle" xml:space="preserve"><value>ใช้ capture card ในเครื่องนี้ไม่ได้</value></data>
+  <data name="NoticeCaptureUnavailableBody" xml:space="preserve"><value>ดูรายละเอียดใน log</value></data>
+  <data name="NoticeAiAuthTitle" xml:space="preserve"><value>API key ของ AI ไม่ถูกต้อง</value></data>
+  <data name="NoticeAiAuthBody" xml:space="preserve"><value>แก้ได้ในหน้า “การแปล”</value></data>
+  <data name="NoticeAiBillingTitle" xml:space="preserve"><value>บัญชี AI ไม่มีเครดิต</value></data>
+  <data name="NoticeAiBillingBody" xml:space="preserve"><value>ไม่มีเครดิตหรือเกินโควตา — ตรวจ billing ของบัญชี</value></data>
+  <data name="NoticeSourceMinimizedTitle" xml:space="preserve"><value>หน้าต่าง Remote Play ถูกย่ออยู่</value></data>
+  <data name="NoticeSourceMinimizedBody" xml:space="preserve"><value>เปิดค้างไว้ได้ จะมีหน้าต่างอื่นบังก็ได้ แต่อย่าย่อ</value></data>
+  <data name="NoticeSourceLostTitle" xml:space="preserve"><value>ไม่เห็นหน้าต่าง Remote Play</value></data>
+  <data name="NoticeSourceLostBody" xml:space="preserve"><value>เปิด PS Remote Play ไว้ แอปจะเจอหน้าต่างเองและแปลต่อให้</value></data>
+  <data name="NoticeSourceFoundTitle" xml:space="preserve"><value>แปลต่อแล้ว</value></data>
+  <data name="NoticeSourceFoundBody" xml:space="preserve"><value>เจอหน้าต่าง Remote Play อีกครั้ง</value></data>
+  <data name="NoticeCaptureMinimizedTitle" xml:space="preserve"><value>หน้าต่าง capture card ถูกย่ออยู่</value></data>
+  <data name="NoticeCaptureLostTitle" xml:space="preserve"><value>ไม่เห็นภาพจาก capture card</value></data>
+  <data name="NoticeCaptureLostBody" xml:space="preserve"><value>เปิดหน้าต่าง capture card ค้างไว้ระหว่างเล่น แอปอ่านซับจากภาพในหน้าต่างนั้น</value></data>
+  <data name="NoticeCaptureFoundBody" xml:space="preserve"><value>เจอภาพจาก capture card อีกครั้ง</value></data>
+  <data name="NoticeActionOpenWindow" xml:space="preserve"><value>เปิดหน้าต่าง</value></data>
+  <data name="NoticeActionOpenTv" xml:space="preserve"><value>เปิดหน้าทีวี</value></data>
+  <data name="NoticeActionOpenTranslation" xml:space="preserve"><value>เปิดหน้าการแปล</value></data>
+  <data name="NoticeActionChangeHotkey" xml:space="preserve"><value>เปลี่ยนปุ่มลัด</value></data>
+  <data name="NoticeActionChangePort" xml:space="preserve"><value>เปลี่ยนพอร์ต</value></data>
+  <data name="NoticeActionCheckRegion" xml:space="preserve"><value>ตรวจกรอบ</value></data>
 </root>

@@ -1,6 +1,7 @@
 using System.Reflection;
 using Avalonia.Threading;
 using PSRemoteSub.Core.Diagnostics;
+using PSRemoteSub.Core.Notices;
 using Velopack;
 using Velopack.Sources;
 
@@ -11,8 +12,13 @@ namespace PSRemoteSub.App.Updates;
 /// is not installed by Velopack (portable zip, dev build). Never throws.
 /// </summary>
 /// <param name="notify">Shows a toast. Called on the UI thread.</param>
+/// <param name="askUpdate">
+/// Shows the "new version" notice for a version and completes with the user's answer (true: update now). Called on
+/// the UI thread.
+/// </param>
 /// <param name="exitApp">The app's normal exit path (disposes AppHost, then shuts the lifetime down). Called on the UI thread.</param>
-internal sealed class UpdateChecker(Action<string> notify, Func<Task> exitApp, string? repositoryUrl = null)
+internal sealed class UpdateChecker(Action<Notice> notify, Func<string, Task<bool>> askUpdate, Func<Task> exitApp,
+    string? repositoryUrl = null)
 {
     private readonly string _repositoryUrl = repositoryUrl ?? ReadRepositoryUrl();
 
@@ -36,14 +42,13 @@ internal sealed class UpdateChecker(Action<string> notify, Func<Task> exitApp, s
 
             string version = update.TargetFullRelease.Version.ToString();
             Log.Info($"Update available: {version}");
-            string question = Loc.Format("UpdateAvailable", version);
-            Dispatcher.UIThread.Post(() => notify(question));
 
-            bool yes = await Dispatcher.UIThread.InvokeAsync(() => new UpdateConfirmWindow(question).AskAsync());
+            bool yes = await Dispatcher.UIThread.InvokeAsync(() => askUpdate(version));
             if (!yes)
                 return;
 
-            Dispatcher.UIThread.Post(() => notify(Loc.Format("UpdateDownloading", version)));
+            // Same topic as the question: replaces it.
+            Dispatcher.UIThread.Post(() => notify(Notice.Done(Loc.Format("UpdateDownloading", version), topic: Notifier.UpdateTopic)));
             await manager.DownloadUpdatesAsync(update).ConfigureAwait(false);
 
             // Velopack's updater waits for this process to exit, applies the update, then restarts the app.

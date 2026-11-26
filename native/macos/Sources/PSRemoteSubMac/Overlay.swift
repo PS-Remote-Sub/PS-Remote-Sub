@@ -27,8 +27,8 @@ private func nonKeyClass(for window: NSWindow) -> AnyClass? {
     return sub
 }
 
-private func configureOverlay(_ window: NSWindow) {
-    window.ignoresMouseEvents = true
+private func configureOverlay(_ window: NSWindow, clickThrough: Bool = true) {
+    window.ignoresMouseEvents = clickThrough
     window.level = .statusBar
     window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
     window.hidesOnDeactivate = false
@@ -45,6 +45,17 @@ private func configureOverlay(_ window: NSWindow) {
 /// thread the work is queued to the main thread. 0 ok, 1 bad argument (null, or not a window/view).
 @_cdecl("psrs_overlay_configure")
 public func psrs_overlay_configure(_ ptr: UnsafeMutableRawPointer?) -> Int32 {
+    configure(ptr, clickThrough: true)
+}
+
+/// Like `psrs_overlay_configure`, but the window takes mouse clicks (a toast's buttons). It still never becomes key,
+/// so showing it takes no keyboard focus from the game. 0 ok, 1 bad argument.
+@_cdecl("psrs_toast_configure")
+public func psrs_toast_configure(_ ptr: UnsafeMutableRawPointer?) -> Int32 {
+    configure(ptr, clickThrough: false)
+}
+
+private func configure(_ ptr: UnsafeMutableRawPointer?, clickThrough: Bool) -> Int32 {
     guard let ptr else { return 1 }
     let object = Unmanaged<AnyObject>.fromOpaque(ptr).takeUnretainedValue()
     let window: NSWindow
@@ -52,10 +63,10 @@ public func psrs_overlay_configure(_ ptr: UnsafeMutableRawPointer?) -> Int32 {
     else if let v = object as? NSView, let w = v.window { window = w }
     else { return 1 }
     if Thread.isMainThread {
-        configureOverlay(window)
+        configureOverlay(window, clickThrough: clickThrough)
     } else {
         nonisolated(unsafe) let w = window
-        DispatchQueue.main.async { configureOverlay(w) }
+        DispatchQueue.main.async { configureOverlay(w, clickThrough: clickThrough) }
     }
     return 0
 }

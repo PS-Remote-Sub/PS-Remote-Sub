@@ -97,7 +97,13 @@ internal sealed class CaptureController : IDisposable
             return;
         if (_window is { } open)
         {
-            Safe(open.Activate);
+            // From the "minimized" notice too: bring it back, not just forward.
+            Safe(() =>
+            {
+                if (open.WindowState == WindowState.Minimized)
+                    open.WindowState = WindowState.Normal;
+                open.Activate();
+            });
             return;
         }
 

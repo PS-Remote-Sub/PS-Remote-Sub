@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using PSRemoteSub.App.Updates;
 using PSRemoteSub.Core.Diagnostics;
+using PSRemoteSub.Core.Notices;
 using PSRemoteSub.Core.Hub;
 using PSRemoteSub.Core.Platform;
 using PSRemoteSub.Core.Settings;
@@ -116,7 +117,7 @@ public partial class App : Application
             Log.Error("Start failed", ex);
             try
             {
-                _host?.Notify(Loc.Format("StartFailed", ex.Message));
+                _host?.Notify(Notice.Warn(Loc.Get("StartFailed"), ex.Message));
                 await Task.Delay(StartFailureNoticeTime);
             }
             finally
@@ -160,7 +161,7 @@ public partial class App : Application
         try
         {
             await Task.Delay(UpdateCheckDelay);
-            await new UpdateChecker(host.Notify, exitApp).CheckAsync();
+            await new UpdateChecker(host.Notify, host.AskUpdateAsync, exitApp).CheckAsync();
         }
         catch (Exception ex)
         {

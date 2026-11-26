@@ -17,6 +17,7 @@ using PSRemoteSub.Core.Languages;
 using PSRemoteSub.Core.Layout;
 using PSRemoteSub.Core.Library;
 using PSRemoteSub.Core.Net;
+using PSRemoteSub.Core.Notices;
 using PSRemoteSub.Core.Pipeline;
 using PSRemoteSub.Core.Platform;
 using PSRemoteSub.Core.Settings;
@@ -104,6 +105,10 @@ public sealed class AppHost : IAsyncDisposable
     // Permissions the current picture source needs, and the ones already asked for in this run (asked once, never in a loop).
     private PermissionNotice? _permNotice;
     private readonly HashSet<PlatformPermission> _permRequested = [];
+    // Turns found/minimized changes of the picture source's target into notices (topic "source").
+    private readonly SourceWatch _sourceWatch = new();
+    // The pending "update now?" answer (the update notice's buttons or ×), while an update notice is up.
+    private TaskCompletionSource<bool>? _updateAnswer;
 
     public AppHost(AppSettings settings, SettingsStore store, IPlatformServices platform)
     {
@@ -119,7 +124,7 @@ public sealed class AppHost : IAsyncDisposable
         _ocr = platform.Ocr;
         _ocrInstaller = platform.OcrInstaller;
         LanAccess = platform.LanAccess;
-        _notifier = new Notifier(_overlayPlatform);
+        _notifier = new Notifier(_overlayPlatform, HandleNoticeAction, OnNoticeClosed);
 
         AiHttp = new HttpClient { Timeout = AiHttpTimeout };
         AiHttp.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("PSRemoteSub", Version));
@@ -294,7 +299,7 @@ public sealed class AppHost : IAsyncDisposable
         _sources = new PictureSourceSwitch((_remotePlayWatcher, _remotePlayFrames), (_captureWatcher, _captureFrames),
             PictureSource); // Remote Play for this session when the card is unavailable
         if (_captureCard is null && Settings.PictureSource == PictureSource.CaptureCard)
-            Notify(Loc.Get("CaptureUnavailable"));
+            Notify(CaptureUnavailableNotice());
         var watcher = _sources.Watcher;
 
         // The refiner reports AI status through the pipeline that is built from it: late-bound delegate (see the
@@ -380,12 +385,16 @@ public sealed class AppHost : IAsyncDisposable
             {
                 if (!_permNotice.ShouldNotify(p))
                     continue;
-                Notify(PermissionText(p));
+                Notify(Notice.Warn(PermissionText(p), topic: NoticeTopics.Permission(p),
+                    actions: new NoticeAction(Loc.Get("PermOpenSettings"), NoticeActionIds.OpenPermission(p))));
                 Log.Info($"Permission missing: {p} ({perms.Check(p)})");
                 bool askable = perms.Check(p) == PermissionState.NotDetermined || p == PlatformPermission.ScreenRecording;
                 if (askable && _permRequested.Add(p))
                     _ = RequestPermissionAsync(perms, p);
             }
+            // Granted (or no longer needed): its notice is no longer true.
+            foreach (var p in Enum.GetValues<PlatformPermission>().Except(_permNotice.Missing))
+                _notifier.DismissTopic(NoticeTopics.Permission(p));
             if (changed)
                 RaiseStateChanged();
             if (granted.Any(p => p is PlatformPermission.Camera or PlatformPermission.Microphone))
@@ -733,9 +742,11 @@ public sealed class AppHost : IAsyncDisposable
                 return;
             Log.Warn($"TV app update failed: {result.ErrorKey}");
             if (result.ErrorKey == "TvNeedsApproval")
-                Notify(Loc.Get("TvUpdateNeedsApproval"));
+                Notify(Notice.Warn(Loc.Get("TvUpdateNeedsApproval"), Loc.Get("TvUpdateNeedsApprovalBody"), NoticeTopics.Tv,
+                    new NoticeAction(Loc.Get("NoticeActionOpenTv"), NoticeActionIds.OpenPage(MainPage.Tv))));
             else if (result.ErrorKey == "TvSignatureMismatch")
-                Notify(Loc.Get("TvUpdateSignatureMismatch"));
+                Notify(Notice.Warn(Loc.Get("TvUpdateSignatureMismatch"), Loc.Get("TvUpdateSignatureMismatchBody"),
+                    NoticeTopics.Tv, new NoticeAction(Loc.Get("NoticeActionOpenTv"), NoticeActionIds.OpenPage(MainPage.Tv))));
         }
         catch (OperationCanceledException)
         {
@@ -765,7 +776,7 @@ public sealed class AppHost : IAsyncDisposable
         catch (Exception ex)
         {
             Log.Warn("Settings save failed", ex);
-            Notify(Loc.Format("SettingsSaveFailed", ex.Message));
+            Notify(Notice.Warn(Loc.Get("SettingsSaveFailed"), ex.Message, NoticeTopics.SettingsSave));
         }
     }
 
@@ -883,7 +894,7 @@ public sealed class AppHost : IAsyncDisposable
         if (RegionSelectionRequested is { } handler)
             handler(this, zoneId);
         else
-            Notify(Loc.Get("RegionPickerMissing"));
+            Notify(Notice.Warn(Loc.Get("RegionPickerMissing"), topic: NoticeTopics.Region));
     }
 
     /// <summary>UI thread. Raises <see cref="MainWindowRequested"/> for the given page.</summary>
@@ -908,14 +919,17 @@ public sealed class AppHost : IAsyncDisposable
             return;
         if (source == PictureSource.CaptureCard && _started && !IsCaptureAvailable)
         {
-            Notify(Loc.Get("CaptureUnavailable"));
+            Notify(CaptureUnavailableNotice());
             return;
         }
         Settings.PictureSource = source;
         Log.Info($"Picture source: {source}");
         _sources?.Select(source);
+        _sourceWatch.Reset();
         RaiseCaptureWindowRequested();
-        Notify(Loc.Format("SourceSwitched", SelectRegionHotkeyLabel()));
+        // Topic "source": also takes away a "minimized / not found" notice about the previous source.
+        Notify(Notice.Done(Loc.Get("SourceSwitched"), Loc.Format("SourceSwitchedBody", SelectRegionHotkeyLabel()),
+            NoticeTopics.Source, new NoticeAction(Loc.Get("NoticeActionCheckRegion"), NoticeActionIds.SelectRegion)));
         ApplySettings();
         SaveSettings();
         RefreshPermissions();
@@ -1032,8 +1046,105 @@ public sealed class AppHost : IAsyncDisposable
         }
     }
 
-    /// <summary>Any thread. Shows a toast at the bottom-right of the primary screen for 4 s.</summary>
-    public void Notify(string message) => _notifier.Show(message);
+    /// <summary>Any thread. A plain Done notice with <paramref name="message"/> as its title (goes away by itself).</summary>
+    public void Notify(string message) => Notify(Notice.Done(message));
+
+    /// <summary>Any thread. Shows a toast at the bottom-right of the primary screen (see <see cref="NoticeQueue"/>).</summary>
+    public void Notify(Notice notice) => _notifier.Show(notice);
+
+    /// <summary>
+    /// UI thread. Shows the "new version" notice and completes with the answer: true for "อัปเดต", false for
+    /// "ไว้ทีหลัง" or ×. Asking again answers the previous question with false.
+    /// </summary>
+    public Task<bool> AskUpdateAsync(string version)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        _updateAnswer?.TrySetResult(false);
+        var answer = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        if (_disposed)
+        {
+            answer.TrySetResult(false);
+            return answer.Task;
+        }
+        _updateAnswer = answer;
+        Notify(Notice.Info(Loc.Format("UpdateAvailable", version), Loc.Get("UpdateAvailableBody"), NoticeTopics.Update,
+            new NoticeAction(Loc.Get("UpdateYes"), NoticeActionIds.UpdateNow),
+            new NoticeAction(Loc.Get("UpdateLater"), NoticeActionIds.UpdateLater)));
+        return answer.Task;
+    }
+
+    /// <summary>UI thread. Every notice button ends here (<see cref="NoticeActionIds"/>); its notice is already gone.</summary>
+    private void HandleNoticeAction(string id)
+    {
+        if (_disposed)
+            return;
+        Log.Info($"Notice action: {id}");
+        switch (id)
+        {
+            case NoticeActionIds.UpdateNow:
+                AnswerUpdate(true);
+                return;
+            case NoticeActionIds.UpdateLater:
+                AnswerUpdate(false);
+                return;
+            case NoticeActionIds.OpenCapture:
+                RequestCaptureWindow();
+                return;
+            case NoticeActionIds.SelectRegion:
+                RequestRegionSelection();
+                return;
+        }
+        if (id.StartsWith(NoticeActionIds.PagePrefix, StringComparison.Ordinal)
+            && Enum.TryParse<MainPage>(id[NoticeActionIds.PagePrefix.Length..], out var page))
+            RequestMainWindow(page);
+        else if (id.StartsWith(NoticeActionIds.PermissionPrefix, StringComparison.Ordinal)
+            && Enum.TryParse<PlatformPermission>(id[NoticeActionIds.PermissionPrefix.Length..], out var permission))
+            OpenPermissionSettings(permission);
+        else
+            Log.Warn($"Unknown notice action: {id}");
+    }
+
+    /// <summary>UI thread. The user closed a sticky notice with ×: for the update notice, that means "later".</summary>
+    private void OnNoticeClosed(Notice notice)
+    {
+        if (notice.Topic == NoticeTopics.Update)
+            AnswerUpdate(false);
+    }
+
+    private void AnswerUpdate(bool yes)
+    {
+        var answer = _updateAnswer;
+        _updateAnswer = null;
+        answer?.TrySetResult(yes);
+    }
+
+    private static Notice CaptureUnavailableNotice() =>
+        Notice.Warn(Loc.Get("NoticeCaptureUnavailableTitle"), Loc.Get("NoticeCaptureUnavailableBody"), NoticeTopics.Capture);
+
+    /// <summary>
+    /// UI thread. "Minimized" / "not found" (after it was seen) notices for the picture source's target, and "found
+    /// again", which replaces them (topic "source"). Remote Play has no fix button (the app cannot restore another app's
+    /// window); the capture card's offers to open the capture window.
+    /// </summary>
+    private void NotifySourceChange(PipelineStatus status)
+    {
+        var change = _sourceWatch.Update(status.RemotePlayFound, status.Minimized);
+        if (change == SourceChange.None)
+            return;
+        bool card = PictureSource == PictureSource.CaptureCard;
+        var openWindow = new NoticeAction(Loc.Get("NoticeActionOpenWindow"), NoticeActionIds.OpenCapture);
+        Notify(change switch
+        {
+            SourceChange.Minimized => card
+                ? Notice.Warn(Loc.Get("NoticeCaptureMinimizedTitle"), Loc.Get("NoticeSourceMinimizedBody"), NoticeTopics.Source, openWindow)
+                : Notice.Warn(Loc.Get("NoticeSourceMinimizedTitle"), Loc.Get("NoticeSourceMinimizedBody"), NoticeTopics.Source),
+            SourceChange.Lost => card
+                ? Notice.Warn(Loc.Get("NoticeCaptureLostTitle"), Loc.Get("NoticeCaptureLostBody"), NoticeTopics.Source, openWindow)
+                : Notice.Warn(Loc.Get("NoticeSourceLostTitle"), Loc.Get("NoticeSourceLostBody"), NoticeTopics.Source),
+            _ => Notice.Done(Loc.Get("NoticeSourceFoundTitle"),
+                Loc.Get(card ? "NoticeCaptureFoundBody" : "NoticeSourceFoundBody"), NoticeTopics.Source),
+        });
+    }
 
     /// <summary>UI thread. Whether the active profile's languages let a library apply (English → Thai only).</summary>
     public bool LibraryLanguagesApply =>
@@ -1082,7 +1193,8 @@ public sealed class AppHost : IAsyncDisposable
             var profileGames = Settings.Profiles.Select(p => p.LibraryGame).ToList();
             var used = installed.Where(l => LibraryStore.IsInUse(profileGames, l.Game)).ToList();
             if (used.Count > 0)
-                Notify(Loc.Format("LibraryUpdated", string.Join(", ", used.Select(l => l.Version))));
+                Notify(Notice.Done(Loc.Get("LibraryUpdated"),
+                    Loc.Format("LibraryUpdatedBody", string.Join(", ", used.Select(l => l.Version))), NoticeTopics.Library));
             if (WantedLibraryGame() is { } game
                 && installed.Any(l => string.Equals(l.Game, game, StringComparison.OrdinalIgnoreCase)))
                 ReloadLibrary();
@@ -1103,7 +1215,7 @@ public sealed class AppHost : IAsyncDisposable
         Dispatcher.UIThread.VerifyAccess();
         if (_pipeline?.LastCapture is not { } capture)
         {
-            Notify(Loc.Get("NoFrameToSave"));
+            Notify(Notice.Warn(Loc.Get("NoFrameToSave"), topic: NoticeTopics.Frame));
             return;
         }
         var stamp = DateTime.Now.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
@@ -1113,12 +1225,12 @@ public sealed class AppHost : IAsyncDisposable
         {
             await _imageWriter.SavePngAsync(capture.Raw, rawPath);
             await _imageWriter.SavePngAsync(capture.Processed, prePath);
-            Notify(Loc.Format("FrameSaved", rawPath + Environment.NewLine + prePath));
+            Notify(Notice.Done(Loc.Get("FrameSaved"), rawPath + Environment.NewLine + prePath, NoticeTopics.Frame));
         }
         catch (Exception ex)
         {
             Log.Warn("Saving the frame failed", ex);
-            Notify(Loc.Format("FrameSaveFailed", ex.Message));
+            Notify(Notice.Warn(Loc.Get("FrameSaveFailed"), ex.Message, NoticeTopics.Frame));
         }
     }
 
@@ -1139,6 +1251,7 @@ public sealed class AppHost : IAsyncDisposable
             BestEffort(() => _overlay?.Close());
             BestEffort(() => _regionFrames?.Close());
             BestEffort(_notifier.Close);
+            BestEffort(() => AnswerUpdate(false));
         }
         BestEffort(() =>
         {
@@ -1346,6 +1459,7 @@ public sealed class AppHost : IAsyncDisposable
             case StatusChanged status:
                 _overlay?.SetStatus(status.Status);
                 NotifyAiAuth(status.Status.AiError);
+                NotifySourceChange(status.Status);
                 UpdateKeepAwake();
                 RaiseStateChanged();
                 break;
@@ -1368,7 +1482,7 @@ public sealed class AppHost : IAsyncDisposable
                 break;
             case HotkeyAction.TogglePause:
                 SetPaused(!_paused);
-                Notify(Loc.Get(_paused ? "Paused" : "Resumed"));
+                Notify(Notice.Done(Loc.Get(_paused ? "Paused" : "Resumed"), topic: NoticeTopics.Pause));
                 break;
             case HotkeyAction.SaveFrame:
                 _ = SaveFrameAsync();
@@ -1562,9 +1676,17 @@ public sealed class AppHost : IAsyncDisposable
     {
         // Both stop AI until the user acts, so both deserve one notice per episode.
         bool becameStop = aiError is AiRefiner.AiAuthKey or AiRefiner.AiBillingKey && _lastAiError != aiError;
+        bool wasStop = _lastAiError is AiRefiner.AiAuthKey or AiRefiner.AiBillingKey;
         _lastAiError = aiError;
         if (becameStop)
-            Notify(Loc.Get(aiError!));
+        {
+            var openTranslation = new NoticeAction(Loc.Get("NoticeActionOpenTranslation"), NoticeActionIds.OpenPage(MainPage.Translation));
+            Notify(aiError == AiRefiner.AiAuthKey
+                ? Notice.Warn(Loc.Get("NoticeAiAuthTitle"), Loc.Get("NoticeAiAuthBody"), NoticeTopics.Ai, openTranslation)
+                : Notice.Warn(Loc.Get("NoticeAiBillingTitle"), Loc.Get("NoticeAiBillingBody"), NoticeTopics.Ai, openTranslation));
+        }
+        else if (wasStop && aiError is not (AiRefiner.AiAuthKey or AiRefiner.AiBillingKey))
+            _notifier.DismissTopic(NoticeTopics.Ai); // fixed (new key, new translator): the warning is no longer true
     }
 
     /// <summary>
@@ -1643,8 +1765,12 @@ public sealed class AppHost : IAsyncDisposable
         if (failed.Count > 0)
         {
             Log.Warn($"Hotkey registration failed: {string.Join(", ", failed)}");
-            Notify(Loc.Format("HotkeyInUse", string.Join(", ", failed)));
+            Notify(Notice.Warn(Loc.Format("HotkeyInUse", string.Join(", ", failed)), Loc.Get("HotkeyInUseBody"),
+                NoticeTopics.Hotkey,
+                new NoticeAction(Loc.Get("NoticeActionChangeHotkey"), NoticeActionIds.OpenPage(MainPage.General))));
         }
+        else
+            _notifier.DismissTopic(NoticeTopics.Hotkey);
     }
 
     /// <summary>Starts, stops or restarts the web server to match the settings. Never throws.</summary>
@@ -1677,6 +1803,7 @@ public sealed class AppHost : IAsyncDisposable
                         _web = web;
                         _webServesPhone = Settings.WebEnabled;
                         _webFailedPort = null;
+                        _notifier.DismissTopic(NoticeTopics.Web);
                         WebUrl = BuildWebUrl(web.Port);
                         Log.Info($"Web server listening on port {web.Port}");
                     }
@@ -1684,7 +1811,8 @@ public sealed class AppHost : IAsyncDisposable
                     {
                         Log.Warn($"Web server start on port {port} failed", ex);
                         _webFailedPort = port;
-                        Notify(Loc.Format("WebStartFailed", port));
+                        Notify(Notice.Warn(Loc.Get("WebStartFailed"), Loc.Format("WebStartFailedBody", port), NoticeTopics.Web,
+                            new NoticeAction(Loc.Get("NoticeActionChangePort"), NoticeActionIds.OpenPage(MainPage.Phone))));
                     }
                 }
                 if (!want)

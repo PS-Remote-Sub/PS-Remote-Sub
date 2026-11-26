@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using PSRemoteSub.Core.Diagnostics;
+using PSRemoteSub.Core.Notices;
 using PSRemoteSub.App.Views;
 using PSRemoteSub.App.Views.Pages;
 using PSRemoteSub.App.Views.Setup;
@@ -178,7 +179,7 @@ internal sealed class AppWindows : IDisposable
             if (frame is null || _host.TargetWindow is not { IsMinimized: false } window
                 || window.ClientScreenRect.Width <= 0 || window.ClientScreenRect.Height <= 0)
             {
-                _host.Notify(Loc.Get("NoFrameYet"));
+                _host.Notify(Notice.Warn(Loc.Get("NoFrameYet"), topic: NoticeTopics.Region));
                 return;
             }
 
@@ -210,14 +211,14 @@ internal sealed class AppWindows : IDisposable
                 profile.LastZoneId = picked.LastZoneId;
             _host.ApplySettings();
             _host.SaveSettings();
-            _host.Notify(Loc.Format("RegionSaved", profile.Name));
+            _host.Notify(Notice.Done(Loc.Get("RegionSaved"), Loc.Format("RegionSavedBody", profile.Name), NoticeTopics.Region));
         }
         catch (Exception ex)
         {
             // The previous region stays.
             Log.Warn("Region pick failed", ex);
             if (!_disposed)
-                _host.Notify(Loc.Get("RegionPickFailed"));
+                _host.Notify(Notice.Warn(Loc.Get("RegionPickFailed"), Loc.Get("RegionPickFailedBody"), NoticeTopics.Region));
         }
         finally
         {
