@@ -22,6 +22,10 @@ public sealed class AppSettings
 
     public CaptureSettings Capture { get; set; } = new();
 
+    /// <summary>The app window theme. On the property (not the enum): the store's enum converter would win over a type attribute.</summary>
+    [System.Text.Json.Serialization.JsonConverter(typeof(AppThemeJsonConverter))]
+    public AppTheme Theme { get; set; } = AppTheme.Dark;
+
     public TranslationSettings Translation { get; set; } = new();
 
     /// <summary>Subtitles on the Android TV.</summary>
