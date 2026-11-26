@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using PSRemoteSub.App.Updates;
+using PSRemoteSub.App.Views.Pages;
 using PSRemoteSub.Core.Diagnostics;
 using PSRemoteSub.Core.Hub;
 using PSRemoteSub.Core.Settings;
@@ -25,6 +26,9 @@ public partial class MainWindow : Window
     private readonly Action<MainPage>? _openLegacySettings;
     private Func<Control>? _homeFactory;
     private Control? _home;
+    private readonly Dictionary<MainPage, SettingsPage> _pages = [];
+    private SettingsPage? _current;
+    private MainPage _currentPage = MainPage.Home;
     private bool _exiting;
     private bool _syncingGames;
 
@@ -47,6 +51,7 @@ public partial class MainWindow : Window
         Closing += OnClosing;
         Closed += (_, _) =>
         {
+            CommitAndFlushCurrent();
             host.StateChanged -= OnHostStateChanged;
             if (Application.Current is { } a)
                 a.ActualThemeVariantChanged -= OnThemeChanged;
@@ -72,22 +77,96 @@ public partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Shows a page. Home lives in this window; the settings pages still open the old settings window on the matching
-    /// tab (Phase 2 moves them here), and the sidebar stays on Home.
+    /// Builds the settings page for a <see cref="MainPage"/>, or returns null when it has none yet (the legacy settings
+    /// window then opens instead). One instance per page is kept for the window's life.
+    /// </summary>
+    internal Func<MainPage, SettingsPage?>? PageFactory { get; set; }
+
+    /// <summary>
+    /// Shows a page in the host and keeps its nav item checked. Pages without a <see cref="SettingsPage"/> still open the
+    /// old settings window on the matching tab, and the sidebar stays on Home. Safe to call from a nav button's
+    /// IsCheckedChanged.
     /// </summary>
     public void ShowPage(MainPage page)
     {
-        if (page != MainPage.Home)
+        if (page == MainPage.Home)
         {
-            // Posted: when called from a nav button's IsCheckedChanged, that button's group update runs after us and
-            // would uncheck Home again, leaving the settings item lit (and a second click doing nothing).
+            LeaveCurrentPage();
+            _currentPage = MainPage.Home;
+            NavHome.IsChecked = true;
+            _home ??= _homeFactory?.Invoke();
+            PageHost.Content = _home;
+            return;
+        }
+        if (_current is not null && _currentPage == page)
+        {
+            CheckNav(page);
+            return;
+        }
+        var target = GetSettingsPage(page);
+        if (target is null)
+        {
+            // No page yet: show Home and open the old window. Posted: when called from a nav button's IsCheckedChanged,
+            // that button's group update runs after us and would uncheck Home again, leaving the settings item lit.
+            ShowPage(MainPage.Home);
             Avalonia.Threading.Dispatcher.UIThread.Post(() => NavHome.IsChecked = true);
             _openLegacySettings?.Invoke(page);
             return;
         }
-        NavHome.IsChecked = true;
-        _home ??= _homeFactory?.Invoke();
-        PageHost.Content = _home;
+        LeaveCurrentPage();
+        _current = target;
+        _currentPage = page;
+        PageHost.Content = target;
+        CheckNav(page);
+        target.OnShown();
+    }
+
+    private SettingsPage? GetSettingsPage(MainPage page)
+    {
+        if (_pages.TryGetValue(page, out var cached))
+            return cached;
+        var created = PageFactory?.Invoke(page);
+        if (created is not null)
+            _pages[page] = created;
+        return created;
+    }
+
+    private void CheckNav(MainPage page)
+    {
+        var nav = NavButtons().FirstOrDefault(n => n.Tag is MainPage p && p == page);
+        if (nav is null)
+            return;
+        nav.IsChecked = true;
+        // Re-asserted after the nav group's own update (see ShowPage) so a call from IsCheckedChanged keeps it lit.
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            if (_currentPage == page)
+                nav.IsChecked = true;
+        });
+    }
+
+    /// <summary>Commits half-typed fields of the shown settings page and writes pending changes.</summary>
+    private void LeaveCurrentPage()
+    {
+        if (_current is not { } current)
+            return;
+        Safe(() =>
+        {
+            current.CommitPending();
+            current.FlushSave();
+        });
+        _current = null;
+    }
+
+    private void CommitAndFlushCurrent()
+    {
+        if (_current is not { } current)
+            return;
+        Safe(() =>
+        {
+            current.CommitPending();
+            current.FlushSave();
+        });
     }
 
     /// <summary>Closes for real (app exit); a normal close only hides.</summary>
@@ -112,6 +191,7 @@ public partial class MainWindow : Window
         if (_exiting || e.CloseReason != WindowCloseReason.WindowClosing || e.IsProgrammatic)
             return;
         e.Cancel = true; // X hides to the tray; translation keeps running
+        CommitAndFlushCurrent();
         Hide();
     }
 
@@ -160,7 +240,11 @@ public partial class MainWindow : Window
     {
         if (_syncingGames || GamePicker.SelectedItem is not string name || name == Host.Settings.GetActive().Name)
             return;
+        // The page commits into the game being left, then reloads from the new one.
+        CommitAndFlushCurrent();
         Host.SelectProfile(name);
+        if (_current is { } page)
+            Safe(page.OnShown);
     }
 
     private void ToggleTheme()

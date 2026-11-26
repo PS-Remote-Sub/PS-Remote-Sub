@@ -84,6 +84,7 @@ internal sealed class AppWindows : IDisposable
         {
             var window = new MainWindow(_host, ShowLegacySettings);
             window.HomeFactory = () => new HomePage(_host, ShowLegacySettings);
+            window.PageFactory = CreateSettingsPage;
             window.Closed += (_, _) =>
             {
                 if (_main == window)
@@ -98,6 +99,12 @@ internal sealed class AppWindows : IDisposable
         _main.ShowPage(page);
         _main.Activate();
     }
+
+    /// <summary>
+    /// The settings page for a nav item, or null while it still lives in the old settings window (each Phase 2 page task
+    /// adds its case; Task 10 removes the fallback).
+    /// </summary>
+    private SettingsPage? CreateSettingsPage(MainPage page) => null;
 
     /// <summary>Opens (or fronts) the old settings window on the tab holding a settings page. Phase 2 retires it.</summary>
     public void ShowLegacySettings(MainPage page)

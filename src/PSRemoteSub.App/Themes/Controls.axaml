@@ -177,4 +177,187 @@
     <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
+
+  <!-- ===== Settings form styles (mockup .section/.note/.tg/.seg/.opt/.rd/.in/.sel). Controls without these classes keep
+       Fluent's look. ===== -->
+
+  <!-- Section card: Border.section > StackPanel { TextBlock.h2, TextBlock.sub, body } (22 px padding, like .card + h2). -->
+  <Style Selector="Border.section">
+    <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="14" />
+    <Setter Property="Padding" Value="22" />
+  </Style>
+
+  <!-- Note row: Border.note.info|warn|bad > StackPanel(H) { c:StrokeIcon, TextBlock }. Icon takes the tint. -->
+  <Style Selector="Border.note">
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="Padding" Value="12,10" />
+  </Style>
+  <Style Selector="Border.note TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+  <Style Selector="Border.note.info"><Setter Property="Background" Value="{DynamicResource InfoBgBrush}" /></Style>
+  <Style Selector="Border.note.info c|StrokeIcon"><Setter Property="Foreground" Value="{DynamicResource InfoBrush}" /></Style>
+  <Style Selector="Border.note.warn"><Setter Property="Background" Value="{DynamicResource WarnBgBrush}" /></Style>
+  <Style Selector="Border.note.warn c|StrokeIcon"><Setter Property="Foreground" Value="{DynamicResource WarnBrush}" /></Style>
+  <Style Selector="Border.note.bad"><Setter Property="Background" Value="{DynamicResource BadBgBrush}" /></Style>
+  <Style Selector="Border.note.bad c|StrokeIcon"><Setter Property="Foreground" Value="{DynamicResource BadBrush}" /></Style>
+
+  <!-- Toggle: ToggleSwitch.tg (44x24 pill, 18 px knob). -->
+  <Style Selector="ToggleSwitch.tg">
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+        <Panel Name="PART_MovingKnobs" Width="0" Height="0" IsVisible="False"><Panel Name="PART_SwitchKnob" /></Panel>
+        <Border Name="track" Width="44" Height="24" CornerRadius="12" Background="{DynamicResource TrackOffBrush}">
+          <Ellipse Name="knob" Width="18" Height="18" HorizontalAlignment="Left" Margin="3,0,0,0"
+                   Fill="{DynamicResource KnobOffBrush}" />
+        </Border>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="ToggleSwitch.tg:checked /template/ Border#track">
+    <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+  </Style>
+  <Style Selector="ToggleSwitch.tg:checked /template/ Ellipse#knob">
+    <Setter Property="Fill" Value="{DynamicResource OnAccentBrush}" />
+    <Setter Property="Margin" Value="23,0,0,0" />
+  </Style>
+  <Style Selector="ToggleSwitch.tg:disabled"><Setter Property="Opacity" Value="0.5" /></Style>
+
+  <!-- Segmented control: Border.seg > StackPanel(H, Spacing 4) { RadioButton.seg (shared GroupName) ... }. -->
+  <Style Selector="Border.seg">
+    <Setter Property="Padding" Value="4" />
+    <Setter Property="CornerRadius" Value="11" />
+    <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+  </Style>
+  <Style Selector="RadioButton.seg">
+    <Setter Property="Foreground" Value="{DynamicResource Text2Brush}" />
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="bg" Height="34" CornerRadius="8" Padding="14,0" BorderThickness="1"
+                Background="Transparent" BorderBrush="Transparent">
+          <ContentPresenter Name="PART_ContentPresenter" VerticalAlignment="Center" HorizontalAlignment="Center"
+                            Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RadioButton.seg:pointerover"><Setter Property="Foreground" Value="{DynamicResource TextBrush}" /></Style>
+  <Style Selector="RadioButton.seg:checked">
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="RadioButton.seg:checked /template/ Border#bg">
+    <Setter Property="Background" Value="{DynamicResource BtnBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Border2Brush}" />
+  </Style>
+  <Style Selector="RadioButton.seg:disabled"><Setter Property="Opacity" Value="0.5" /></Style>
+
+  <!-- Option card: RadioButton.opt with any content (e.g. icon + two lines). Checked: accent border + 1 px ring. -->
+  <Style Selector="RadioButton.opt">
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="bg" CornerRadius="12" Padding="16" BorderThickness="1" Background="{DynamicResource CardBrush}"
+                BorderBrush="{DynamicResource Border2Brush}">
+          <ContentPresenter Name="PART_ContentPresenter" HorizontalContentAlignment="Stretch"
+                            Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RadioButton.opt:checked /template/ Border#bg">
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="Padding" Value="15" />
+  </Style>
+  <Style Selector="RadioButton.opt:disabled"><Setter Property="Opacity" Value="0.5" /></Style>
+
+  <!-- Radio dot: RadioButton.rd, 20 px ring with an inner dot, content to its right. -->
+  <Style Selector="RadioButton.rd">
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="Auto,*" Background="Transparent">
+          <Panel Width="20" Height="20" VerticalAlignment="Top">
+            <Ellipse Name="ring" Stroke="{DynamicResource Text3Brush}" StrokeThickness="2" />
+            <Ellipse Name="dot" Width="10" Height="10" Fill="{DynamicResource AccentBrush}" IsVisible="False" />
+          </Panel>
+          <ContentPresenter Name="PART_ContentPresenter" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
+                            Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RadioButton.rd:checked /template/ Ellipse#ring"><Setter Property="Stroke" Value="{DynamicResource AccentBrush}" /></Style>
+  <Style Selector="RadioButton.rd:checked /template/ Ellipse#dot"><Setter Property="IsVisible" Value="True" /></Style>
+  <Style Selector="RadioButton.rd:disabled"><Setter Property="Opacity" Value="0.5" /></Style>
+
+  <!-- Text box: TextBox.in (40 high, radius 9, Card2 fill, Border2 outline; accent outline when focused). -->
+  <Style Selector="TextBox.in">
+    <Setter Property="MinHeight" Value="40" />
+    <Setter Property="Padding" Value="12,0" />
+    <Setter Property="CornerRadius" Value="9" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Border2Brush}" />
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBox.in:pointerover /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Border2Brush}" />
+  </Style>
+  <Style Selector="TextBox.in:focus /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+  </Style>
+
+  <!-- Drop-down: ComboBox.sel (40 high, radius 9, Card2 fill). -->
+  <Style Selector="ComboBox.sel">
+    <Setter Property="MinHeight" Value="40" />
+    <Setter Property="Padding" Value="12,0" />
+    <Setter Property="CornerRadius" Value="9" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Border2Brush}" />
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+  </Style>
+  <Style Selector="ComboBox.sel:pointerover /template/ Border#Background">
+    <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Border2Brush}" />
+  </Style>
+  <Style Selector="ComboBox.sel:pressed /template/ Border#Background">
+    <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Border2Brush}" />
+  </Style>
+  <Style Selector="ComboBox.sel:focus /template/ Border#Background">
+    <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+  </Style>
+  <Style Selector="ComboBox.sel:dropdownopen /template/ Border#Background">
+    <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+  </Style>
 </Styles>
