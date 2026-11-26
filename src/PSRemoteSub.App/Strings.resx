@@ -1838,4 +1838,9 @@
   <data name="PermLocalNetworkAsks" xml:space="preserve">
     <value>macOS จะถามเมื่อเชื่อมมือถือหรือทีวีครั้งแรก</value>
   </data>
+  <data name="CaptureBlockedMac" xml:space="preserve"><value>macOS ไม่อนุญาตให้แอปใช้กล้อง/ไมโครโฟน — เปิดที่ การตั้งค่าระบบ → ความเป็นส่วนตัวและความปลอดภัย → กล้อง / ไมโครโฟน</value></data>
+  <data name="CaptureWindowClosedMac" xml:space="preserve"><value>จอ capture card ปิดอยู่ — เปิดได้จากเมนูที่ไอคอนบนแถบเมนูด้านบน</value></data>
+  <data name="IssueMinimizedBodyMac" xml:space="preserve"><value>หน้าต่าง Remote Play ถูกย่อลง Dock อยู่ — เปิดค้างไว้ได้เลย จะมีหน้าต่างอื่นบังก็ได้ แต่อย่าย่อ</value></data>
+  <data name="GeneralHotkeysSubMac" xml:space="preserve"><value>กดได้ทุกเมื่อ แม้กำลังเล่นเกมอยู่ · ต้องมี ⌃, ⌥ หรือ ⇧ ตามด้วยตัวอักษรหรือตัวเลข</value></data>
+  <data name="GeneralNeedModifierMac" xml:space="preserve"><value>ต้องมี ⌃, ⌥ หรือ ⇧ ด้วย แล้วตามด้วยตัวอักษรหรือตัวเลข</value></data>
 </root>
