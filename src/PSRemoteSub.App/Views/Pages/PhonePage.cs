@@ -47,6 +47,13 @@ public sealed class PhonePage : SettingsPage
     private const string ChevronDown = "M6 9l6 6 6-6";
     private const string ChevronUp = "M6 15l6-6 6 6";
 
+    private static Image NewQrImage()
+    {
+        var image = new Image { Width = 184, Height = 184 };
+        RenderOptions.SetBitmapInterpolationMode(image, Avalonia.Media.Imaging.BitmapInterpolationMode.None);
+        return image;
+    }
+
     private enum Firewall { Unknown, Checking, Open, Blocked }
 
     private readonly ToggleSwitch _toggle = new() { Classes = { "tg" } };
@@ -60,7 +67,7 @@ public sealed class PhonePage : SettingsPage
     private readonly StackPanel _advancedBody;
     private readonly StrokeIcon _chevron = new() { Data = ChevronDown, Size = 20, VerticalAlignment = VerticalAlignment.Center };
     private readonly TextBlock _advancedSub = new() { Classes = { "sub" } };
-    private readonly Image _qrImage = new() { Width = 184, Height = 184 };
+    private Image _qrImage = NewQrImage();
 
     private IReadOnlyList<string> _addresses = [];   // "ip:port"
     private bool _lanKnown;
@@ -74,7 +81,6 @@ public sealed class PhonePage : SettingsPage
 
     public PhonePage(AppHost host) : base(host)
     {
-        RenderOptions.SetBitmapInterpolationMode(_qrImage, Avalonia.Media.Imaging.BitmapInterpolationMode.None);
         _portApply.Classes.Add("btn");
         _portApply.Classes.Add("sm");
         _portDefault.Classes.Add("btn");
@@ -132,16 +138,26 @@ public sealed class PhonePage : SettingsPage
         };
         _advancedBody = new StackPanel { Spacing = 10, IsVisible = false, Children = { portRow, _portErrorRow } };
 
-        var header = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 12, Cursor = new Cursor(StandardCursorType.Hand), Background = Brushes.Transparent };
+        var header = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 12 };
         var headerText = new StackPanel { Children = { new TextBlock { Classes = { "lbl" }, Text = Loc.Get("PhoneAdvanced") }, _advancedSub } };
         header.Children.Add(headerText);
         Grid.SetColumn(_chevron, 1);
         header.Children.Add(_chevron);
-        header.PointerPressed += (_, _) => SetAdvancedOpen(!_advancedBody.IsVisible);
+        var headerButton = new Button
+        {
+            Content = header,
+            Background = Brushes.Transparent,
+            BorderThickness = new Thickness(0),
+            Padding = new Thickness(0),
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+            Cursor = new Cursor(StandardCursorType.Hand),
+        };
+        headerButton.Click += (_, _) => SetAdvancedOpen(!_advancedBody.IsVisible);
         var advanced = new Border
         {
             Classes = { "section" },
-            Child = new StackPanel { Spacing = 14, Children = { header, _advancedBody } },
+            Child = new StackPanel { Spacing = 14, Children = { headerButton, _advancedBody } },
         };
 
         var title = new StackPanel
@@ -195,14 +211,6 @@ public sealed class PhonePage : SettingsPage
         _portBox.Classes.Remove("bad");
         _ = RefreshLanAsync();
         _ = CheckFirewallAsync();
-    }
-
-    /// <summary>A typed, valid, not yet applied port is applied when the page is left (the old window only had the button).</summary>
-    public override void CommitPending()
-    {
-        string text = (_portBox.Text ?? "").Trim();
-        if (TryParsePort(text, out int port) && port != Settings.WebPort && !_webBusy)
-            _ = ApplyPortAsync();
     }
 
     protected override void OnHostStateChangedCore() => LoadWebState();
@@ -351,6 +359,9 @@ public sealed class PhonePage : SettingsPage
         _qrImage.Source = _qr;
     }
 
+    /// <summary>The old image is about to be replaced by a fresh one; the bitmap stays.</summary>
+    private void DisposeQrImageOnly() => _qrImage.Source = null;
+
     private void DisposeQr()
     {
         _qrImage.Source = null;
@@ -469,6 +480,7 @@ public sealed class PhonePage : SettingsPage
         if (_addresses.Count == 0)
             return;
 
+        DisposeQrImageOnly();
         var qrFrame = new Border
         {
             Width = 212,
@@ -477,9 +489,10 @@ public sealed class PhonePage : SettingsPage
             CornerRadius = new CornerRadius(14),
             Background = Brushes.White,
             VerticalAlignment = VerticalAlignment.Center,
-            Child = _qrImage,
+            Child = _qrImage = NewQrImage(),
         };
 
+        _qrImage.Source = _qr;
         var steps = new StackPanel { Spacing = 14 };
         steps.Children.Add(new TextBlock { Classes = { "h2" }, Text = Loc.Get("PhoneScanTitle") });
         string[] stepKeys = ["PhoneScanStep1", "PhoneScanStep2", "PhoneScanStep3"];

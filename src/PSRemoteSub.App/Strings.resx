@@ -1408,10 +1408,10 @@
     <value>อนุญาตใน Firewall</value>
   </data>
   <data name="PhoneNetworkTitle" xml:space="preserve">
-    <value>เครือข่ายของคอมตั้งเป็นแบบสาธารณะ (Public)</value>
+    <value>ถ้าเครือข่ายของคอมตั้งเป็นแบบสาธารณะ (Public) มือถือจะเข้าไม่ได้</value>
   </data>
   <data name="PhoneNetworkSub" xml:space="preserve">
-    <value>ต้องเปลี่ยนเป็นแบบส่วนตัว — กดปุ่มด้านล่าง หน้าตั้งค่าของ Windows จะเปิดขึ้น แล้วเลือก “เครือข่ายส่วนตัว”</value>
+    <value>ให้เปลี่ยนเป็นแบบส่วนตัว — กดปุ่มด้านล่าง หน้าตั้งค่าของ Windows จะเปิดขึ้น แล้วเลือก “เครือข่ายส่วนตัว”</value>
   </data>
   <data name="PhoneNetworkTipTitle" xml:space="preserve">
     <value>ถ้ายังไม่ได้ ลองเช็กว่าเครือข่ายเป็นแบบส่วนตัว (Private)</value>
