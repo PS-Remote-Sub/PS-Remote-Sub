@@ -1332,4 +1332,103 @@
   <data name="SourceHdrText" xml:space="preserve">
     <value>ปิด HDR ในการตั้งค่าหน้าจอและวิดีโอของ PS5</value>
   </data>
+  <data name="PhoneTitle" xml:space="preserve">
+    <value>ดูบนมือถือ</value>
+  </data>
+  <data name="PhoneSub" xml:space="preserve">
+    <value>อ่านซับบนมือถือหรือแท็บเล็ต — ต่อ Wi-Fi วงเดียวกับคอมเครื่องนี้</value>
+  </data>
+  <data name="PhoneEnable" xml:space="preserve">
+    <value>เปิดใช้</value>
+  </data>
+  <data name="PhoneScanTitle" xml:space="preserve">
+    <value>สแกนเพื่อเปิดบนมือถือ</value>
+  </data>
+  <data name="PhoneScanStep1" xml:space="preserve">
+    <value>เปิดกล้องมือถือ</value>
+  </data>
+  <data name="PhoneScanStep2" xml:space="preserve">
+    <value>ส่องไปที่ QR ด้านซ้าย</value>
+  </data>
+  <data name="PhoneScanStep3" xml:space="preserve">
+    <value>แตะลิงก์ที่ขึ้นมา — ซับจะขึ้นทันที</value>
+  </data>
+  <data name="PhoneTypeAddress" xml:space="preserve">
+    <value>หรือพิมพ์ที่อยู่นี้ในเบราว์เซอร์ของมือถือ</value>
+  </data>
+  <data name="PhoneCopy" xml:space="preserve">
+    <value>คัดลอก</value>
+  </data>
+  <data name="PhoneClients" xml:space="preserve">
+    <value>มือถือเปิดดูอยู่ {0} เครื่อง</value>
+  </data>
+  <data name="PhoneChecksTitle" xml:space="preserve">
+    <value>ตรวจการเชื่อมต่อ</value>
+  </data>
+  <data name="PhoneChecksSub" xml:space="preserve">
+    <value>ผ่านครบ มือถือเข้าได้แน่นอน</value>
+  </data>
+  <data name="PhoneRecheck" xml:space="preserve">
+    <value>ตรวจอีกครั้ง</value>
+  </data>
+  <data name="PhoneWebRunning" xml:space="preserve">
+    <value>หน้าเว็บทำงานอยู่</value>
+  </data>
+  <data name="PhoneWebStopped" xml:space="preserve">
+    <value>หน้าเว็บปิดอยู่</value>
+  </data>
+  <data name="PhoneWebStoppedSub" xml:space="preserve">
+    <value>เปิด “เปิดใช้” ด้านบนเพื่อให้มือถือเข้าได้</value>
+  </data>
+  <data name="PhonePortSub" xml:space="preserve">
+    <value>พอร์ต {0}</value>
+  </data>
+  <data name="PhoneFirewallOk" xml:space="preserve">
+    <value>Firewall อนุญาตแล้ว</value>
+  </data>
+  <data name="PhoneFirewallOkSub" xml:space="preserve">
+    <value>Windows ยอมให้มือถือเข้ามาดูได้</value>
+  </data>
+  <data name="PhoneFirewallChecking" xml:space="preserve">
+    <value>กำลังตรวจ Firewall…</value>
+  </data>
+  <data name="PhoneProblemsTitle" xml:space="preserve">
+    <value>มือถือยังเข้าไม่ได้ — แก้ 2 ข้อนี้ตามลำดับ</value>
+  </data>
+  <data name="PhoneProblemsSub" xml:space="preserve">
+    <value>แก้ข้อ 1 แล้วลองสแกนใหม่ก่อน ถ้ายังไม่ได้ค่อยทำข้อ 2</value>
+  </data>
+  <data name="PhoneFirewallBlocked" xml:space="preserve">
+    <value>Firewall ยังบล็อกอยู่</value>
+  </data>
+  <data name="PhoneFirewallBlockedSub" xml:space="preserve">
+    <value>Windows กันไม่ให้เครื่องอื่นเข้ามา กดปุ่มด้านล่าง แล้วกด “ใช่” เมื่อ Windows ถาม</value>
+  </data>
+  <data name="PhoneFirewallButton" xml:space="preserve">
+    <value>อนุญาตใน Firewall</value>
+  </data>
+  <data name="PhoneNetworkTitle" xml:space="preserve">
+    <value>เครือข่ายของคอมตั้งเป็นแบบสาธารณะ (Public)</value>
+  </data>
+  <data name="PhoneNetworkSub" xml:space="preserve">
+    <value>ต้องเปลี่ยนเป็นแบบส่วนตัว — กดปุ่มด้านล่าง หน้าตั้งค่าของ Windows จะเปิดขึ้น แล้วเลือก “เครือข่ายส่วนตัว”</value>
+  </data>
+  <data name="PhoneNetworkTipTitle" xml:space="preserve">
+    <value>ถ้ายังไม่ได้ ลองเช็กว่าเครือข่ายเป็นแบบส่วนตัว (Private)</value>
+  </data>
+  <data name="PhoneNetworkButton" xml:space="preserve">
+    <value>เปิดการตั้งค่าเครือข่าย</value>
+  </data>
+  <data name="PhoneAdvanced" xml:space="preserve">
+    <value>ขั้นสูง</value>
+  </data>
+  <data name="PhoneAdvancedSub" xml:space="preserve">
+    <value>พอร์ต {0}</value>
+  </data>
+  <data name="PhonePortOutOfRange" xml:space="preserve">
+    <value>ใช้เลข {0} ไม่ได้ ต้องอยู่ระหว่าง 1024–65535</value>
+  </data>
+  <data name="PhonePortUseDefault" xml:space="preserve">
+    <value>ใช้ {0} แทน</value>
+  </data>
 </root>

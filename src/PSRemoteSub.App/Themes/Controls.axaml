@@ -332,6 +332,10 @@
     <Setter Property="Background" Value="{DynamicResource Card2Brush}" />
     <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
   </Style>
+  <!-- Invalid value: add class "bad" next to "in". -->
+  <Style Selector="TextBox.in.bad /template/ Border#PART_BorderElement">
+    <Setter Property="BorderBrush" Value="{DynamicResource BadBrush}" />
+  </Style>
 
   <!-- Drop-down: ComboBox.sel (40 high, radius 9, Card2 fill). -->
   <Style Selector="ComboBox.sel">
