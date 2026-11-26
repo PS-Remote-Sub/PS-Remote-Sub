@@ -109,7 +109,6 @@ public sealed class GeneralPage : SettingsPage
 
         SetBody(new StackPanel
         {
-            MaxWidth = 860,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Spacing = 16,
             Children =

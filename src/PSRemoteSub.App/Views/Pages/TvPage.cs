@@ -340,8 +340,6 @@ public sealed class TvPage : SettingsPage
 
         var body = PageBody(_mainHeader, _installHeader, _localNetNote, _stateCard, _modeCard, _sizeCard, _calibCard, _advanced, _stepper,
             diagRow, _diagStep, _diagError, _busy);
-        body.MaxWidth = 860;
-        body.HorizontalAlignment = HorizontalAlignment.Left;
         SetBody(body);
 
         WireEvents();

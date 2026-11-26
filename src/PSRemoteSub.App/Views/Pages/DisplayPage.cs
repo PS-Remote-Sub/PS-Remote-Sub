@@ -139,8 +139,6 @@ public sealed class DisplayPage : SettingsPage
         overlayRow.Children.Add(overlayRight);
 
         var body = PageBody(header, BuildPreview(), editorsCard, overlayRow);
-        body.MaxWidth = 860;
-        body.HorizontalAlignment = HorizontalAlignment.Left;
         SetBody(body);
         SizeChanged += (_, e) => Safe(() => ApplyLayout(e.NewSize.Width - 64 < NarrowWidth));
     }

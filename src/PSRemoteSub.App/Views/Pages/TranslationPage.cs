@@ -300,8 +300,6 @@ public sealed class TranslationPage : SettingsPage
             langSection,
             modeSection,
             _aiPanel);
-        body.MaxWidth = 860;
-        body.HorizontalAlignment = HorizontalAlignment.Left;
         SetBody(body);
 
         _statusTimer = new DispatcherTimer { Interval = StatusInterval };

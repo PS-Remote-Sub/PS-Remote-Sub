@@ -121,8 +121,6 @@ public sealed class SourcePage : SettingsPage
         };
 
         var body = PageBody(PageHeader(Loc.Get("NavSource"), Loc.Get("SourceSub")), cards, cardSection, fix);
-        body.MaxWidth = 860;
-        body.HorizontalAlignment = HorizontalAlignment.Left;
         SetBody(body);
 
         DetachedFromVisualTree += (_, _) =>
