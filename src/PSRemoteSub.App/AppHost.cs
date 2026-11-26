@@ -797,6 +797,63 @@ public sealed class AppHost : IAsyncDisposable
         SaveSettings();
     }
 
+    /// <summary>
+    /// UI thread. Adds a new game profile named <paramref name="name"/> and makes it active (raising
+    /// <see cref="ActiveProfileChanging"/> first), applies and saves. Returns false (nothing changed) for a blank name or
+    /// one already taken (case-insensitive).
+    /// </summary>
+    public bool AddProfile(string name)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        name = (name ?? "").Trim();
+        if (name.Length == 0 || Settings.Profiles.Any(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)))
+            return false;
+        ActiveProfileChanging?.Invoke(this, EventArgs.Empty);
+        Settings.Profiles.Add(GameProfile.Create(name));
+        Settings.ActiveProfile = name;
+        ApplySettings();
+        SaveSettings();
+        return true;
+    }
+
+    /// <summary>
+    /// UI thread. Renames the active profile (it stays active; <see cref="ActiveProfileChanging"/> is raised first so
+    /// open pages commit into it), applies and saves. Returns false for a blank name or one taken by another profile.
+    /// </summary>
+    public bool RenameActiveProfile(string name)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        name = (name ?? "").Trim();
+        var active = Settings.GetActive();
+        if (name.Length == 0 || Settings.Profiles.Any(p => p != active && string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)))
+            return false;
+        if (name == active.Name)
+            return true;
+        ActiveProfileChanging?.Invoke(this, EventArgs.Empty);
+        active.Name = name;
+        Settings.ActiveProfile = name; // the active profile keeps being the renamed one
+        ApplySettings();
+        SaveSettings();
+        return true;
+    }
+
+    /// <summary>
+    /// UI thread. Deletes the active profile and activates the first remaining one (raising
+    /// <see cref="ActiveProfileChanging"/> first), applies and saves. Returns false when it is the only profile.
+    /// </summary>
+    public bool DeleteActiveProfile()
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (Settings.Profiles.Count <= 1)
+            return false;
+        ActiveProfileChanging?.Invoke(this, EventArgs.Empty);
+        Settings.Profiles.Remove(Settings.GetActive());
+        Settings.ActiveProfile = Settings.Profiles[0].Name;
+        ApplySettings();
+        SaveSettings();
+        return true;
+    }
+
     /// <summary>UI thread. Shows or hides the overlay, applies and saves.</summary>
     public void SetOverlayEnabled(bool enabled)
     {

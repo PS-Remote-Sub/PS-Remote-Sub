@@ -1002,4 +1002,145 @@
   <data name="TrayOpenHome" xml:space="preserve">
     <value>เปิดหน้าหลัก</value>
   </data>
+  <data name="GamesSubtitle" xml:space="preserve">
+    <value>แต่ละเกมจำค่าของตัวเอง — สลับเกมได้จากเมนูซ้ายบน</value>
+  </data>
+  <data name="GamesMyGames" xml:space="preserve">
+    <value>เกมของฉัน</value>
+  </data>
+  <data name="GamesActive" xml:space="preserve">
+    <value>กำลังใช้</value>
+  </data>
+  <data name="GamesDefault" xml:space="preserve">
+    <value>เกมเริ่มต้น</value>
+  </data>
+  <data name="GamesAdd" xml:space="preserve">
+    <value>เพิ่มเกม</value>
+  </data>
+  <data name="GamesNewNameHint" xml:space="preserve">
+    <value>ชื่อเกมใหม่</value>
+  </data>
+  <data name="GamesListNameHint" xml:space="preserve">
+    <value>ชื่อเกมในรายการ</value>
+  </data>
+  <data name="GamesSave" xml:space="preserve">
+    <value>บันทึก</value>
+  </data>
+  <data name="GamesCancel" xml:space="preserve">
+    <value>ยกเลิก</value>
+  </data>
+  <data name="GamesNameEmpty" xml:space="preserve">
+    <value>ใส่ชื่อเกมก่อน</value>
+  </data>
+  <data name="GamesNameTaken" xml:space="preserve">
+    <value>มีเกมชื่อนี้แล้ว</value>
+  </data>
+  <data name="GamesWhole" xml:space="preserve">
+    <value>ทั้งเกม</value>
+  </data>
+  <data name="GamesWholeSub" xml:space="preserve">
+    <value>ใช้กับทุกโซนของเกมนี้</value>
+  </data>
+  <data name="GamesDelete" xml:space="preserve">
+    <value>ลบเกม</value>
+  </data>
+  <data name="GamesTitleLabel" xml:space="preserve">
+    <value>ชื่อเกม</value>
+  </data>
+  <data name="GamesTitleSub" xml:space="preserve">
+    <value>AI ใช้ชื่อนี้ช่วยแปลชื่อตัวละครและสถานที่ให้ถูก</value>
+  </data>
+  <data name="GamesLangLabel" xml:space="preserve">
+    <value>ภาษาในเกม</value>
+  </data>
+  <data name="GamesLangSub" xml:space="preserve">
+    <value>ภาษาของตัวหนังสือที่ขึ้นในเกมนี้</value>
+  </data>
+  <data name="GamesMinLabel" xml:space="preserve">
+    <value>ซับค้างบนจออย่างน้อย</value>
+  </data>
+  <data name="GamesMinSub" xml:space="preserve">
+    <value>เลือก “ตามซับเดิม” ให้คำแปลเปลี่ยนพร้อมเกม หรือให้ค้างไว้ให้อ่านทัน</value>
+  </data>
+  <data name="GamesMinFollow" xml:space="preserve">
+    <value>ตามซับเดิม</value>
+  </data>
+  <data name="GamesMinSeconds" xml:space="preserve">
+    <value>{0} วิ</value>
+  </data>
+  <data name="GamesMinLegacy" xml:space="preserve">
+    <value>{0} วิ (ค่าเดิม)</value>
+  </data>
+  <data name="GamesLibrarySub" xml:space="preserve">
+    <value>คำเฉพาะของเกมที่อยากให้แปลแบบเดิมทุกครั้ง</value>
+  </data>
+  <data name="GamesZones" xml:space="preserve">
+    <value>โซนซับ</value>
+  </data>
+  <data name="GamesZonesSub" xml:space="preserve">
+    <value>จุดบนจอที่มีตัวหนังสือให้แปล เช่น บทพูด ป้ายร้าน — ตั้งค่าแยกกันได้</value>
+  </data>
+  <data name="GamesAddZone" xml:space="preserve">
+    <value>เพิ่มโซน</value>
+  </data>
+  <data name="GamesDeleteZone" xml:space="preserve">
+    <value>ลบโซน</value>
+  </data>
+  <data name="GamesBoxRead" xml:space="preserve">
+    <value>กรอบอ่านซับ</value>
+  </data>
+  <data name="GamesBoxCaption" xml:space="preserve">
+    <value>ที่วางคำแปล</value>
+  </data>
+  <data name="GamesBoxTrigger" xml:space="preserve">
+    <value>กรอบเงื่อนไข</value>
+  </data>
+  <data name="GamesBoxSet" xml:space="preserve">
+    <value>{0} — ตั้งแล้ว</value>
+  </data>
+  <data name="GamesBoxNotSet" xml:space="preserve">
+    <value>{0} — ยังไม่ได้ตั้ง</value>
+  </data>
+  <data name="GamesEditBoxes" xml:space="preserve">
+    <value>ปรับกรอบ</value>
+  </data>
+  <data name="GamesFilterLabel" xml:space="preserve">
+    <value>ตัวหนังสือในเกมเป็นแบบไหน</value>
+  </data>
+  <data name="GamesFilterSub" xml:space="preserve">
+    <value>เลือกให้ตรง แอปจะอ่านได้แม่นขึ้น</value>
+  </data>
+  <data name="GamesFilterWhite" xml:space="preserve">
+    <value>ตัวขาว ขอบดำ</value>
+  </data>
+  <data name="GamesPlacementLabel" xml:space="preserve">
+    <value>คำแปลขึ้นแบบไหน</value>
+  </data>
+  <data name="GamesPlacementFit" xml:space="preserve">
+    <value>ทับซับเดิมทีละบรรทัด</value>
+  </data>
+  <data name="GamesSendToWeb" xml:space="preserve">
+    <value>ส่งซับโซนนี้ไปมือถือและทีวี</value>
+  </data>
+  <data name="GamesSendToWebSub" xml:space="preserve">
+    <value>ปิดไว้ถ้าอยากให้ขึ้นแค่บนจอคอม</value>
+  </data>
+  <data name="GamesLearn" xml:space="preserve">
+    <value>จำคำแปลไว้ใช้ซ้ำ</value>
+  </data>
+  <data name="GamesLearnSub" xml:space="preserve">
+    <value>เจอประโยคเดิมจะใช้คำแปลเดิม ประหยัดค่า AI และเร็วขึ้น</value>
+  </data>
+  <data name="GamesSpeakerSub" xml:space="preserve">
+    <value>ข้ามป้ายร้าน ทะเบียนรถ และตัวหนังสืออื่นที่ไม่ใช่บทพูด</value>
+  </data>
+  <data name="GamesSpeakerWarn" xml:space="preserve">
+    <value>อย่าเปิดถ้าซับในเกมไม่มีชื่อคนพูด — ซับจะไม่ขึ้นเลย</value>
+  </data>
+  <data name="GamesTrigger" xml:space="preserve">
+    <value>แปลเฉพาะเมื่อเจอคำที่กำหนด</value>
+  </data>
+  <data name="GamesTriggerSub" xml:space="preserve">
+    <value>เช่น ให้แปลเมื่อมีคำว่า Quest — ใส่หลายคำคั่นด้วย ,</value>
+  </data>
 </root>
