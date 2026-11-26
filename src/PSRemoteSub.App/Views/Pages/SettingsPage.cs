@@ -125,6 +125,83 @@ public abstract class SettingsPage : UserControl
         return panel;
     }
 
+    /// <summary>A form label: the title (semibold, wraps) and an optional sub line (14 px, muted).</summary>
+    protected static StackPanel FormLabel(string title, string? sub = null)
+    {
+        var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+        stack.Children.Add(new TextBlock { Classes = { "lbl" }, Text = title, TextWrapping = Avalonia.Media.TextWrapping.Wrap });
+        if (!string.IsNullOrEmpty(sub))
+            stack.Children.Add(new TextBlock { Classes = { "sub" }, Text = sub, FontSize = 14, TextWrapping = Avalonia.Media.TextWrapping.Wrap });
+        return stack;
+    }
+
+    /// <summary>
+    /// A responsive form row as in the mockups (label | control). While the row is wide enough for the label to keep at
+    /// least <paramref name="minLabelWidth"/>, the label sits on the left and <paramref name="control"/> in a fixed
+    /// <paramref name="controlWidth"/> column on the right (24 px apart); narrower, the label stacks above the control,
+    /// which then takes the full width. Example: <c>FormRow(Loc.Get("GamesTitleLabel"), Loc.Get("GamesTitleSub"), box)</c>.
+    /// </summary>
+    protected static Grid FormRow(string title, string? sub, Control control, double controlWidth = 300, double minLabelWidth = 220)
+    {
+        const double gap = 24;
+        var label = FormLabel(title, sub);
+        var grid = new Grid();
+        grid.Children.Add(label);
+        grid.Children.Add(control);
+        control.VerticalAlignment = VerticalAlignment.Center;
+        bool? wide = null;
+        void Apply(bool w)
+        {
+            if (wide == w)
+                return;
+            wide = w;
+            if (w)
+            {
+                grid.ColumnDefinitions = new ColumnDefinitions { new(GridLength.Star), new(controlWidth, GridUnitType.Pixel) };
+                grid.RowDefinitions = new RowDefinitions("Auto");
+                grid.ColumnSpacing = gap;
+                grid.RowSpacing = 0;
+                Grid.SetColumn(control, 1);
+                Grid.SetRow(control, 0);
+            }
+            else
+            {
+                grid.ColumnDefinitions = new ColumnDefinitions("*");
+                grid.RowDefinitions = new RowDefinitions("Auto,Auto");
+                grid.ColumnSpacing = 0;
+                grid.RowSpacing = 10;
+                Grid.SetColumn(control, 0);
+                Grid.SetRow(control, 1);
+            }
+        }
+        Apply(true);
+        // Only the width decides, and switching changes only the height, so this cannot oscillate.
+        grid.SizeChanged += (_, e) =>
+        {
+            if (e.WidthChanged)
+                Apply(e.NewSize.Width - controlWidth - gap >= minLabelWidth);
+        };
+        return grid;
+    }
+
+    /// <summary>
+    /// A toggle row: <see cref="FormLabel"/> plus optional <paramref name="extra"/> content (a note, a text box) on the
+    /// left, the switch (ToggleSwitch.tg) top-right.
+    /// </summary>
+    protected static Grid FormToggleRow(string title, string? sub, ToggleSwitch toggle, Control? extra = null)
+    {
+        var left = FormLabel(title, sub);
+        if (extra is not null)
+            left.Children.Add(extra);
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 16 };
+        grid.Children.Add(left);
+        toggle.VerticalAlignment = VerticalAlignment.Top;
+        toggle.Margin = new Thickness(0, 2, 0, 0);
+        Grid.SetColumn(toggle, 1);
+        grid.Children.Add(toggle);
+        return grid;
+    }
+
     /// <summary>A section card (Border.section) with heading and body.</summary>
     protected static Border Section(string title, string? sub, Control body) => new()
     {

@@ -174,22 +174,22 @@ public sealed class GamesPage : SettingsPage
         wholeHeader.Children.Add(headerButtons);
 
         var langBlock = new StackPanel { Spacing = 10 };
-        langBlock.Children.Add(Row(Loc.Get("GamesLangLabel"), Loc.Get("GamesLangSub"), _sourceLang));
+        langBlock.Children.Add(FormRow(Loc.Get("GamesLangLabel"), Loc.Get("GamesLangSub"), _sourceLang));
         langBlock.Children.Add(_ocrNote);
         langBlock.Children.Add(_ocrMessage);
 
         var minBlock = new StackPanel { Spacing = 10 };
-        minBlock.Children.Add(Label(Loc.Get("GamesMinLabel"), Loc.Get("GamesMinSub")));
+        minBlock.Children.Add(FormLabel(Loc.Get("GamesMinLabel"), Loc.Get("GamesMinSub")));
         minBlock.Children.Add(new Border { Classes = { "seg" }, Child = _minPanel });
 
         var libraryBlock = new StackPanel { Spacing = 8 };
-        libraryBlock.Children.Add(Row(Loc.Get("LibraryLabel"), Loc.Get("GamesLibrarySub"), libraryRow));
+        libraryBlock.Children.Add(FormRow(Loc.Get("LibraryLabel"), Loc.Get("GamesLibrarySub"), libraryRow));
         libraryBlock.Children.Add(_libraryNote);
 
         var whole = Card(
             wholeHeader,
             _renamePanel,
-            Row(Loc.Get("GamesTitleLabel"), Loc.Get("GamesTitleSub"), _gameTitle),
+            FormRow(Loc.Get("GamesTitleLabel"), Loc.Get("GamesTitleSub"), _gameTitle),
             Hr(),
             langBlock,
             Hr(),
@@ -264,16 +264,16 @@ public sealed class GamesPage : SettingsPage
             SectionHeader(Loc.Get("GamesZones"), Loc.Get("GamesZonesSub")),
             zoneBar,
             boxCard,
-            Row(Loc.Get("ZoneNameLabel"), null, zoneNameRow),
+            FormRow(Loc.Get("ZoneNameLabel"), null, zoneNameRow),
             Hr(),
-            Row(Loc.Get("GamesFilterLabel"), Loc.Get("GamesFilterSub"), _filter),
+            FormRow(Loc.Get("GamesFilterLabel"), Loc.Get("GamesFilterSub"), _filter),
             Hr(),
-            Row(Loc.Get("GamesPlacementLabel"), null, _placement),
+            FormRow(Loc.Get("GamesPlacementLabel"), null, _placement),
             Hr(),
-            ToggleRow(Loc.Get("GamesSendToWeb"), Loc.Get("GamesSendToWebSub"), _sendToWeb),
-            ToggleRow(Loc.Get("GamesLearn"), Loc.Get("GamesLearnSub"), _learn),
-            ToggleRow(Loc.Get("SpeakerLinesOnly"), Loc.Get("GamesSpeakerSub"), _speakerLinesOnly, speakerWarn),
-            ToggleRow(Loc.Get("GamesTrigger"), Loc.Get("GamesTriggerSub"), _trigger, _triggerWords));
+            FormToggleRow(Loc.Get("GamesSendToWeb"), Loc.Get("GamesSendToWebSub"), _sendToWeb),
+            FormToggleRow(Loc.Get("GamesLearn"), Loc.Get("GamesLearnSub"), _learn),
+            FormToggleRow(Loc.Get("SpeakerLinesOnly"), Loc.Get("GamesSpeakerSub"), _speakerLinesOnly, speakerWarn),
+            FormToggleRow(Loc.Get("GamesTrigger"), Loc.Get("GamesTriggerSub"), _trigger, _triggerWords));
         _triggerWords.Margin = new Thickness(0, 8, 0, 0);
 
         _editor = PageBody(whole, zones);
@@ -971,42 +971,6 @@ public sealed class GamesPage : SettingsPage
     }
 
     private static Border Hr() => new() { Classes = { "hr" } };
-
-    /// <summary>Label (semibold) with an optional sub line.</summary>
-    private static StackPanel Label(string title, string? sub)
-    {
-        var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        stack.Children.Add(new TextBlock { Classes = { "lbl" }, Text = title, TextWrapping = TextWrapping.Wrap });
-        if (!string.IsNullOrEmpty(sub))
-            stack.Children.Add(new TextBlock { Classes = { "sub" }, Text = sub, FontSize = 14, TextWrapping = TextWrapping.Wrap });
-        return stack;
-    }
-
-    /// <summary>A form row as in the mockup: label and sub on the left, the control in a 300 px column on the right.</summary>
-    private static Grid Row(string title, string? sub, Control control)
-    {
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,300"), ColumnSpacing = 24 };
-        grid.Children.Add(Label(title, sub));
-        control.VerticalAlignment = VerticalAlignment.Center;
-        Grid.SetColumn(control, 1);
-        grid.Children.Add(control);
-        return grid;
-    }
-
-    /// <summary>A toggle row: label, sub and optional extra content (note, text box) on the left, the switch on the right.</summary>
-    private static Grid ToggleRow(string title, string sub, ToggleSwitch toggle, Control? extra = null)
-    {
-        var left = Label(title, sub);
-        if (extra is not null)
-            left.Children.Add(extra);
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 16 };
-        grid.Children.Add(left);
-        toggle.VerticalAlignment = VerticalAlignment.Top;
-        toggle.Margin = new Thickness(0, 2, 0, 0);
-        Grid.SetColumn(toggle, 1);
-        grid.Children.Add(toggle);
-        return grid;
-    }
 
     private static StackPanel Buttons(params Button[] buttons)
     {
