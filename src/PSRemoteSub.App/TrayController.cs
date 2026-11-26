@@ -55,6 +55,9 @@ internal sealed class TrayController : IDisposable
             }
         };
 
+        var openHome = new NativeMenuItem(Loc.Get("TrayOpenHome"));
+        openHome.Click += (_, _) => Safe(() => _host.RequestMainWindow(MainPage.Home));
+
         var settings = new NativeMenuItem(Loc.Get("TraySettings"));
         settings.Click += (_, _) => Safe(_host.RequestSettings);
 
@@ -69,11 +72,13 @@ internal sealed class TrayController : IDisposable
         var menu = new NativeMenu();
         foreach (var item in new NativeMenuItemBase[]
                  {
-                     _pause, _profiles, selectRegion, _captureWindow, new NativeMenuItemSeparator(),
+                     openHome, new NativeMenuItemSeparator(), _pause, _profiles, selectRegion, _captureWindow, new NativeMenuItemSeparator(),
                      _overlay, _regionFrames, _web, new NativeMenuItemSeparator(), settings, quit,
                  })
             menu.Items.Add(item);
         _icon = new TrayIcon { Icon = new WindowIcon(iconStream), Menu = menu, ToolTipText = host.StatusText }; // macOS rejects a null tooltip
+        // Windows: a left click opens Home. macOS shows the menu on click, and the menu's first item opens Home.
+        _icon.Clicked += (_, _) => Safe(() => _host.RequestMainWindow(MainPage.Home));
         TrayIcon.SetIcons(app, [_icon]);
 
         _host.StateChanged += OnStateChanged;

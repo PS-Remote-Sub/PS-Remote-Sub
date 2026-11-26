@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using PSRemoteSub.App.Updates;
 using PSRemoteSub.Core.Diagnostics;
+using PSRemoteSub.Core.Hub;
 using PSRemoteSub.Core.Platform;
 using PSRemoteSub.Core.Settings;
 
@@ -14,6 +15,8 @@ public partial class App : Application
     private static readonly TimeSpan StartFailureNoticeTime = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan ExitWait = TimeSpan.FromSeconds(3);
     private static readonly TimeSpan UpdateCheckDelay = TimeSpan.FromSeconds(10);
+    /// <summary>How long after start the status is trusted (it starts as "nothing found").</summary>
+    private static readonly TimeSpan StartupSettle = TimeSpan.FromSeconds(5);
 
     private AppHost? _host;
     private TrayController? _tray;
@@ -68,7 +71,8 @@ public partial class App : Application
 
             ThemeApplier.Apply(this, settings.Theme);
             _host = new AppHost(settings, store, Program.Platform);
-            if (!File.Exists(AppPaths.SettingsFile))
+            bool firstRun = !File.Exists(AppPaths.SettingsFile);
+            if (firstRun)
                 _host.SaveSettings();
 
             await _host.StartAsync();
@@ -90,8 +94,12 @@ public partial class App : Application
                 activatable.Activated += (_, _) => host.RefreshPermissions();
             }
             _tray = new TrayController(this, _host, () => ExitAsync(desktop));
-            // The settings window greets every launch (the user asked for it); closing it leaves the app in the tray.
-            _host.RequestSettings();
+            // First run: Home. Later launches stay quiet in the tray and open Home only when something needs fixing in
+            // the app (checked once the status has settled; not finding Remote Play yet is not such a problem).
+            if (firstRun)
+                _host.RequestMainWindow(MainPage.Home);
+            else
+                _ = OpenHomeIfNeededLaterAsync(_host);
             _ = CheckForUpdatesLaterAsync(_host, () => ExitAsync(desktop));
             Log.Info("Started");
         }
@@ -114,6 +122,23 @@ public partial class App : Application
     /// Update check 10 s after startup, then the library update (both no-ops without a repository URL). Runs in the
     /// background on the UI thread's context; never throws.
     /// </summary>
+    private async Task OpenHomeIfNeededLaterAsync(AppHost host)
+    {
+        try
+        {
+            await Task.Delay(StartupSettle); // continues on the UI thread (posted from it)
+            if (_exiting)
+                return;
+            var summary = HomeStatus.Summarize(host.Status, host.IsPaused, DateTimeOffset.Now);
+            if (HomeStatus.ShouldAutoOpen(summary))
+                host.RequestMainWindow(MainPage.Home);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Start: checking whether to open Home failed", ex); // the tray is still there
+        }
+    }
+
     private static async Task CheckForUpdatesLaterAsync(AppHost host, Func<Task> exitApp)
     {
         try

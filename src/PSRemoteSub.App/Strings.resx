@@ -999,4 +999,7 @@
   <data name="IssueOpenCapture" xml:space="preserve">
     <value>เปิดหน้าต่าง capture card</value>
   </data>
+  <data name="TrayOpenHome" xml:space="preserve">
+    <value>เปิดหน้าหลัก</value>
+  </data>
 </root>
