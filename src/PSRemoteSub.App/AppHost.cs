@@ -109,6 +109,9 @@ public sealed class AppHost : IAsyncDisposable
     private readonly SourceWatch _sourceWatch = new();
     // The pending "update now?" answer (the update notice's buttons or ×), while an update notice is up.
     private TaskCompletionSource<bool>? _updateAnswer;
+    // The update notice that asks it: when it leaves the screen without "อัปเดต" (×, "ไว้ทีหลัง", evicted, app closing),
+    // the answer is "later", so the update check (and the library update after it) always finishes.
+    private Notice? _updateNotice;
 
     public AppHost(AppSettings settings, SettingsStore store, IPlatformServices platform)
     {
@@ -124,7 +127,7 @@ public sealed class AppHost : IAsyncDisposable
         _ocr = platform.Ocr;
         _ocrInstaller = platform.OcrInstaller;
         LanAccess = platform.LanAccess;
-        _notifier = new Notifier(_overlayPlatform, HandleNoticeAction, OnNoticeClosed);
+        _notifier = new Notifier(_overlayPlatform, HandleNoticeAction, OnNoticeRemoved);
 
         AiHttp = new HttpClient { Timeout = AiHttpTimeout };
         AiHttp.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("PSRemoteSub", Version));
@@ -894,7 +897,7 @@ public sealed class AppHost : IAsyncDisposable
         if (RegionSelectionRequested is { } handler)
             handler(this, zoneId);
         else
-            Notify(Notice.Warn(Loc.Get("RegionPickerMissing"), topic: NoticeTopics.Region));
+            Notify(Notice.Done(Loc.Get("RegionPickerMissing"), topic: NoticeTopics.Region)); // a reply, not a condition
     }
 
     /// <summary>UI thread. Raises <see cref="MainWindowRequested"/> for the given page.</summary>
@@ -925,11 +928,17 @@ public sealed class AppHost : IAsyncDisposable
         Settings.PictureSource = source;
         Log.Info($"Picture source: {source}");
         _sources?.Select(source);
-        _sourceWatch.Reset();
+        ForgetSourceNotices();
+        // Statuses about the old source may already be queued on the UI thread (posted by the hub before the switch):
+        // forget again after them, so they cannot leave a "not found" notice about the old source behind.
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (!_disposed)
+                ForgetSourceNotices();
+        });
         RaiseCaptureWindowRequested();
-        // Topic "source": also takes away a "minimized / not found" notice about the previous source.
         Notify(Notice.Done(Loc.Get("SourceSwitched"), Loc.Format("SourceSwitchedBody", SelectRegionHotkeyLabel()),
-            NoticeTopics.Source, new NoticeAction(Loc.Get("NoticeActionCheckRegion"), NoticeActionIds.SelectRegion)));
+            NoticeTopics.SourceSwitch, new NoticeAction(Loc.Get("NoticeActionCheckRegion"), NoticeActionIds.SelectRegion)));
         ApplySettings();
         SaveSettings();
         RefreshPermissions();
@@ -1053,8 +1062,9 @@ public sealed class AppHost : IAsyncDisposable
     public void Notify(Notice notice) => _notifier.Show(notice);
 
     /// <summary>
-    /// UI thread. Shows the "new version" notice and completes with the answer: true for "อัปเดต", false for
-    /// "ไว้ทีหลัง" or ×. Asking again answers the previous question with false.
+    /// UI thread. Shows the "new version" notice and completes with the answer: true for "อัปเดต", false when the
+    /// notice goes any other way ("ไว้ทีหลัง", ×, pushed out by newer notices, app closing). Asking again answers the
+    /// previous question with false.
     /// </summary>
     public Task<bool> AskUpdateAsync(string version)
     {
@@ -1067,13 +1077,15 @@ public sealed class AppHost : IAsyncDisposable
             return answer.Task;
         }
         _updateAnswer = answer;
-        Notify(Notice.Info(Loc.Format("UpdateAvailable", version), Loc.Get("UpdateAvailableBody"), NoticeTopics.Update,
+        var notice = Notice.Info(Loc.Format("UpdateAvailable", version), Loc.Get("UpdateAvailableBody"), NoticeTopics.Update,
             new NoticeAction(Loc.Get("UpdateYes"), NoticeActionIds.UpdateNow),
-            new NoticeAction(Loc.Get("UpdateLater"), NoticeActionIds.UpdateLater)));
+            new NoticeAction(Loc.Get("UpdateLater"), NoticeActionIds.UpdateLater));
+        _updateNotice = notice;
+        Notify(notice);
         return answer.Task;
     }
 
-    /// <summary>UI thread. Every notice button ends here (<see cref="NoticeActionIds"/>); its notice is already gone.</summary>
+    /// <summary>UI thread. Every notice button ends here (<see cref="NoticeActionIds"/>); its notice is removed right after.</summary>
     private void HandleNoticeAction(string id)
     {
         if (_disposed)
@@ -1104,10 +1116,13 @@ public sealed class AppHost : IAsyncDisposable
             Log.Warn($"Unknown notice action: {id}");
     }
 
-    /// <summary>UI thread. The user closed a sticky notice with ×: for the update notice, that means "later".</summary>
-    private void OnNoticeClosed(Notice notice)
+    /// <summary>
+    /// UI thread. A notice left the screen (any reason). The update question leaving unanswered means "later"; after
+    /// "อัปเดต" the answer is already set, so this does nothing.
+    /// </summary>
+    private void OnNoticeRemoved(Notice notice)
     {
-        if (notice.Topic == NoticeTopics.Update)
+        if (ReferenceEquals(notice, _updateNotice))
             AnswerUpdate(false);
     }
 
@@ -1115,7 +1130,15 @@ public sealed class AppHost : IAsyncDisposable
     {
         var answer = _updateAnswer;
         _updateAnswer = null;
+        _updateNotice = null;
         answer?.TrySetResult(yes);
+    }
+
+    /// <summary>UI thread. The picture source changed: no "minimized / not found" notice about the old one stays.</summary>
+    private void ForgetSourceNotices()
+    {
+        _sourceWatch.Reset();
+        _notifier.DismissTopic(NoticeTopics.Source);
     }
 
     private static Notice CaptureUnavailableNotice() =>
@@ -1131,6 +1154,13 @@ public sealed class AppHost : IAsyncDisposable
         var change = _sourceWatch.Update(status.RemotePlayFound, status.Minimized);
         if (change == SourceChange.None)
             return;
+        // "แปลต่อแล้ว" only when translation really runs again; otherwise just take the warning away.
+        if (change == SourceChange.Found
+            && (_paused || status.Paused || status.NoRegion || status.OcrUnavailable))
+        {
+            _notifier.DismissTopic(NoticeTopics.Source);
+            return;
+        }
         bool card = PictureSource == PictureSource.CaptureCard;
         var openWindow = new NoticeAction(Loc.Get("NoticeActionOpenWindow"), NoticeActionIds.OpenCapture);
         Notify(change switch
@@ -1215,7 +1245,7 @@ public sealed class AppHost : IAsyncDisposable
         Dispatcher.UIThread.VerifyAccess();
         if (_pipeline?.LastCapture is not { } capture)
         {
-            Notify(Notice.Warn(Loc.Get("NoFrameToSave"), topic: NoticeTopics.Frame));
+            Notify(Notice.Done(Loc.Get("NoFrameToSave"), topic: NoticeTopics.Frame)); // a reply to the key, not a condition
             return;
         }
         var stamp = DateTime.Now.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
@@ -1230,7 +1260,7 @@ public sealed class AppHost : IAsyncDisposable
         catch (Exception ex)
         {
             Log.Warn("Saving the frame failed", ex);
-            Notify(Notice.Warn(Loc.Get("FrameSaveFailed"), ex.Message, NoticeTopics.Frame));
+            Notify(Notice.Done(Loc.Get("FrameSaveFailed"), ex.Message, NoticeTopics.Frame)); // a reply to the key
         }
     }
 
@@ -1816,7 +1846,10 @@ public sealed class AppHost : IAsyncDisposable
                     }
                 }
                 if (!want)
+                {
                     _webFailedPort = null;
+                    _notifier.DismissTopic(NoticeTopics.Web); // turned off: a start failure no longer matters
+                }
             }
             finally
             {

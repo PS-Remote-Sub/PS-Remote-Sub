@@ -26,6 +26,7 @@ internal static class NoticeActionIds
 internal static class NoticeTopics
 {
     public const string Source = "source";
+    public const string SourceSwitch = "source-switch";
     public const string Update = Notifier.UpdateTopic;
     public const string Capture = "capture";
     public const string Tv = "tv";

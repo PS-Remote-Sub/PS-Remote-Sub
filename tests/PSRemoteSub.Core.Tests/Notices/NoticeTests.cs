@@ -123,6 +123,29 @@ public class NoticeTests
         Assert.Same(b, Assert.Single(shown));
     }
 
+    [Fact]
+    public void Removed_ReportsEvictedNotice()
+    {
+        var update = Make(NoticeKind.Info, "update", "update");
+        IReadOnlyList<Notice> before = NoticeQueue.Add([], update);
+        IReadOnlyList<Notice> shown = before;
+        foreach (var t in new[] { "a", "b" })
+            shown = NoticeQueue.Add(shown, Make(NoticeKind.Warn, t, t));
+        before = shown;
+        shown = NoticeQueue.Add(shown, Make(NoticeKind.Warn, "c", "c"));
+        Assert.Same(update, Assert.Single(NoticeQueue.Removed(before, shown)));
+    }
+
+    [Fact]
+    public void Removed_ReportsReplacedNotice_NotTheOnesKept()
+    {
+        var lost = Make(NoticeKind.Warn, "lost", "source");
+        var other = Make(NoticeKind.Warn, "other", "web");
+        var before = NoticeQueue.Add(NoticeQueue.Add([], lost), other);
+        var after = NoticeQueue.Add(before, Make(NoticeKind.Done, "found", "source"));
+        Assert.Same(lost, Assert.Single(NoticeQueue.Removed(before, after)));
+    }
+
     // ---- SourceWatch: Remote Play minimized / lost / found again ----
 
     [Fact]

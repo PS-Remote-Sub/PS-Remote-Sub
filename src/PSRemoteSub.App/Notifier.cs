@@ -13,9 +13,12 @@ namespace PSRemoteSub.App;
 /// (<see cref="NoticeQueue"/> decides what is shown). <see cref="Show"/> and <see cref="DismissTopic"/> are callable
 /// from any thread.
 /// </summary>
-/// <param name="onAction">UI thread. A notice's button was clicked (the notice is already gone): its action id.</param>
-/// <param name="onClosed">UI thread. The user closed a sticky notice with ×.</param>
-internal sealed class Notifier(IOverlayWindowPlatform overlayPlatform, Action<string> onAction, Action<Notice> onClosed)
+/// <param name="onAction">UI thread. A notice's button was clicked: its action id (the notice is removed right after).</param>
+/// <param name="onRemoved">
+/// UI thread. A notice left the screen for any reason: closed with ×, a button, timed out, replaced on its topic,
+/// dismissed, or evicted over the cap. Whoever waits on its answer learns it will not come (after a button: already had it).
+/// </param>
+internal sealed class Notifier(IOverlayWindowPlatform overlayPlatform, Action<string> onAction, Action<Notice> onRemoved)
 {
     /// <summary>The update notice's topic (its icon is the download arrow).</summary>
     public const string UpdateTopic = "update";
@@ -32,8 +35,7 @@ internal sealed class Notifier(IOverlayWindowPlatform overlayPlatform, Action<st
         ArgumentNullException.ThrowIfNull(notice);
         OnUiThread(() =>
         {
-            _shown = NoticeQueue.Add(_shown, notice);
-            Sync();
+            SetShown(NoticeQueue.Add(_shown, notice));
         });
     }
 
@@ -42,15 +44,17 @@ internal sealed class Notifier(IOverlayWindowPlatform overlayPlatform, Action<st
     {
         if (!_shown.Any(n => n.Topic == topic))
             return;
-        _shown = NoticeQueue.DismissTopic(_shown, topic);
-        Sync();
+        SetShown(NoticeQueue.DismissTopic(_shown, topic));
     });
 
     /// <summary>UI thread. Closes every toast; later calls do nothing.</summary>
     public void Close()
     {
         _closed = true;
+        var removed = _shown;
         _shown = [];
+        foreach (var notice in removed)
+            Safe(() => onRemoved(notice));
         foreach (var window in _windows.Values.ToList())
             CloseWindow(window);
         _windows.Clear();
@@ -75,10 +79,16 @@ internal sealed class Notifier(IOverlayWindowPlatform overlayPlatform, Action<st
         }
     }
 
-    private void Dismiss(Notice notice)
+    private void Dismiss(Notice notice) => SetShown(NoticeQueue.Dismiss(_shown, notice));
+
+    /// <summary>Shows <paramref name="next"/>, then reports every notice that left the screen.</summary>
+    private void SetShown(IReadOnlyList<Notice> next)
     {
-        _shown = NoticeQueue.Dismiss(_shown, notice);
+        var removed = NoticeQueue.Removed(_shown, next);
+        _shown = next;
         Sync();
+        foreach (var notice in removed)
+            Safe(() => onRemoved(notice));
     }
 
     /// <summary>Closes the windows of notices no longer shown, creates the new ones, and restacks them.</summary>
@@ -127,14 +137,12 @@ internal sealed class Notifier(IOverlayWindowPlatform overlayPlatform, Action<st
         window.Present(notice);
         window.ActionClicked += (_, id) =>
         {
-            Dismiss(notice);
+            // The action first: its answer (for example "update now") must win over "removed without an answer".
             Safe(() => onAction(id));
+            if (!_closed)
+                Dismiss(notice);
         };
-        window.CloseClicked += (_, _) =>
-        {
-            Dismiss(notice);
-            Safe(() => onClosed(notice));
-        };
+        window.CloseClicked += (_, _) => Dismiss(notice);
         window.Expired += (_, _) => Dismiss(notice);
         // Text wraps to the final height once shown: restack.
         window.SizeChanged += (_, e) =>

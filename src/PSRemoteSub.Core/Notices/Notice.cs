@@ -80,6 +80,17 @@ public static class NoticeQueue
         return shown.Where(n => !ReferenceEquals(n, notice)).ToList();
     }
 
+    /// <summary>
+    /// The notices in <paramref name="before"/> that are gone from <paramref name="after"/> (by reference): replaced,
+    /// evicted over the cap, or dismissed. Whoever waits on a notice's answer learns it will not come.
+    /// </summary>
+    public static IReadOnlyList<Notice> Removed(IReadOnlyList<Notice> before, IReadOnlyList<Notice> after)
+    {
+        ArgumentNullException.ThrowIfNull(before);
+        ArgumentNullException.ThrowIfNull(after);
+        return before.Where(n => !after.Contains(n, ReferenceEqualityComparer.Instance)).ToList();
+    }
+
     /// <summary>Removes the notices about <paramref name="topic"/> (the problem was fixed without a new notice).</summary>
     public static IReadOnlyList<Notice> DismissTopic(IReadOnlyList<Notice> shown, string topic)
     {

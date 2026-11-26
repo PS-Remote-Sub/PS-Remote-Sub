@@ -179,7 +179,7 @@ internal sealed class AppWindows : IDisposable
             if (frame is null || _host.TargetWindow is not { IsMinimized: false } window
                 || window.ClientScreenRect.Width <= 0 || window.ClientScreenRect.Height <= 0)
             {
-                _host.Notify(Notice.Warn(Loc.Get("NoFrameYet"), topic: NoticeTopics.Region));
+                _host.Notify(Notice.Done(Loc.Get("NoFrameYet"), topic: NoticeTopics.Region)); // a reply to the key
                 return;
             }
 
@@ -218,7 +218,7 @@ internal sealed class AppWindows : IDisposable
             // The previous region stays.
             Log.Warn("Region pick failed", ex);
             if (!_disposed)
-                _host.Notify(Notice.Warn(Loc.Get("RegionPickFailed"), Loc.Get("RegionPickFailedBody"), NoticeTopics.Region));
+                _host.Notify(Notice.Done(Loc.Get("RegionPickFailed"), Loc.Get("RegionPickFailedBody"), NoticeTopics.Region)); // a reply
         }
         finally
         {
