@@ -51,7 +51,11 @@ public partial class MainWindow : Window
         if (Application.Current is { } app)
             app.ActualThemeVariantChanged += OnThemeChanged;
         Closing += OnClosing;
-        Activated += (_, _) => Safe(host.RefreshPermissions); // the user may have just granted one in System Settings
+        Activated += (_, _) => Safe(() =>
+        {
+            host.RefreshPermissions();
+            ShowPermissionBanner();
+        }); // the user may have just granted one in System Settings
         Closed += (_, _) =>
         {
             CommitAndFlushCurrent();
@@ -61,6 +65,7 @@ public partial class MainWindow : Window
                 a.ActualThemeVariantChanged -= OnThemeChanged;
         };
         host.RefreshPermissions();
+        ShowPermissionBanner();
         Refresh();
         UpdateThemeButton();
         ShowPage(MainPage.Home);
@@ -203,7 +208,7 @@ public partial class MainWindow : Window
         ReloadIfGameChanged();
     });
 
-    // Any game switch (sidebar, tray, legacy window): the shown page commits into the game being left first.
+    // Any game switch (sidebar, tray): the shown page commits into the game being left first.
     private void OnActiveProfileChanging(object? sender, EventArgs e) => CommitAndFlushCurrent();
 
     private void ReloadIfGameChanged()
