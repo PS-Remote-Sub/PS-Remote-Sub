@@ -378,7 +378,7 @@ public sealed class GeneralPage : SettingsPage
             if (e.Key is Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt or Key.LeftShift or Key.RightShift
                 or Key.LWin or Key.RWin or Key.System)
                 return; // a modifier on its own: keep waiting
-            if (ChordKey(e.Key) is not { } key)
+            if (ChordKey(e.Key, e.PhysicalKey, Host.Platform.Kind == PlatformKind.MacOS) is not { } key)
                 return; // not a letter or digit
             var mods = e.KeyModifiers;
             bool ctrl = mods.HasFlag(KeyModifiers.Control), alt = mods.HasFlag(KeyModifiers.Alt), shift = mods.HasFlag(KeyModifiers.Shift);
@@ -390,6 +390,34 @@ public sealed class GeneralPage : SettingsPage
             }
             Assign(action, new HotkeySpec(ctrl, alt, shift, key).ToString());
         });
+    }
+
+    /// <summary>
+    /// The letter or digit of a chord. macOS: from the physical key (the global hotkeys are registered by physical ANSI
+    /// keycode, and Avalonia's <see cref="Key"/> follows the input source: Thai, Option-altered characters), falling back
+    /// to <paramref name="key"/>. Windows: <paramref name="key"/> (VK based, like RegisterHotKey). Null: not a letter or digit.
+    /// Kept in App (not Core, where there is no test project access to Avalonia's types).
+    /// </summary>
+    internal static char? ChordKey(Key key, PhysicalKey physical, bool mac)
+    {
+        if (mac && PhysicalChar(physical) is { } c)
+            return c;
+        return ChordKey(key);
+    }
+
+    private static char? PhysicalChar(PhysicalKey key)
+    {
+        if (key is >= PhysicalKey.A and <= PhysicalKey.Z)
+            return (char)('A' + (key - PhysicalKey.A));
+        if (key is >= PhysicalKey.Digit1 and <= PhysicalKey.Digit9)
+            return (char)('1' + (key - PhysicalKey.Digit1));
+        if (key == PhysicalKey.Digit0)
+            return '0';
+        if (key is >= PhysicalKey.NumPad1 and <= PhysicalKey.NumPad9)
+            return (char)('1' + (key - PhysicalKey.NumPad1));
+        if (key == PhysicalKey.NumPad0)
+            return '0';
+        return null;
     }
 
     private static char? ChordKey(Key key)
