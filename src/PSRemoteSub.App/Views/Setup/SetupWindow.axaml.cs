@@ -38,6 +38,12 @@ public partial class SetupWindow : Window
         ThemeButton.Click += (_, _) => Safe(ToggleTheme);
         if (Application.Current is { } app)
             app.ActualThemeVariantChanged += OnThemeChanged;
+        // Logout / app quit: close quietly, like CloseForExit (nothing may open a window during shutdown).
+        Closing += (_, e) =>
+        {
+            if (e.CloseReason is WindowCloseReason.ApplicationShutdown or WindowCloseReason.OSShutdown)
+                _finished = true;
+        };
         Closed += (_, _) =>
         {
             if (Application.Current is { } a)

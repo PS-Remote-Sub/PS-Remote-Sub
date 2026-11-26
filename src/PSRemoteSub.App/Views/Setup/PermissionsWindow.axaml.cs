@@ -53,6 +53,13 @@ public partial class PermissionsWindow : Window
             _shown = null; // brushes are resolved per theme
             Rebuild();
         });
+        // Logout / app quit closes every window before Exit: treat it like CloseForExit, or the first-run continuation
+        // would open the wizard and that new window would cancel the shutdown.
+        Closing += (_, e) =>
+        {
+            if (e.CloseReason is WindowCloseReason.ApplicationShutdown or WindowCloseReason.OSShutdown)
+                _forExit = true;
+        };
         Closed += (_, _) => host.StateChanged -= OnHostStateChanged;
         BuildNotes();
         Rebuild();
