@@ -38,7 +38,7 @@
   <DockPanel>
   <!-- Missing OS permissions (macOS): one row each with a button to the System Settings page; empty elsewhere. -->
   <StackPanel x:Name="PermBanner" DockPanel.Dock="Top" Spacing="6" Margin="8,8,8,0" IsVisible="False" />
-  <TabControl Margin="8,4,8,8">
+  <TabControl x:Name="Tabs" Margin="8,4,8,8">
     <!-- โปรไฟล์ -->
     <TabItem Header="{app:Tr TabProfiles}">
       <ScrollViewer HorizontalScrollBarVisibility="Disabled">

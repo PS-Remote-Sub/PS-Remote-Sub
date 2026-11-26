@@ -14,6 +14,7 @@ internal sealed class AppWindows : IDisposable
 {
     private readonly AppHost _host;
     private SettingsWindow? _settings;
+    private MainWindow? _main;
     private bool _picking;
     private bool _disposed;
 
@@ -21,7 +22,7 @@ internal sealed class AppWindows : IDisposable
     {
         _host = host;
         _host.RegionSelectionRequested += OnRegionSelectionRequested;
-        _host.SettingsRequested += OnSettingsRequested;
+        _host.MainWindowRequested += OnMainWindowRequested;
     }
 
     public void Dispose()
@@ -30,7 +31,7 @@ internal sealed class AppWindows : IDisposable
             return;
         _disposed = true;
         _host.RegionSelectionRequested -= OnRegionSelectionRequested;
-        _host.SettingsRequested -= OnSettingsRequested;
+        _host.MainWindowRequested -= OnMainWindowRequested;
         try
         {
             RegionPickerWindow.CancelOpen();
@@ -48,15 +49,61 @@ internal sealed class AppWindows : IDisposable
             Log.Warn("Closing windows failed", ex); // exiting anyway
         }
         _settings = null;
+        try
+        {
+            _main?.CloseForExit();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Closing windows failed", ex); // exiting anyway
+        }
+        _main = null;
     }
 
     private void OnRegionSelectionRequested(object? sender, string? zoneId) => _ = PickRegionAsync(zoneId);
 
-    private void OnSettingsRequested(object? sender, EventArgs e)
+    private void OnMainWindowRequested(object? sender, MainPage page)
+    {
+        try
+        {
+            ShowMain(page);
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("Opening the main window failed", ex); // must not take the app down
+        }
+    }
+
+    /// <summary>Shows the one main window on a page: creates it, or shows/restores/fronts the hidden or open one.</summary>
+    public void ShowMain(MainPage page)
+    {
+        if (_disposed)
+            return;
+        if (_main is null)
+        {
+            var window = new MainWindow(_host, ShowLegacySettings);
+            window.Closed += (_, _) =>
+            {
+                if (_main == window)
+                    _main = null;
+            };
+            _main = window;
+        }
+        if (!_main.IsVisible)
+            _main.Show();
+        if (_main.WindowState == WindowState.Minimized)
+            _main.WindowState = WindowState.Normal;
+        _main.ShowPage(page);
+        _main.Activate();
+    }
+
+    /// <summary>Opens (or fronts) the old settings window on the tab holding a settings page. Phase 2 retires it.</summary>
+    public void ShowLegacySettings(MainPage page)
     {
         try
         {
             ShowSettings();
+            _settings?.SelectSection(page);
         }
         catch (Exception ex)
         {

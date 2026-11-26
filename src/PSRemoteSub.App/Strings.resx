@@ -750,4 +750,61 @@
   <data name="TranslationStatusLabel" xml:space="preserve">
     <value>สถานะการแปล</value>
   </data>
+  <data name="NavHome" xml:space="preserve">
+    <value>หน้าหลัก</value>
+  </data>
+  <data name="NavSettingsHeader" xml:space="preserve">
+    <value>ตั้งค่า</value>
+  </data>
+  <data name="NavGames" xml:space="preserve">
+    <value>เกมและโซนซับ</value>
+  </data>
+  <data name="NavDisplay" xml:space="preserve">
+    <value>ตัวอักษรบนจอ</value>
+  </data>
+  <data name="NavTranslation" xml:space="preserve">
+    <value>การแปล</value>
+  </data>
+  <data name="NavSource" xml:space="preserve">
+    <value>ภาพจากเกม</value>
+  </data>
+  <data name="NavPhone" xml:space="preserve">
+    <value>ดูบนมือถือ</value>
+  </data>
+  <data name="NavTv" xml:space="preserve">
+    <value>ดูบนทีวี</value>
+  </data>
+  <data name="NavGeneral" xml:space="preserve">
+    <value>ปุ่มลัดและอื่น ๆ</value>
+  </data>
+  <data name="CurrentGameLabel" xml:space="preserve">
+    <value>เกมที่เล่นอยู่</value>
+  </data>
+  <data name="Help" xml:space="preserve">
+    <value>ช่วยเหลือ</value>
+  </data>
+  <data name="ThemeToLight" xml:space="preserve">
+    <value>โหมดสว่าง</value>
+  </data>
+  <data name="ThemeToDark" xml:space="preserve">
+    <value>โหมดมืด</value>
+  </data>
+  <data name="ThemeToggleTip" xml:space="preserve">
+    <value>สลับธีมมืดและสว่าง</value>
+  </data>
+  <data name="StateTranslating" xml:space="preserve">
+    <value>กำลังแปลซับ</value>
+  </data>
+  <data name="StatePaused" xml:space="preserve">
+    <value>หยุดชั่วคราวอยู่</value>
+  </data>
+  <data name="StateNeedsFix" xml:space="preserve">
+    <value>ยังแปลไม่ได้</value>
+  </data>
+  <data name="PauseButton" xml:space="preserve">
+    <value>หยุดชั่วคราว</value>
+  </data>
+  <data name="ResumeButton" xml:space="preserve">
+    <value>แปลต่อ</value>
+  </data>
 </root>

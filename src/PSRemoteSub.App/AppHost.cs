@@ -143,8 +143,8 @@ public sealed class AppHost : IAsyncDisposable
     /// </summary>
     public event EventHandler<string?>? RegionSelectionRequested;
 
-    /// <summary>UI thread. Raised by the "ตั้งค่า…" tray item; <see cref="AppWindows"/> opens the settings window.</summary>
-    public event EventHandler? SettingsRequested;
+    /// <summary>UI thread. Raised to show the main window on a page; <see cref="AppWindows"/> opens or fronts it.</summary>
+    public event EventHandler<MainPage>? MainWindowRequested;
 
     /// <summary>
     /// UI thread. Raised when the picture source changes and by the "เปิดจอ capture card" tray item: the capture window
@@ -824,12 +824,15 @@ public sealed class AppHost : IAsyncDisposable
             Notify(Loc.Get("RegionPickerMissing"));
     }
 
-    /// <summary>UI thread. Raises <see cref="SettingsRequested"/>.</summary>
-    public void RequestSettings()
+    /// <summary>UI thread. Raises <see cref="MainWindowRequested"/> for the given page.</summary>
+    public void RequestMainWindow(MainPage page = MainPage.Home)
     {
         Dispatcher.UIThread.VerifyAccess();
-        SettingsRequested?.Invoke(this, EventArgs.Empty);
+        MainWindowRequested?.Invoke(this, page);
     }
+
+    /// <summary>UI thread. The "ตั้งค่า" tray item: the main window's Home page.</summary>
+    public void RequestSettings() => RequestMainWindow(MainPage.Home);
 
     /// <summary>
     /// UI thread. Switches the picture source: the pipeline, overlay and region picker follow the new source's target,

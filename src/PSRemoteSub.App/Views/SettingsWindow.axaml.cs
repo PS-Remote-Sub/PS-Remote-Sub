@@ -123,6 +123,21 @@ public partial class SettingsWindow : Window
     }
 
     /// <summary>
+    /// Shows the tab that holds a main-window settings page until that page has its own screen (Phase 2). Tab order
+    /// in the XAML: profiles, source, OCR, web, TV, translation, general.
+    /// </summary>
+    public void SelectSection(MainPage page) =>
+        Tabs.SelectedIndex = page switch
+        {
+            MainPage.Source => 1,
+            MainPage.Phone => 3,
+            MainPage.Tv => 4,
+            MainPage.Translation => 5,
+            MainPage.General => 6,
+            _ => 0, // Games, Display (and Home) live on the profiles tab
+        };
+
+    /// <summary>
     /// One row per missing permission (what it is for, and a button to its System Settings page); hidden when none. Rebuilt
     /// only when the missing set changed: StateChanged fires often, and a rebuild under the pointer can swallow a click.
     /// </summary>
