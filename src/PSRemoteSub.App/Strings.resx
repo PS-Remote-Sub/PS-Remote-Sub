@@ -1679,4 +1679,37 @@
   <data name="BoxTagTrigger" xml:space="preserve">
     <value>รอคำที่กำหนด</value>
   </data>
+  <data name="StartBadgeOn" xml:space="preserve">
+    <value>ซับไทยเปิดอยู่</value>
+  </data>
+  <data name="StartBadgeHide" xml:space="preserve">
+    <value>ซ่อน</value>
+  </data>
+  <data name="FrameLabelOcr" xml:space="preserve">
+    <value>อ่านซับตรงนี้</value>
+  </data>
+  <data name="FrameLabelCaption" xml:space="preserve">
+    <value>คำแปลขึ้นตรงนี้</value>
+  </data>
+  <data name="FrameLabelTrigger" xml:space="preserve">
+    <value>รอคำที่กำหนด</value>
+  </data>
+  <data name="FrameLegendTitle" xml:space="preserve">
+    <value>กรอบตรวจสอบเปิดอยู่</value>
+  </data>
+  <data name="FrameLegendIntro" xml:space="preserve">
+    <value>ใช้ดูว่าแอปกำลังอ่านตรงไหน — ถ้าซับไม่ขึ้นหรือแปลผิด ให้เช็กว่ากรอบสีฟ้าครอบซับพอดีไหม</value>
+  </data>
+  <data name="FrameLegendOcrHint" xml:space="preserve">
+    <value>กรอบที่แอปอ่านตัวหนังสือ</value>
+  </data>
+  <data name="FrameLegendCaptionHint" xml:space="preserve">
+    <value>ที่วางซับไทย</value>
+  </data>
+  <data name="FrameLegendTriggerHint" xml:space="preserve">
+    <value>แปลเมื่อเจอคำในกรอบนี้</value>
+  </data>
+  <data name="FrameLegendOff" xml:space="preserve">
+    <value>ปิด</value>
+  </data>
 </root>

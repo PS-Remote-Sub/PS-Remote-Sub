@@ -79,6 +79,7 @@ public sealed class AppHost : IAsyncDisposable
     private SubtitlePipeline? _pipeline;
     private AiRefiner? _aiRefiner;
     private ZoneOverlays? _overlay;
+    private StartBadgeController? _startBadge;
     private RegionFramesController? _regionFrames;
     private IGlobalHotkeys? _hotkeys;
     private Task? _runTask;
@@ -322,8 +323,14 @@ public sealed class AppHost : IAsyncDisposable
         _overlay.Sync();
         _overlay.SetEnabled(Settings.OverlayEnabled);
         ApplyAiLane();
-        _regionFrames = new RegionFramesController(new RegionFramesWindow { OverlayPlatform = _overlayPlatform }, Settings.GetActive);
+        _regionFrames = new RegionFramesController(new RegionFramesWindow
+        {
+            OverlayPlatform = _overlayPlatform,
+            KeyCaps = () => HotkeyLabels.KeyCaps(Settings.Hotkeys.GetValueOrDefault(HotkeyAction.ToggleRegionFrames), _platform.Kind),
+        }, Settings.GetActive);
         _regionFrames.SetEnabled(Settings.ShowRegionFrames);
+        _startBadge = new StartBadgeController(new StartBadgeWindow { OverlayPlatform = _overlayPlatform },
+            () => HotkeyLabels.KeyCaps(Settings.Hotkeys.GetValueOrDefault(HotkeyAction.ToggleOverlay), _platform.Kind));
 
         // Subscribe before anything can publish.
         _hub.Changed += OnHubChanged;
@@ -334,6 +341,7 @@ public sealed class AppHost : IAsyncDisposable
         watcher.Start(); // starts both sources' watchers
         _overlay.SetTarget(watcher.Current);
         _regionFrames.SetTarget(watcher.Current);
+        _startBadge.Update(watcher.Current, _paused, Settings.OverlayEnabled);
 
         var pipeline = _pipeline;
         var ct = _cts.Token;
@@ -446,6 +454,7 @@ public sealed class AppHost : IAsyncDisposable
         _overlay?.Sync(); // zones may have been added or removed, or the profile switched
         _overlay?.SetEnabled(Settings.OverlayEnabled);
         _regionFrames?.SetEnabled(Settings.ShowRegionFrames); // also redraws: the boxes or the profile may have changed
+        _startBadge?.Update(_sources?.Watcher.Current, _paused, Settings.OverlayEnabled);
         RegisterHotkeys();
         UpdateKeepAwake();
         _ = SyncWebAsync(retryFailed: false);
@@ -791,6 +800,7 @@ public sealed class AppHost : IAsyncDisposable
             return;
         _paused = paused;
         _overlay?.SetPaused(paused);
+        _startBadge?.Update(_sources?.Watcher.Current, paused, Settings.OverlayEnabled);
         if (_started && !_disposed)
             PushConfig();
         UpdateKeepAwake();
@@ -1007,6 +1017,7 @@ public sealed class AppHost : IAsyncDisposable
         Dispatcher.UIThread.VerifyAccess();
         _overlay?.SetSuppressed(suppressed);
         _regionFrames?.SetSuppressed(suppressed);
+        _startBadge?.SetSuppressed(suppressed);
     }
 
     /// <summary>Any thread. Whether the OCR language is installed; runs the (WinRT) check on the thread pool.</summary>
@@ -1280,6 +1291,7 @@ public sealed class AppHost : IAsyncDisposable
             BestEffort(() => _keepAwake.SetActive(false));
             BestEffort(() => _overlay?.Close());
             BestEffort(() => _regionFrames?.Close());
+            BestEffort(() => _startBadge?.Close());
             BestEffort(_notifier.Close);
             BestEffort(() => AnswerUpdate(false));
         }
@@ -1417,6 +1429,7 @@ public sealed class AppHost : IAsyncDisposable
     {
         _overlay?.SetTarget(window);
         _regionFrames?.SetTarget(window);
+        _startBadge?.Update(window, _paused, Settings.OverlayEnabled);
     });
 
     private void OnHotkeyPressed(object? sender, HotkeyAction action) => PostToUi(() => HandleHotkey(action));
