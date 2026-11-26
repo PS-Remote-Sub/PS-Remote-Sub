@@ -93,7 +93,10 @@ internal sealed class AppWindows : IDisposable
             _main = window;
         }
         if (!_main.IsVisible)
+        {
             _main.Show();
+            _main.ReloadCurrentPage(); // shown again on the same page: reload it from settings
+        }
         if (_main.WindowState == WindowState.Minimized)
             _main.WindowState = WindowState.Normal;
         _main.ShowPage(page);

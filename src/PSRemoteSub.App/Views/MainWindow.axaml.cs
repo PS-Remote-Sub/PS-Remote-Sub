@@ -29,6 +29,7 @@ public partial class MainWindow : Window
     private readonly Dictionary<MainPage, SettingsPage> _pages = [];
     private SettingsPage? _current;
     private MainPage _currentPage = MainPage.Home;
+    private string? _shownGame;
     private bool _exiting;
     private bool _syncingGames;
 
@@ -46,6 +47,7 @@ public partial class MainWindow : Window
         HelpButton.Click += (_, _) => Safe(OpenHelp);
         ThemeButton.Click += (_, _) => Safe(ToggleTheme);
         host.StateChanged += OnHostStateChanged;
+        host.ActiveProfileChanging += OnActiveProfileChanging;
         if (Application.Current is { } app)
             app.ActualThemeVariantChanged += OnThemeChanged;
         Closing += OnClosing;
@@ -53,6 +55,7 @@ public partial class MainWindow : Window
         {
             CommitAndFlushCurrent();
             host.StateChanged -= OnHostStateChanged;
+            host.ActiveProfileChanging -= OnActiveProfileChanging;
             if (Application.Current is { } a)
                 a.ActualThemeVariantChanged -= OnThemeChanged;
         };
@@ -118,6 +121,7 @@ public partial class MainWindow : Window
         _currentPage = page;
         PageHost.Content = target;
         CheckNav(page);
+        _shownGame = Host.Settings.ActiveProfile;
         target.OnShown();
     }
 
@@ -181,7 +185,7 @@ public partial class MainWindow : Window
 
     private void OnNavChanged(object? sender, RoutedEventArgs e)
     {
-        if (sender is RadioButton { IsChecked: true, Tag: MainPage page } && page != MainPage.Home)
+        if (sender is RadioButton { IsChecked: true, Tag: MainPage page })
             Safe(() => ShowPage(page));
     }
 
@@ -195,7 +199,31 @@ public partial class MainWindow : Window
         Hide();
     }
 
-    private void OnHostStateChanged(object? sender, EventArgs e) => Safe(Refresh);
+    private void OnHostStateChanged(object? sender, EventArgs e) => Safe(() =>
+    {
+        Refresh();
+        ReloadIfGameChanged();
+    });
+
+    // Any game switch (sidebar, tray, legacy window): the shown page commits into the game being left first.
+    private void OnActiveProfileChanging(object? sender, EventArgs e) => CommitAndFlushCurrent();
+
+    private void ReloadIfGameChanged()
+    {
+        if (_current is not { } page || _shownGame == Host.Settings.ActiveProfile)
+            return;
+        _shownGame = Host.Settings.ActiveProfile;
+        Safe(page.OnShown);
+    }
+
+    /// <summary>Reloads the shown settings page (the window was shown again).</summary>
+    internal void ReloadCurrentPage()
+    {
+        if (_current is not { } page)
+            return;
+        _shownGame = Host.Settings.ActiveProfile;
+        Safe(page.OnShown);
+    }
 
     private void Refresh()
     {
@@ -240,11 +268,8 @@ public partial class MainWindow : Window
     {
         if (_syncingGames || GamePicker.SelectedItem is not string name || name == Host.Settings.GetActive().Name)
             return;
-        // The page commits into the game being left, then reloads from the new one.
-        CommitAndFlushCurrent();
-        Host.SelectProfile(name);
-        if (_current is { } page)
-            Safe(page.OnShown);
+        Host.SelectProfile(name); // raises ActiveProfileChanging first, so the page commits into the game being left
+        ReloadIfGameChanged();
     }
 
     private void ToggleTheme()

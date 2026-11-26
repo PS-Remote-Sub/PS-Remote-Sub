@@ -782,12 +782,16 @@ public sealed class AppHost : IAsyncDisposable
         RaiseStateChanged();
     }
 
+    /// <summary>UI thread. Raised by <see cref="SelectProfile"/> just before the active profile changes (pages commit pending edits).</summary>
+    public event EventHandler? ActiveProfileChanging;
+
     /// <summary>UI thread. Switches the active profile, applies and saves.</summary>
     public void SelectProfile(string name)
     {
         Dispatcher.UIThread.VerifyAccess();
         if (Settings.Profiles.All(p => p.Name != name) || Settings.ActiveProfile == name)
             return;
+        ActiveProfileChanging?.Invoke(this, EventArgs.Empty);
         Settings.ActiveProfile = name;
         ApplySettings();
         SaveSettings();
