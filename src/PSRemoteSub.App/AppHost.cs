@@ -108,6 +108,7 @@ public sealed class AppHost : IAsyncDisposable
     private readonly HashSet<PlatformPermission> _permRequested = [];
     private readonly HashSet<PlatformPermission> _permEverGranted = []; // seen granted in this run: losing one later is a "revoked" case
     private readonly HashSet<PlatformPermission> _permLostNotified = [];
+    private string _permLostShown = ""; // the set the lost-permission notice lists
     // Turns found/minimized changes of the picture source's target into notices (topic "source").
     private readonly SourceWatch _sourceWatch = new();
     // The pending "update now?" answer (the update notice's buttons or ×), while an update notice is up.
@@ -405,15 +406,21 @@ public sealed class AppHost : IAsyncDisposable
             // Granted before and missing now (revoked in System Settings, or reset by a macOS update): one notice for all.
             var lost = _permNotice.Missing.Where(_permEverGranted.Contains).ToArray();
             var newlyLost = lost.Where(_permLostNotified.Add).ToArray();
-            if (newlyLost.Length > 0)
+            string lostKey = string.Join(",", lost);
+            if (lost.Length > 0 && (newlyLost.Length > 0 || lostKey != _permLostShown))
             {
+                _permLostShown = lostKey; // re-issued on the same topic when some are granted again, so the list stays true
                 Notify(Notice.Warn(Loc.Get("PermLostTitle"),
                     Loc.Format("PermLostBody", string.Join(", ", lost.Select(PermissionName))), NoticeTopics.Permissions,
                     new NoticeAction(Loc.Get("PermViewAll"), NoticeActionIds.OpenPermissions)));
-                Log.Info($"Permission lost: {string.Join(", ", newlyLost)}");
+                if (newlyLost.Length > 0)
+                    Log.Info($"Permission lost: {string.Join(", ", newlyLost)}");
             }
             else if (lost.Length == 0)
+            {
+                _permLostShown = "";
                 _notifier.DismissTopic(NoticeTopics.Permissions);
+            }
             foreach (var p in _permNotice.Missing.ToArray())
             {
                 if (!_permNotice.ShouldNotify(p))

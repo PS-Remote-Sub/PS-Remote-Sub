@@ -96,12 +96,14 @@ public partial class PermissionsWindow : Window
         {
             if (i > 0)
                 Rows.Children.Add(new Border { Classes = { "hr" } });
-            Rows.Children.Add(BuildRow(Items[i], states[i] == PermissionState.Granted));
+            Rows.Children.Add(BuildRow(Items[i], states[i]));
         }
     }
 
-    private Control BuildRow(Item item, bool granted)
+    private Control BuildRow(Item item, PermissionState state)
     {
+        bool granted = state == PermissionState.Granted;
+        bool unknown = state == PermissionState.Unknown;
         string key = item.Permission.ToString();
         var tile = new Border
         {
@@ -143,8 +145,29 @@ public partial class PermissionsWindow : Window
         text.Children.Add(head);
         text.Children.Add(new TextBlock { Classes = { "mut" }, FontSize = 14, Text = Loc.Get($"Perm{key}Why"), TextWrapping = TextWrapping.Wrap });
 
+        if (unknown && item.Permission == PlatformPermission.LocalNetwork)
+            text.Children.Add(new TextBlock { Classes = { "sub" }, Text = Loc.Get("PermLocalNetworkAsks"), TextWrapping = TextWrapping.Wrap });
+
         Control right;
-        if (granted)
+        if (unknown)
+        {
+            // The OS cannot say (Local Network always): no "อนุญาต" button that would promise something, never the granted pill.
+            var settings = new Button { Content = Loc.Get("PermOpenSettingsShort"), Classes = { "btn", "ghost", "sm" }, VerticalAlignment = VerticalAlignment.Center };
+            var permission = item.Permission;
+            settings.Click += (_, _) => Safe(() => Host.OpenPermissionSettings(permission));
+            right = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 8,
+                VerticalAlignment = VerticalAlignment.Center,
+                Children =
+                {
+                    new Border { Classes = { "pill", "info" }, VerticalAlignment = VerticalAlignment.Center, Child = new TextBlock { Text = Loc.Get("PermUnknown") } },
+                    settings,
+                },
+            };
+        }
+        else if (granted)
         {
             right = new Border
             {

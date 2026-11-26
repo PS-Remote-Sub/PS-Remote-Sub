@@ -1829,4 +1829,13 @@
   <data name="PermLostBody" xml:space="preserve">
     <value>ต้องอนุญาตใหม่: {0}</value>
   </data>
+  <data name="PermUnknown" xml:space="preserve">
+    <value>ตรวจสถานะไม่ได้</value>
+  </data>
+  <data name="PermOpenSettingsShort" xml:space="preserve">
+    <value>เปิดการตั้งค่า</value>
+  </data>
+  <data name="PermLocalNetworkAsks" xml:space="preserve">
+    <value>macOS จะถามเมื่อเชื่อมมือถือหรือทีวีครั้งแรก</value>
+  </data>
 </root>
