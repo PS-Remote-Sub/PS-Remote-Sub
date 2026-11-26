@@ -30,6 +30,13 @@ public sealed class AppSettings
 
     /// <summary>Subtitles on the Android TV.</summary>
     public TvSettings Tv { get; set; } = new();
+
+    /// <summary>False until the first-run setup is finished. True when absent, so existing users never see it.</summary>
+    public bool SetupDone { get; set; } = true;
+
+    /// <summary>Defaults for a brand-new install: same as <c>new AppSettings()</c> but the setup is still pending.</summary>
+    public static AppSettings CreateForFirstRun() => new() { SetupDone = false };
+
     public Dictionary<HotkeyAction, string> Hotkeys { get; set; } = DefaultHotkeys();
 
     /// <summary>Settings file layout version; 0 when absent (a file from before versions). <see cref="Normalize"/> raises it to the current version, never lowers it.</summary>
