@@ -668,6 +668,8 @@ public sealed class TvPage : SettingsPage
         {
             _installDone = false;
             ClearInstallMessages();
+            // Replacing the TV: search the LAN by default instead of reinstalling on the saved one.
+            _address.Text = "";
             SetStep(1);
         }
         ShowView(install: true);
@@ -830,12 +832,14 @@ public sealed class TvPage : SettingsPage
                 return;
             _diagError.IsVisible = false;
             _installError.IsVisible = false;
-            if (!TryParseTvAddress(_address.Text, out var endpoint))
+            // A blank box (e.g. after "เปลี่ยนทีวี") falls back to the saved TV, as the old tab's prefilled box did.
+            bool typed = !string.IsNullOrWhiteSpace(_address.Text);
+            if (!TryParseTvAddress(typed ? _address.Text : Settings.Tv.AdbAddress, out var endpoint))
             {
                 ShowDiagError("TvAddressInvalid");
                 return;
             }
-            if (endpoint is not null)
+            if (typed && endpoint is not null)
                 _address.Text = endpoint;
 
             _diag.IsEnabled = false;
