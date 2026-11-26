@@ -1575,4 +1575,100 @@
   <data name="TvInstallFinish" xml:space="preserve">
     <value>ไปตั้งค่าซับบนทีวี</value>
   </data>
+  <data name="GeneralTitle" xml:space="preserve">
+    <value>ปุ่มลัดและอื่น ๆ</value>
+  </data>
+  <data name="GeneralSub" xml:space="preserve">
+    <value>ปุ่มลัดที่กดได้ตอนเล่นเกม หน้าตาแอป และตัวเลือกอื่น ๆ</value>
+  </data>
+  <data name="GeneralHotkeysSub" xml:space="preserve">
+    <value>กดได้ทุกเมื่อ แม้กำลังเล่นเกมอยู่ · ต้องมี Ctrl, Alt หรือ Shift ตามด้วยตัวอักษรหรือตัวเลข</value>
+  </data>
+  <data name="GeneralChange" xml:space="preserve">
+    <value>เปลี่ยน</value>
+  </data>
+  <data name="GeneralCancel" xml:space="preserve">
+    <value>ยกเลิก</value>
+  </data>
+  <data name="GeneralRecording" xml:space="preserve">
+    <value>กำลังรอให้กดปุ่ม…</value>
+  </data>
+  <data name="GeneralRecordingHint" xml:space="preserve">
+    <value>กดปุ่มที่ต้องการ หรือกด Esc เพื่อยกเลิก</value>
+  </data>
+  <data name="GeneralNeedModifier" xml:space="preserve">
+    <value>ต้องมี Ctrl, Alt หรือ Shift ด้วย แล้วตามด้วยตัวอักษรหรือตัวเลข</value>
+  </data>
+  <data name="GeneralConflict" xml:space="preserve">
+    <value>ปุ่มนี้ใช้กับ “{0}” อยู่แล้ว</value>
+  </data>
+  <data name="GeneralTryOther" xml:space="preserve">
+    <value>ลองปุ่มอื่น</value>
+  </data>
+  <data name="GeneralSwap" xml:space="preserve">
+    <value>สลับกัน</value>
+  </data>
+  <data name="GeneralTogglePause" xml:space="preserve">
+    <value>หยุด/เริ่มแปล</value>
+  </data>
+  <data name="GeneralTogglePauseSub" xml:space="preserve">
+    <value>พักการแปลชั่วคราว</value>
+  </data>
+  <data name="GeneralSelectRegion" xml:space="preserve">
+    <value>ปรับกรอบซับ</value>
+  </data>
+  <data name="GeneralSelectRegionSub" xml:space="preserve">
+    <value>บอกแอปว่าซับอยู่ตรงไหนบนจอ</value>
+  </data>
+  <data name="GeneralToggleOverlay" xml:space="preserve">
+    <value>ซ่อน/แสดงซับบนจอ</value>
+  </data>
+  <data name="GeneralToggleOverlaySub" xml:space="preserve">
+    <value>ซ่อนซับไทยบนจอคอมชั่วคราว</value>
+  </data>
+  <data name="GeneralSaveFrame" xml:space="preserve">
+    <value>บันทึกภาพกรอบซับ</value>
+  </data>
+  <data name="GeneralSaveFrameSub" xml:space="preserve">
+    <value>เก็บภาพไว้แนบตอนแจ้งปัญหา</value>
+  </data>
+  <data name="GeneralToggleRegionFrames" xml:space="preserve">
+    <value>เปิด/ปิดกรอบตรวจสอบ</value>
+  </data>
+  <data name="GeneralToggleRegionFramesSub" xml:space="preserve">
+    <value>แสดงหรือซ่อนกรอบสีสำหรับแก้ปัญหา</value>
+  </data>
+  <data name="GeneralOtherHeader" xml:space="preserve">
+    <value>อื่น ๆ</value>
+  </data>
+  <data name="GeneralThemeLabel" xml:space="preserve">
+    <value>หน้าตาแอป</value>
+  </data>
+  <data name="GeneralThemeSub" xml:space="preserve">
+    <value>โหมดมืดสบายตาตอนเล่นกลางคืน · เลือก “{0}” ให้เปลี่ยนเองตามเครื่อง</value>
+  </data>
+  <data name="GeneralThemeDark" xml:space="preserve">
+    <value>มืด</value>
+  </data>
+  <data name="GeneralThemeLight" xml:space="preserve">
+    <value>สว่าง</value>
+  </data>
+  <data name="GeneralThemeSystem" xml:space="preserve">
+    <value>ตาม Windows</value>
+  </data>
+  <data name="GeneralThemeSystemMac" xml:space="preserve">
+    <value>ตาม macOS</value>
+  </data>
+  <data name="GeneralKeepAwake" xml:space="preserve">
+    <value>กันคอมหลับระหว่างแปล</value>
+  </data>
+  <data name="GeneralKeepAwakeSub" xml:space="preserve">
+    <value>จอคอมจะไม่ดับเองระหว่างเล่นเกม</value>
+  </data>
+  <data name="GeneralRegionFrames" xml:space="preserve">
+    <value>แสดงกรอบตรวจสอบ</value>
+  </data>
+  <data name="GeneralRegionFramesSub" xml:space="preserve">
+    <value>สำหรับแก้ปัญหา: แสดงกรอบสีบนจอให้เห็นว่าแอปกำลังอ่านตรงไหน</value>
+  </data>
 </root>

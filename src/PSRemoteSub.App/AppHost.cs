@@ -86,6 +86,7 @@ public sealed class AppHost : IAsyncDisposable
     private int? _webFailedPort;
     private bool _webServesPhone;
     private Dictionary<HotkeyAction, string>? _registeredHotkeys;
+    private bool _hotkeysSuspended;
     private bool _started;
     private bool _paused;
     private bool _keepAwakeActive;
@@ -1590,10 +1591,31 @@ public sealed class AppHost : IAsyncDisposable
         _keepAwake.SetActive(active);
     }
 
+    /// <summary>
+    /// Unregisters (true) or re-registers (false) the global hotkeys, e.g. while the settings page records a new chord so
+    /// the chord does not trigger its current action. While suspended, settings changes do not re-register.
+    /// </summary>
+    public void SetHotkeysSuspended(bool suspended)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (_hotkeysSuspended == suspended)
+            return;
+        _hotkeysSuspended = suspended;
+        if (suspended)
+        {
+            _hotkeys?.UnregisterAll();
+            _registeredHotkeys = null;
+        }
+        else
+        {
+            RegisterHotkeys();
+        }
+    }
+
     /// <summary>(Re)registers hotkeys when the configured set differs from what is registered.</summary>
     private void RegisterHotkeys()
     {
-        if (_hotkeys is null)
+        if (_hotkeys is null || _hotkeysSuspended)
             return;
         var wanted = new Dictionary<HotkeyAction, string>(Settings.Hotkeys);
         if (_registeredHotkeys is not null && _registeredHotkeys.Count == wanted.Count
