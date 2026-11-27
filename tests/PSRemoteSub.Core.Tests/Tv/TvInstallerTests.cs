@@ -103,6 +103,75 @@ public sealed class TvInstallerTests
         Assert.Equal(new TvInstallResult(true, Endpoint, null), result);
     }
 
+    private static readonly string[] AllowAutoStart =
+        ["-s", Endpoint, "shell", "appops", "set", "th.psrs.tvoverlay", "APP_AUTO_START", "allow"];
+
+    [Fact]
+    public async Task Install_AllowsTclAutoStart_AroundInstall_BeforeEnabling()
+    {
+        // TCL's TclAppBootManager refuses to bind the service of an app without APP_AUTO_START. The system tries to
+        // bind right after an install, so an app already there gets it before the install too.
+        var (installer, runner, _) = Create();
+        runner.Handler = HappyDevice(new Queue<string>(["null", AccessibilityList.Ours]));
+
+        var result = await installer.InstallAsync(Endpoint, new Steps(), CancellationToken.None);
+
+        Assert.True(result.Ok);
+        var allows = runner.Calls.Select((c, i) => (c, i)).Where(x => x.c.SequenceEqual(AllowAutoStart)).Select(x => x.i).ToArray();
+        Assert.Equal(2, allows.Length);
+        var install = IndexOf(runner, c => c.Contains("install"));
+        var put = IndexOf(runner, c => c.Contains("put") && c.Contains("enabled_accessibility_services"));
+        Assert.True(allows[0] < install && install < allows[1] && allows[1] < put);
+    }
+
+    [Fact]
+    public async Task Install_AutoStartTimesOut_StillSucceeds()
+    {
+        var (installer, runner, _) = Create();
+        var inner = HappyDevice(new Queue<string>(["null", AccessibilityList.Ours]));
+        runner.Handler = a => a.Contains("APP_AUTO_START") ? throw new TimeoutException("adb hung") : inner(a);
+
+        var result = await installer.InstallAsync(Endpoint, new Steps(), CancellationToken.None);
+
+        Assert.Equal(new TvInstallResult(true, Endpoint, null), result);
+    }
+
+    [Fact]
+    public async Task Update_SameVersion_StillAllowsAutoStart()
+    {
+        var (installer, runner, _) = Create(bundled: 2);
+        runner.Handler = HappyDevice(new Queue<string>([AccessibilityList.Ours]), installedVersion: 2);
+
+        await installer.UpdateIfOlderAsync(Endpoint, CancellationToken.None);
+
+        Assert.Single(runner.Calls, c => c.SequenceEqual(AllowAutoStart));
+        Assert.False(runner.Called("install"));
+    }
+
+    [Fact]
+    public async Task Update_Older_AllowsAutoStartBeforeAndAfterInstall()
+    {
+        var (installer, runner, _) = Create(bundled: 3);
+        runner.Handler = HappyDevice(new Queue<string>([AccessibilityList.Ours]), installedVersion: 2);
+
+        await installer.UpdateIfOlderAsync(Endpoint, CancellationToken.None);
+
+        var install = IndexOf(runner, c => c.Contains("install"));
+        Assert.Contains(runner.Calls.Take(install), c => c.SequenceEqual(AllowAutoStart));
+        Assert.Contains(runner.Calls.Skip(install + 1), c => c.SequenceEqual(AllowAutoStart));
+    }
+
+    [Fact]
+    public async Task Update_NotInstalled_NoAutoStart()
+    {
+        var (installer, runner, _) = Create();
+        runner.Handler = HappyDevice(new Queue<string>(["null"]), installedVersion: null);
+
+        await installer.UpdateIfOlderAsync(Endpoint, CancellationToken.None);
+
+        Assert.False(runner.Called("APP_AUTO_START"));
+    }
+
     [Fact]
     public async Task Install_TurnsAccessibilityOnWhenOff()
     {

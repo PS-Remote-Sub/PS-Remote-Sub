@@ -17,6 +17,7 @@ public sealed class TvInstaller(AdbClient adb, string apkPath, int apkVersion, F
     private const string AccessibilityKey = "enabled_accessibility_services";
     private const string MasterKey = "accessibility_enabled";
     private const string RestrictedSettingsOp = "ACCESS_RESTRICTED_SETTINGS";
+    private const string AutoStartOp = "APP_AUTO_START";
     private static readonly TimeSpan ApprovalTimeout = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan EnableSettle = TimeSpan.FromSeconds(3);
 
@@ -65,10 +66,12 @@ public sealed class TvInstaller(AdbClient adb, string apkPath, int apkVersion, F
             }
 
             progress.Report(TvInstallStep.Installing);
+            await AllowAutoStartAsync(endpoint, ct).ConfigureAwait(false); // an app already there: before the system rebinds it
             var install = await adb.InstallAsync(endpoint, apkPath, ct).ConfigureAwait(false);
             if (install != AdbInstallOutcome.Success)
                 return Fail(endpoint, install == AdbInstallOutcome.SignatureMismatch ? "TvSignatureMismatch" : "TvInstallFailed");
 
+            await AllowAutoStartAsync(endpoint, ct).ConfigureAwait(false); // a fresh install: before enabling binds it
             progress.Report(TvInstallStep.Enabling);
             if (!await EnableAsync(endpoint, ct).ConfigureAwait(false))
                 return Fail(endpoint, "TvEnableFailed");
@@ -110,12 +113,17 @@ public sealed class TvInstaller(AdbClient adb, string apkPath, int apkVersion, F
                 return Fail(endpoint, "TvNeedsApproval");
 
             var installed = await adb.GetVersionCodeAsync(endpoint, ct).ConfigureAwait(false);
-            if (installed is not { } version || version >= apkVersion)
+            if (installed is not { } version)
+                return new TvInstallResult(true, endpoint, null);
+            // Also for an up-to-date app, so TVs set up before this fix get it on the next check.
+            await AllowAutoStartAsync(endpoint, ct).ConfigureAwait(false);
+            if (version >= apkVersion)
                 return new TvInstallResult(true, endpoint, null);
 
             var install = await adb.InstallAsync(endpoint, apkPath, ct).ConfigureAwait(false);
             if (install != AdbInstallOutcome.Success)
                 return Fail(endpoint, install == AdbInstallOutcome.SignatureMismatch ? "TvSignatureMismatch" : "TvInstallFailed");
+            await AllowAutoStartAsync(endpoint, ct).ConfigureAwait(false);
 
             // Normally the setting survives an update; this is a no-op then.
             return await EnableAsync(endpoint, ct).ConfigureAwait(false)
@@ -174,6 +182,24 @@ public sealed class TvInstaller(AdbClient adb, string apkPath, int apkVersion, F
             current = await adb.GetSecureAsync(serial, AccessibilityKey, ct).ConfigureAwait(false);
         }
         return AccessibilityList.Contains(current);
+    }
+
+    /// <summary>
+    /// TCL TVs (TclAppBootManager) refuse to bind the accessibility service of an app without APP_AUTO_START
+    /// ("callee_does't_have_OP_AUTO_START_permission"), so the TV app never runs. Other TVs do not know the op and the
+    /// command just fails. Best effort: a process failure is logged, never fails the install; cancellation propagates.
+    /// </summary>
+    private async Task AllowAutoStartAsync(string serial, CancellationToken ct)
+    {
+        try
+        {
+            if (await adb.AllowAppOpAsync(serial, AutoStartOp, ct).ConfigureAwait(false))
+                Diagnostics.Log.Info("TV app: auto-start allowed (APP_AUTO_START)");
+        }
+        catch (Exception ex) when (IsProcessFailure(ex))
+        {
+            Diagnostics.Log.Warn("adb appops APP_AUTO_START failed", ex);
+        }
     }
 
     private static TvInstallResult Fail(string? endpoint, string key, bool blocked = false) => new(false, endpoint, key, blocked);
